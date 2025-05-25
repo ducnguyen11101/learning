@@ -443,6 +443,12 @@
                 "status" => $app->component("status",["url"=>"/users/accounts-status/".$data['active'],"data"=>$data['status'],"permission"=>['accounts.edit']]),
                 "action" => $app->component("action",[
                     "button" => [
+                        [//thêm
+                            'type' => 'link',
+                            'name' => $jatbi->lang("Xem chi tiết"),
+                            'permission' => ['accounts.edit'],
+                            'action' => ['href' => '/users/accounts-detail/'.$data['active']]
+                        ],
                         [
                             'type' => 'button',
                             'name' => $jatbi->lang("Sửa"),
@@ -971,4 +977,16 @@
             echo json_encode(['status'=>'error','content'=>$jatbi->lang("Có lỗi xẩy ra")]);
         }
     })->setPermissions(['permission.deleted']);
+
+    $app->router("/users/accounts-detail/{id}", 'GET', function($vars) use ($app, $jatbi) {
+        $vars['title'] = $jatbi->lang("Chi tiết Tài khoản");
+        $vars['permissions'] = $app->select("permissions","*",["deleted"=>0,"status"=>"A"]);
+        $vars['data'] = $app->get("accounts","*",["active"=>$vars['id'],"deleted"=>0]);
+        if($vars['data']>1){
+            echo $app->render('templates/users/accounts-detail.html', $vars);
+        }
+        else {
+            echo $app->render('templates/common/error-modal.html', $vars, 'global');
+        }
+    })->setPermissions(['accounts.edit']);
 ?>
