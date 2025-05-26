@@ -1,0 +1,13 @@
+RewriteEngine On
+RewriteBase /
+
+# Front controller
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?url=$1 [L,QSA]
+
+# Bảo vệ file nhạy cảm
+<FilesMatch "\.(env|log|sql)$">
+    Deny from all
+</FilesMatch>
+
