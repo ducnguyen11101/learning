@@ -1,6 +1,7 @@
 {
     "require": {
         "eclo/app": "^1.0",
-        "minishlink/web-push": "^9.0"
+        "minishlink/web-push": "^9.0",
+        "google/apiclient": "2.15"
     }
 }

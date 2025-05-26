@@ -2,3 +2,10 @@ RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.+)$ index.php [L]
+
+RewriteRule ^login/google$ /app/controllers/LoginController.php?action=googleAuth [L]
+
+# Xử lý redirect sau đăng nhập
+RewriteRule ^google-callback$ app/controllers/LoginController.php?action=googleCallback [L]
+RewriteRule ^index\.php$ - [L]  # Cho phép truy cập trực tiếp
+RewriteRule ^education/google-callback$ /app/controllers/LoginController.php?action=googleCallback [L,QSA]
