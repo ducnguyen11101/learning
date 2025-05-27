@@ -57,10 +57,25 @@
                         <form method="POST" action="/forgot-password">
                             <div class="mb-3">
                                 <label class="form-label"><?=$jatbi->lang("Email")?></label>
-                                <input type="email" name="email" placeholder="<?=$jatbi->lang('Email')?>" class="form-control py-3 rounded-4">
+                                <div class=" input-group">
+                                    <input type="email" id="email" name="email" placeholder="<?=$jatbi->lang('Email')?>" class="form-control py-3 rounded-start-4">
+                                    <button class="btn btn-primary py-3 rounded-end-4" type="button" data-action="click" data-url="/email-comfirm" data-form='{"email":"#email.val"}' data-alert="true"><?=$jatbi->lang("Xác thực")?></button>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label"><?=$jatbi->lang("Mã xác thực")?></label>
+                                <input type="tel" name="email-comfirm" placeholder="<?=$jatbi->lang('Mã xác thực')?>" class="form-control py-3 rounded-4">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label"><?=$jatbi->lang("Mật khẩu")?></label>
+                                <input type="password" name="password" placeholder="<?=$jatbi->lang('Mật khẩu')?>" class="form-control py-3 rounded-4">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label"><?=$jatbi->lang("Xác thực mật khẩu")?></label>
+                                <input type="password" name="password-comfirm" placeholder="<?=$jatbi->lang('Xác thực mật khẩu')?>" class="form-control py-3 rounded-4">
                             </div>
                             <div class="d-grid mt-4">
-                                <button class="btn btn-primary py-3 rounded-pill" type="submit" data-action="submit" ><?=$jatbi->lang("Quên mật khẩu")?></button>
+                                <button class="btn btn-primary py-3 rounded-pill" type="submit" data-action="submit"  data-load="/" data-alert="true"><?=$jatbi->lang("Nhận lại mật khẩu")?></button>
                             </div>
                         </form>
                         <div class="d-flex justify-content-between align-items-end mt-4">
@@ -97,7 +112,7 @@
                             <div class="mb-3">
                                 <label class="form-label"><?=$jatbi->lang("Email")?></label>
                                 <div class=" input-group">
-                                    <input type="email" name="email" placeholder="<?=$jatbi->lang('Email')?>" class="form-control py-3 rounded-start-4">
+                                    <input type="email" id="email" name="email" placeholder="<?=$jatbi->lang('Email')?>" class="form-control py-3 rounded-start-4">
                                     <button class="btn btn-danger py-3 rounded-end-4" type="button" data-action="click" data-url="/email-comfirm" data-form='{"email":"#email.val"}' data-alert="true"><?=$jatbi->lang("Xác thực")?></button>
                                 </div>
                             </div>
