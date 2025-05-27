@@ -85,6 +85,38 @@
                         'trash'          =>$jatbi->lang("Thùng rác"),
                     ]
                 ],
+                'course'=>[
+                    "menu"=>$jatbi->lang("Cấu hình khóa học"),
+                    "url"=>'/course/subject',
+                    "icon"  => '<i class="fa fa-list-alt"></i>',
+                    "controllers"=>"controllers/core/course.php",
+                    // "controllers" => [
+                    //     "controllers/core/course.php",
+                    //     // "controllers/core/projectDetail/projectDetail.php",
+                    //     // "controllers/core/projectDetail/projectDetail-area.php",
+                    //     // "controllers/core/projectDetail/projectDetail-camera.php",
+                    //     // "controllers/core/projectDetail/projectDetail-face.php",
+                    //     // "controllers/core/projectDetail/projectDetail-setting.php",
+                    //     // "controllers/core/projectDetail/projectDetail-logs/projectDetail-logsCamera.php",
+                    //     // "controllers/core/projectDetail/projectDetail-logs/projectDetail-logsFace.php",
+                    //     // "controllers/core/projectDetail/projectDetail-logs/projectDetail-logsWebhook.php",
+                    // ],
+                    "main"=>'false',
+                    "permission" => [
+                        'course'       =>$jatbi->lang("Cấu hình khóa học"),
+                        // 'project.add'   =>$jatbi->lang("Thêm dự án"),
+                        // 'project.edit'  =>$jatbi->lang("Sửa dự án"),
+                        // 'area'          =>$jatbi->lang("Khu vực"),
+                        // 'area.add'      =>$jatbi->lang("Thêm khu vực"),
+                        // 'area.edit'     =>$jatbi->lang("Sửa khu vực"),
+                        // 'area.deleted'  =>$jatbi->lang("Xóa khu vực"),
+                        // 'project'           =>$jatbi->lang("Dự án"),
+                        // 'project.add'       =>$jatbi->lang("Thêm Dự án"),
+                        // 'project.edit'      =>$jatbi->lang("Sửa Dự án"),
+                        // 'project.delete'    =>$jatbi->lang("Xóa Dự án"),
+
+                    ],
+                ],
             ],
         ],
     ];

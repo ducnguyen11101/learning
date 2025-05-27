@@ -79,9 +79,89 @@
         </ul>
     </div>
     <?php } ?>
-    <div class="card bg-body bg-opacity-50 shadow border-0 rounded-4">
+    <div class="">
         <div class="row g-3">
-            <div class="col-6">
+            <!-- <h2>Thông tin thành viên</h2> -->
+            <div class="col-lg-6">
+                <h3 class="mt-4 fw-bold"><?=$jatbi->lang("Thông tin")?></h3>
+                <div class="card bg-body bg-opacity-50 shadow border-0 rounded-4 px-3 py-4">
+                    <label class="fw-bold text-body mb-4"><?=$jatbi->lang("Tên")?></label>
+                    <label class="fw-bold text-body mb-4"><?=$jatbi->lang("Tài khoản")?></label>
+                    <label class="fw-bold text-body mb-4"><?=$jatbi->lang("Mật khẩu")?></label>
+                    <label class="fw-bold text-body mb-4"><?=$jatbi->lang("Email")?></label>
+                    <label class="fw-bold text-body mb-4"><?=$jatbi->lang("Điện thoại")?></label>
+                    <label class="fw-bold text-body mb-4"><?=$jatbi->lang("Địa chỉ")?></label>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="">
+					<div class="text-body">
+						<!-- <img data-src="/<?=$account['avatar']?>?type=thumb" class="w-100 rounded-circle p-2  lazyload"> 
+						<h3 class="mt-4 fw-bold"><?=$account['name']?></h3>
+						<p><?=$account['email']?></p> -->
+                        <h3 class="mt-4 fw-bold"><?=$jatbi->lang("Cài đặt")?></h3>
+					</div>
+				</div>
+                <div class="card bg-body bg-opacity-50 shadow border-0 rounded-4 px-3 py-4">
+                    <div class="row">
+                        <div class="col-7 mb-4">
+                            <label class="fw-bold text-body"><?=$jatbi->lang("Múi giờ")?></label>
+                        </div>
+                        <div class="col-5 mb-4">
+                            <?=$app->component("status",["url"=>"/users/accounts-status/".$data['active'],"data"=>$data['status'],"permission"=>['accounts.edit']])?>
+                        </div>
+                        <div class="col-7 mb-4">
+                            <label class="fw-bold text-body"><?=$jatbi->lang("Nhận email hàng tuần")?></label>
+                        </div>
+                        <div class="col-5 mb-4">
+                            <?=$app->component("status",["url"=>"/users/accounts-status/".$data['active'],"data"=>$data['status'],"permission"=>['accounts.edit']])?>
+                        </div>
+                        <div class="col-7 mb-4">
+                            <label class="fw-bold text-body"><?=$jatbi->lang("Nhận email chứng chỉ")?></label>
+                        </div>
+                        <div class="col-5 mb-4">
+                            <?=$app->component("status",["url"=>"/users/accounts-status/".$data['active'],"data"=>$data['status'],"permission"=>['accounts.edit']])?>
+                        </div>
+                        <div class="col-7 mb-4">
+                            <label class="fw-bold text-body"><?=$jatbi->lang("Nhận email Bopst hàng tuần")?></label>
+                        </div>
+                        <div class="col-5 mb-4">
+                            <?=$app->component("status",["url"=>"/users/accounts-status/".$data['active'],"data"=>$data['status'],"permission"=>['accounts.edit']])?>
+                        </div>
+                        <div class="col-7 mb-4">
+                            <label class="fw-bold text-body"><?=$jatbi->lang("Ẩn cấp độ lớp")?></label>
+                        </div>
+                        <div class="col-5 mb-4">
+                            <?=$app->component("status",["url"=>"/users/accounts-status/".$data['active'],"data"=>$data['status'],"permission"=>['accounts.edit']])?>
+                        </div>
+                        <div class="col-7 mb-4">
+                            <label class="fw-bold text-body"><?=$jatbi->lang("Ẩn bộ đếm thời gian")?></label>
+                        </div>
+                        <div class="col-5 mb-4">
+                            <?=$app->component("status",["url"=>"/users/accounts-status/".$data['active'],"data"=>$data['status'],"permission"=>['accounts.edit']])?>
+                        </div>
+                        <div class="col-7 mb-4">
+                            <label class="fw-bold text-body"><?=$jatbi->lang("Mở rộng hỗ trợ âm thanh")?></label>
+                        </div>
+                        <div class="col-5 mb-4">
+                            <?=$app->component("status",["url"=>"/users/accounts-status/".$data['active'],"data"=>$data['status'],"permission"=>['accounts.edit']])?>
+                        </div>
+                        <div class="col-7 mb-4">
+                            <label class="fw-bold text-body"><?=$jatbi->lang("Bật hỗ trợ dịch thuật")?></label>
+                        </div>
+                        <div class="col-5 mb-4">
+                            <?=$app->component("status",["url"=>"/users/accounts-status/".$data['active'],"data"=>$data['status'],"permission"=>['accounts.edit']])?>
+                        </div>
+                        <div class="col-7 mb-4">
+                            <label class="fw-bold text-body"><?=$jatbi->lang("Ẩn trò chơi")?></label>
+                        </div>
+                        <div class="col-5 mb-4">
+                            <?=$app->component("status",["url"=>"/users/accounts-status/".$data['active'],"data"=>$data['status'],"permission"=>['accounts.edit']])?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- <div class="col-6">
                 <div class="mb-3">
                     <label class="fw-bold text-body mb-2"><?=$jatbi->lang("Tên")?> <span
                             class="text-danger">*</span></label>
@@ -166,7 +246,48 @@
                         <?php } ?>
                     </select>
                 </div>
-            </div>
+            </div> -->
+        </div>
+        <div>
+            <div class="">
+					<div class="text-body">
+						<!-- <img data-src="/<?=$account['avatar']?>?type=thumb" class="w-100 rounded-circle p-2  lazyload"> 
+						<h3 class="mt-4 fw-bold"><?=$account['name']?></h3>
+						<p><?=$account['email']?></p> -->
+                        <h3 class="mt-4 fw-bold"><?=$jatbi->lang("Hồ sơ thành viên")?></h3>
+					</div>
+				</div>
+                <div class="card bg-body bg-opacity-50 shadow border-0 rounded-4 px-5 py-4">
+                    <div class="mb-3">
+                        <h5 class="fw-bold text-body"><?=$jatbi->lang("Cha mẹ")?></h5>
+                        <div class="row">
+                            <div class="col-lg-2">
+                                <img data-src="https://jbagy.me/wp-content/uploads/2025/03/Hinh-anh-avatar-con-vit-vang-cute-1.jpg" class="rounded-circle p-2 lazyload" style="width: 100%;"> 
+                            </div>
+                            <div class="col-lg-5">
+                                <p>Tên</p>
+                            </div>
+                            <div class="col-lg-5">
+                                <p>hello</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <h5 class="fw-bold text-body"><?=$jatbi->lang("Trẻ em 1")?></h5>
+                        <div class="row">
+                            <div class="col-lg-2">
+                                <img data-src="https://jbagy.me/wp-content/uploads/2025/03/Hinh-anh-avatar-con-vit-vang-cute-1.jpg" class="rounded-circle p-2 lazyload" style="width: 100%;"> 
+                            </div>
+                            <div class="col-lg-5">
+                                <p>Tên</p>
+                                <p>Lớp 10</p>
+                            </div>
+                            <div class="col-lg-5">
+                                <p>hello</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
         </div>
     </div>
     <!-- <div class="card bg-body bg-opacity-50 shadow border-0 rounded-4">

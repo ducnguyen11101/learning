@@ -1,0 +1,35 @@
+<div class="card bg-body bg-opacity-50 card-custom shadow-sm border-0 rounded-2 mb-3">
+    <div class="card-body flex-column ">
+        <div class="card-rounded d-flex flex-stack flex-wrap ">
+            <ul class="nav flex-wrap border-transparent fw-bold">
+                <li class="nav-item my-0">
+                    <a class="btn fw-bold border-0 <?=$active=='projects-views'?'text-primary':''?>"
+                        href="/course/subject" data-pjax><?=$jatbi->lang("Lớp học")?></a>
+                </li>
+                <li class="nav-item my-0">
+                    <a class="btn fw-bold border-0 <?=$active=='area'?'text-primary':''?>"
+                        href="/learning/topics?id=<?=$id?>" data-pjax><?=$jatbi->lang("Chủ đề")?></a>
+                </li>
+                <li class="nav-item my-0">
+                    <a class="btn fw-bold border-0 <?=$active=='camera'?'text-primary':''?>"
+                        href="/projects/projects-views/camera?id=<?=$id?>" data-pjax><?=$jatbi->lang("Kỹ năng")?></a>
+                </li>
+                <!-- <li class="nav-item my-0">
+                    <a class="btn fw-bold border-0 <?=$active=='face'?'text-primary':''?>"
+                        href="/projects/projects-views/face?id=<?=$id?> " data-pjax>GƯƠNG MẶT</a>
+                </li>
+                <li class="nav-item my-0">
+                    <a class="btn fw-bold border-0 <?=$active=='logs'?'text-primary':''?>"
+                        href="/projects/projects-views/logs/logs-face?id=<?=$id?> " data-pjax>NHẬT KÝ</a>
+                </li>
+                <li class="nav-item my-0">
+                    <a class="btn fw-bold border-0 <?=$active=='setting'?'text-primary':''?>"
+                        href="/projects/projects-views/setting?id=<?=$id?>" "
+                    data-pjax
+                    >CÀI ĐẶT</a
+                >
+                </li>  -->
+            </ul>
+        </div>
+    </div>
+</div>
