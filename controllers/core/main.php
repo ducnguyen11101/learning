@@ -328,22 +328,63 @@
         }
         $app->redirect($_SERVER['HTTP_REFERER']);
     });
-    $app->router("/login-check/google", 'GET', function($vars) use ($app,$jatbi,$setting) {
-         $app->header([
-            'Content-Type' => 'application/json',
-        ]);
-        if (isset($_GET['code'])){
-            $gettoken = $google->fetchAccessTokenWithAuthCode($_GET['code']);
-            if(isset($gettoken['error'])){
-                header('Location: /?error='.$jatbi->lang("Có lỗi xẩy ra"));
-                exit;
+
+    require_once __DIR__ . '/../includes/auth_functions.php';
+
+    // Xử lý đăng nhập Google (GET)
+    $app->router("/login/google", 'GET', callback: function($vars) use ($app,$jatbi,$setting) {
+        require_once __DIR__ . '/../includes/GoogleAuth.php';
+        $googleAuth = new GoogleAuth();
+        $app->redirect($googleAuth->getAuthUrl());
+    });
+
+    $app->router("/google-callback", 'GET', function($vars) use ($app, $jatbi,$setting) {
+        require_once __DIR__ . '/../includes/GoogleAuth.php';
+        $googleAuth = new GoogleAuth();
+        if (!isset($_GET['code'])) {
+            $_SESSION['error'] = "Thiếu mã xác thực từ Google";
+            $app->redirect('/');
+            return;
+        }
+
+        try {
+            $userInfo = $googleAuth->getUserInfo($_GET['code']);
+            // Kiểm tra hoặc tạo user
+            $user = $app->get("accounts", "*", ["email" => $userInfo->email, "deleted" => 0, "status" => "A"]);
+
+            if (!$user) {
+                $insert = [
+                    "id"            => null, // auto-increment, let DB handle if needed
+                    "type"          => 1,
+                    "name"          => $userInfo->name ?? 'No Name',
+                    "account"       => $userInfo->email,
+                    "phone"         => '', // Google does not provide phone
+                    "email"         => $userInfo->email,
+                    "password"      => '', // No password for Google login
+                    "active"        => $jatbi->active(),
+                    "avatar"        => $userInfo->picture ?? 'no-image',
+                    "birthday"      => '', // Google does not provide birthday by default
+                    "gender"        => 1, // Google does not provide gender by default
+                    "date"          => date('Y-m-d H:i:s'),
+                    "status"        => 'A',
+                    "permission"    => 1, // Set default or leave empty
+                    "deleted"       => 0,
+                    "login"         => 'google',
+                    "online"        => 0,
+                    "root"          => 0,
+                    "lang"          => $userInfo->locale ?? 'vi',
+                ];
+                $app->insert("accounts", $insert);
             }
-            $google->setAccessToken($gettoken);
-            $google_oauth = new Google_Service_Oauth2($google);
-            $user_info = $google_oauth->userinfo->get();
-            $data = $app->get("accounts","*",["email"=>trim($user_info->email),"deleted"=>0,"status"=>"A"]);
-            if($data>1){
-                $gettoken = $app->randomString(256);
+            $data = $app->get("accounts","*",[
+                "OR"=>[
+                    "email"     => $userInfo->email,
+                    "account"   => $userInfo->email,
+                ],
+                "status"=>"A",
+                "deleted"=>0
+            ]);
+            $gettoken = $app->randomString(256);
                 $payload = [
                     "ip"        => $app->xss($_SERVER['REMOTE_ADDR']),
                     "id"        => $data['active'],
@@ -375,17 +416,7 @@
                         "date"  => date("Y-m-d H:i:s"),
                     ]);
                 }
-                if($data['uid']==0){
-                    $createuid =  $jatbi->generateRandomNumbers(12);
-                    $getuid = $app->get("accounts","id",["uid"=>$createuid]);
-                    if($getuid>0){
-                        $uid = $createuid.'1';
-                    }
-                    else {
-                        $uid = $createuid;
-                    }
-                    $app->update("accounts",["uid"=>$uid],["id"=>$data['id']]);
-                }
+
                 $app->setSession('accounts',[
                     "id" => $data['id'],
                     "agent" => $payload['agent'],
@@ -395,212 +426,11 @@
                 if($app->xss($_POST['remember'] ?? '' )){
                     $app->setCookie('token', $token,time()+$setting['cookie'],'/');
                 }
-                echo json_encode(['status' => 'success','content' => $jatbi->lang('Đăng nhập thành công'),'load'=>"true"]);
-                $jatbi->logs('account','login',$payload);
-                if($data['avatar']=='no-image' || $data['avatar']=='' || $data['avatar']=='no-image.png'){
-                    $imageUrl = 'images/accounts/avatar'.rand(1,10).'.png';
-                    $handle = $app->upload($imageUrl);
-                    $path_upload = 'datas/'.$data['active'].'/images/';
-                    if (!is_dir($path_upload)) {
-                        mkdir($path_upload, 0755, true);
-                    }
-                    $path_upload_thumb = 'datas/'.$data['active'].'/images/thumb';
-                    if (!is_dir($path_upload_thumb)) {
-                        mkdir($path_upload_thumb, 0755, true);
-                    }
-                    $newimages = $jatbi->active();
-                    if ($handle->uploaded) {
-                        $handle->allowed        = array('image/*');
-                        $handle->file_new_name_body = $newimages;
-                        $handle->Process($path_upload);
-                        $handle->image_resize   = true;
-                        $handle->image_ratio_crop  = true;
-                        $handle->image_y        = '200';
-                        $handle->image_x        = '200';
-                        $handle->allowed        = array('image/*');
-                        $handle->file_new_name_body = $newimages;
-                        $handle->Process($path_upload_thumb);
-
-                    }
-                    if($handle->processed ){
-                        $getimage = 'upload/images/'.$newimages;
-                        $getdata = [
-                            "file_src_name" => $handle->file_src_name,
-                            "file_src_name_body" => $handle->file_src_name_body,
-                            "file_src_name_ext" => $handle->file_src_name_ext,
-                            "file_src_pathname" => $handle->file_src_pathname,
-                            "file_src_mime" => $handle->file_src_mime,
-                            "file_src_size" => $handle->file_src_size,
-                            "image_src_x" => $handle->image_src_x,
-                            "image_src_y" => $handle->image_src_y,
-                            "image_src_pixels" => $handle->image_src_pixels,
-                        ];
-                        $upload = [
-                            "account" => $data['id'],
-                            "type" => "images",
-                            "content" => $path_upload.$handle->file_dst_name,
-                            "date" => date("Y-m-d H:i:s"),
-                            "active" => $newimages,
-                            "size" => $getdata['file_src_size'],
-                            "data" => json_encode($getdata),
-                        ];
-                        $app->insert("uploads",$upload);
-                        $app->update("accounts",["avatar"=>$getimage],["id"=>$data['id']]);
-                    }
-                }
-                if($data['login_data']==''){
-                    $app->update("accounts",["login_data" => $app->xss($user_info->id),],["id"=>$data['id']]);
-                }
-                $getpackages = $app->get("packages","*",["account"=>$data['id']]);
-                if($getpackages['total']==0 ){
-                    $packages = [
-                        "account"   => $data['id'],
-                        "price"     => 1000,
-                        "total"     => 1000,
-                        "watermark" => 1,
-                        "api"       => 1,
-                        "date"      => $insert['date'],
-                    ];
-                    $app->update("packages",$packages,['id'=>$getpackages['id']]);
-                }
-                header("location: /");
-            }
-            else {
-                $createuid =  $jatbi->generateRandomNumbers(12);
-                $getuid = $app->get("accounts","id",["uid"=>$createuid]);
-                if($getuid>0){
-                    $uid = $createuid.'1';
-                }
-                else {
-                    $uid = $createuid;
-                }
-                if($app->getCookie('invite-code')){
-                    $getinvite = $app->get("accounts","id",["invite_code"=>$app->xss($app->getCookie('invite-code')),"deleted"=>0,"status"=>'A']);
-                    if($getinvite>0){
-                        $invite_code = $getinvite;
-                    }
-                }
-                $insert = [
-                    "uid"           => $uid,
-                    "name"          => $app->xss($user_info->name),
-                    "email"         => $app->xss($user_info->email),
-                    "password"      => password_hash($app->xss($createuid), PASSWORD_DEFAULT),
-                    "type"          => 2,
-                    "active"        => $jatbi->active(),
-                    "avatar"        => 'no-image',
-                    "date"          => date('Y-m-d H:i:s'),
-                    "login"         => 'google',
-                    "status"        => 'A',
-                    "login_data"    => $app->xss($user_info->id),
-                    "invite"        => $invite_code ?? 0,
-                    "invite_code"   => $jatbi->generateRandomNumbers(9),
-                    "lang"          => $_COOKIE['lang'] ?? 'vi',
-                ];
-                $app->insert("accounts",$insert);
-                $getID = $app->id();
-                $app->insert("settings",["account"=>$getID]);
-                $directory = 'datas/'.$insert['active'];
-                mkdir($directory, 0755, true);
-                $imageUrl = 'images/accounts/avatar'.rand(1,10).'.png';
-                $handle = $app->upload($imageUrl);
-                $path_upload = 'datas/'.$insert['active'].'/images/';
-                if (!is_dir($path_upload)) {
-                    mkdir($path_upload, 0755, true);
-                }
-                $path_upload_thumb = 'datas/'.$insert['active'].'/images/thumb';
-                if (!is_dir($path_upload_thumb)) {
-                    mkdir($path_upload_thumb, 0755, true);
-                }
-                $newimages = $jatbi->active();
-                if ($handle->uploaded) {
-                    $handle->allowed        = array('image/*');
-                    $handle->file_new_name_body = $newimages;
-                    $handle->Process($path_upload);
-                    $handle->image_resize   = true;
-                    $handle->image_ratio_crop  = true;
-                    $handle->image_y        = '200';
-                    $handle->image_x        = '200';
-                    $handle->allowed        = array('image/*');
-                    $handle->file_new_name_body = $newimages;
-                    $handle->Process($path_upload_thumb);
-
-                }
-                if($handle->processed ){
-                    $getimage = 'upload/images/'.$newimages;
-                    $data = [
-                        "file_src_name" => $handle->file_src_name,
-                        "file_src_name_body" => $handle->file_src_name_body,
-                        "file_src_name_ext" => $handle->file_src_name_ext,
-                        "file_src_pathname" => $handle->file_src_pathname,
-                        "file_src_mime" => $handle->file_src_mime,
-                        "file_src_size" => $handle->file_src_size,
-                        "image_src_x" => $handle->image_src_x,
-                        "image_src_y" => $handle->image_src_y,
-                        "image_src_pixels" => $handle->image_src_pixels,
-                    ];
-                    $insert = [
-                        "account" => $getID,
-                        "type" => "images",
-                        "content" => $path_upload.$handle->file_dst_name,
-                        "date" => date("Y-m-d H:i:s"),
-                        "active" => $newimages,
-                        "size" => $data['file_src_size'],
-                        "data" => json_encode($data),
-                    ];
-                    $app->insert("uploads",$insert);
-                    $app->update("accounts",["avatar"=>$getimage],["id"=>$getID]);
-                }
-                $packages = [
-                    "account"   => $getID,
-                    "price"     => 2000,
-                    "total"     => 2000,
-                    "watermark" => 1,
-                    "api"       => 1,
-                    "date"      => $insert['date'],
-                ];
-                $app->insert("packages",$packages);
-                $gettoken = $app->randomString(256);
-                $payload = [
-                    "ip"        => $app->xss($_SERVER['REMOTE_ADDR']),
-                    "id"        => $insert['active'],
-                    "email"     => $insert['email'],
-                    "token"     => $gettoken,
-                    "agent"     => $_SERVER["HTTP_USER_AGENT"],
-                ];
-                $token = $app->addJWT($payload);
-                $getLogins = $app->get("accounts_login","*",[
-                    "accounts"  => $getID,
-                    "agent"     => $payload['agent'],
-                    "deleted"   => 0,
-                ]);
-                $app->insert("accounts_login",[
-                    "accounts" => $getID,
-                    "ip"    =>  $payload['ip'],
-                    "token" =>  $payload['token'],
-                    "agent" =>  $payload["agent"],
-                    "date"  => date("Y-m-d H:i:s"),
-                ]);
-                $app->setSession('accounts',[
-                    "id" => $getID,
-                    "agent" => $payload['agent'],
-                    "token" => $payload['token'],
-                    "active" => $insert['active'],
-                ]);
-                $app->update("account_code",["status"=>1],["id"=>$getcode['id']]);
-                $app->setCookie('token', $token);
-                $jatbi->notification($getID,$getID,'Chào mừng','Chào mừng bạn đến với ELLM','/action/text/welcome','modal-url');
-                if($insert['invite']>0){
-                    $jatbi->notification($insert['invite'],$insert['invite'],'Cảm ơn','Cám ơn bạn đã giới thiệu bạn bè của mình cho ELLM.','/action/text/thanks','modal-url');
-                }
-                $app->deleteCookie('invite-code');
-                $jatbi->logs('account','register',$payload);
-                header("location: /");
-            }
-        }
-        else {
-            header("HTTP/1.0 404 Not Found");
-            die();
-        }
+                $app->redirect('/');
+        } catch (Exception $e) {
+        error_log("Google Login Error: " . $e->getMessage());
+        echo json_encode(['status' => 'error', 'content' => 'Đăng nhập bằng Google thất bại']);
+    }
     });
     $app->router("/login-check/apple", 'POST', function($vars) use ($app,$jatbi,$setting) {
          $app->header([
