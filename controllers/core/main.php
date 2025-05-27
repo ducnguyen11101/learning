@@ -105,14 +105,31 @@
         $app->header([
             'Content-Type' => 'application/json',
         ]);
-        $checkaccount = $app->get("accounts", ["email","date_deleted","deleted","status"],["email"=>$app->xss($_POST['email']),"ORDER"=>["id"=>"DESC"]]);
-        $getcode = $app->get("account_code",["code","id"],["email"=>$app->xss($_POST['email']),"type"=>'register',"status"=>0,"date[>=]"=>date("Y-m-d H:i:s",strtotime("-5 minute")),"ORDER"=>["id"=>"DESC"]]);
-        $date_deleted = strtotime(date("Y-m-d H:i:s",strtotime($checkaccount['date_deleted']. ' +7 days')));
-        $date_now = strtotime(date("Y-m-d H:i:s"));
         if($app->xss($_POST['name'])=='' || $app->xss($_POST['email'])=='' || $app->xss($_POST['password'])=='' || $app->xss($_POST['password-comfirm'])=='' || $app->xss($_POST['email-comfirm'])=='' ){
-            $error = ['status'=>'error','content'=>$jatbi->lang('Vui lòng không để trống')];
+            echo json_encode(['status' => 'error','content' => $jatbi->lang('Vui lòng không để trống')]);
+            return;
         }
-        elseif($app->xss($_POST['password-comfirm'])!=$app->xss($_POST['password'])){
+        //echo json_encode(['status' => 'error','content' => $jatbi->lang('Vui lòng')]);
+        $checkaccount = $app->count("accounts", "id",["email"=>$app->xss($_POST['email']),"deleted"=>0]);
+        if($checkaccount>0)
+            $checkaccount = $app->get("accounts", ["email","deleted","status"],["email"=>$app->xss($_POST['email']),"ORDER"=>["id"=>"DESC"]]);
+        else $checkaccount = [
+            'email' => $app->xss($_POST['email']),
+            'deleted' => 1,
+            'status' => 'A'
+        ];
+        $getcode = $app->get("account_code",["code"],[
+            "email" => $app->xss($_POST['email']),
+            "type" => 'register',
+            "status" => 0,
+            "date[>=]" => date("Y-m-d H:i:s",strtotime("-5 minute")),
+            "ORDER" => ["id" => "DESC"],
+            "LIMIT" => 1
+        ]);
+        //$date_deleted = strtotime(date("Y-m-d H:i:s",strtotime($checkaccount['date_deleted']. ' +7 days')));
+        //$date_now = strtotime(date("Y-m-d H:i:s"));
+        
+        if($app->xss($_POST['password-comfirm'])!=$app->xss($_POST['password'])){
             $error = ['status'=>'error','content'=>$jatbi->lang('Mật khẩu không khớp')];
         }
         elseif (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
@@ -121,143 +138,143 @@
         elseif($app->xss($_POST['email']) == $checkaccount['email'] && $checkaccount['deleted']==0 && $checkaccount['status']=='A'){
             $error = ['status'=>'error','content'=>$jatbi->lang('Tài khoản đã có người sử dụng')];
         }
-        elseif($checkaccount['status']=='D'){
-            $error = ['status'=>'error','content'=>$jatbi->lang('Email này đã bị vô hiệu hóa. Vui lòng liên hệ bộ phần kỹ thuật của ELLM')];
-        }
-        elseif($date_now<$date_deleted && $checkaccount['deleted']==1){
-            $error = ['status'=>'error','content'=>$jatbi->lang('Email này đã bị vô hiệu hóa. Vui lòng đợi sau 7 ngày để đăng ký mới')];
-        }
-        elseif($getcode['code']!=$app->xss($_POST['email-comfirm'])){
+        // elseif($date_now<$date_deleted && $checkaccount['deleted']==1){
+        //     $error = ['status'=>'error','content'=>$jatbi->lang('Email này đã bị vô hiệu hóa. Vui lòng đợi sau 7 ngày để đăng ký mới')];
+        // }
+        //elseif($getcode['code']!=$app->xss($_POST['email-comfirm'])){
+        elseif ($getcode['code'] != $app->xss($_POST['email-comfirm'])) {
             $error = ['status'=>'error','content'=>$jatbi->lang('Mã xác thực không đúng')];
         }
+        elseif($checkaccount['status']=='D'){
+            $error = ['status'=>'error','content'=>$jatbi->lang('Email này đã bị vô hiệu hóa. Vui lòng liên hệ bộ phần kỹ thuật của ELLM'.$getcode['code'])];
+        }
         if (empty($error)) {
-            $createuid =  $jatbi->generateRandomNumbers(12);
-            $getuid = $app->get("accounts","id",["uid"=>$createuid]);
-            if($getuid>0){
-                $uid = $createuid.'1';
-            }
-            else {
-                $uid = $createuid;
-            }
-            if($app->getCookie('invite-code')){
-                $getinvite = $app->get("accounts","id",["invite_code"=>$app->xss($app->getCookie('invite-code')),"deleted"=>0,"status"=>'A']);
-                if($getinvite>0){
-                    $invite_code = $getinvite;
-                }
-            }
+            // if($app->getCookie('invite-code')){
+            //     $getinvite = $app->get("accounts","id",["invite_code"=>$app->xss($app->getCookie('invite-code')),"deleted"=>0,"status"=>'A']);
+            //     if($getinvite>0){
+            //         $invite_code = $getinvite;
+            //     }
+            // }
+            $newid = $app->max("accounts", "id") + 1;
             $insert = [
-                "uid"           => $uid,
-                "name"          => $app->xss($_POST['name']),
-                "email"         => $app->xss($_POST['email']),
-                "password"      => password_hash($app->xss($_POST['password']), PASSWORD_DEFAULT),
-                "type"          => 2,
-                "active"        => $jatbi->active(),
-                "avatar"        => 'no-image',
-                "date"          => date('Y-m-d H:i:s'),
-                "login"         => 'register',
-                "status"        => 'A',
-                "invite"        => $invite_code ?? 0,
-                "invite_code"   => $jatbi->generateRandomNumbers(9),
-                "lang"          => $_COOKIE['lang'] ?? 'vi',
-            ];
+                    "id"            => $newid, // Không cần truyền id, để DB tự động tăng
+                    "type"          => 1,
+                    "name"          => $app->xss($_POST['name']),
+                    "account"       => $app->xss($_POST['email']),
+                    "phone"         => '', // Google does not provide phone
+                    "email"         => $app->xss($_POST['email']),
+                    "password"      => password_hash($app->xss($_POST['password']), PASSWORD_DEFAULT),
+                    "active"        => $jatbi->active(),
+                    "avatar"        => 'no-image',
+                    "birthday"      => '', // Google does not provide birthday by default
+                    "gender"        => 1, // Google does not provide gender by default
+                    "date"          => date('Y-m-d H:i:s'),
+                    "status"        => 'A',
+                    "permission"    => 1, // Set default or leave empty
+                    "deleted"       => 0,
+                    "login"         => 'register',
+                    "online"        => 0,
+                    "root"          => 0,
+                    "lang"          => $_COOKIE['lang'] ?? 'vi',
+                ];
             $app->insert("accounts",$insert);
-            $getID = $app->id();
-            $app->insert("settings",["account"=>$getID]);
-            $directory = 'datas/'.$insert['active'];
-            mkdir($directory, 0755, true);
-            $imageUrl = 'images/accounts/avatar'.rand(1,10).'.png';
-            $handle = $app->upload($imageUrl);
-            $path_upload = 'datas/'.$insert['active'].'/images/';
-            if (!is_dir($path_upload)) {
-                mkdir($path_upload, 0755, true);
-            }
-            $path_upload_thumb = 'datas/'.$insert['active'].'/images/thumb';
-            if (!is_dir($path_upload_thumb)) {
-                mkdir($path_upload_thumb, 0755, true);
-            }
-            $newimages = $jatbi->active();
-            if ($handle->uploaded) {
-                $handle->allowed        = array('image/*');
-                $handle->file_new_name_body = $newimages;
-                $handle->Process($path_upload);
-                $handle->image_resize   = true;
-                $handle->image_ratio_crop  = true;
-                $handle->image_y        = '200';
-                $handle->image_x        = '200';
-                $handle->allowed        = array('image/*');
-                $handle->file_new_name_body = $newimages;
-                $handle->Process($path_upload_thumb);
-            }
-            if($handle->processed ){
-                $getimage = 'upload/images/'.$newimages;
-                $data = [
-                    "file_src_name" => $handle->file_src_name,
-                    "file_src_name_body" => $handle->file_src_name_body,
-                    "file_src_name_ext" => $handle->file_src_name_ext,
-                    "file_src_pathname" => $handle->file_src_pathname,
-                    "file_src_mime" => $handle->file_src_mime,
-                    "file_src_size" => $handle->file_src_size,
-                    "image_src_x" => $handle->image_src_x,
-                    "image_src_y" => $handle->image_src_y,
-                    "image_src_pixels" => $handle->image_src_pixels,
-                ];
-                $insert = [
-                    "account" => $getID,
-                    "type" => "images",
-                    "content" => $path_upload.$handle->file_dst_name,
-                    "date" => date("Y-m-d H:i:s"),
-                    "active" => $newimages,
-                    "size" => $data['file_src_size'],
-                    "data" => json_encode($data),
-                ];
-                $app->insert("uploads",$insert);
-                $app->update("accounts",["avatar"=>$getimage],["id"=>$getID]);
-            }
-            $packages = [
-                "account"   => $getID,
-                "price"     => 2000,
-                "total"     => 2000,
-                "watermark" => 1,
-                "api"       => 1,
-                "date"      => $insert['date'],
-            ];
-            $app->insert("packages",$packages);
-            $gettoken = $app->randomString(256);
-            $payload = [
-                "ip"        => $app->xss($_SERVER['REMOTE_ADDR']),
-                "id"        => $insert['active'],
-                "email"     => $insert['email'],
-                "token"     => $gettoken,
-                "agent"     => $_SERVER["HTTP_USER_AGENT"],
-            ];
-            $token = $app->addJWT($payload);
-            $getLogins = $app->get("accounts_login","*",[
-                "accounts"  => $getID,
-                "agent"     => $payload['agent'],
-                "deleted"   => 0,
-            ]);
-            $app->insert("accounts_login",[
-                "accounts" => $getID,
-                "ip"    =>  $payload['ip'],
-                "token" =>  $payload['token'],
-                "agent" =>  $payload["agent"],
-                "date"  => date("Y-m-d H:i:s"),
-            ]);
-            $app->setSession('accounts',[
-                "id" => $getID,
-                "agent" => $payload['agent'],
-                "token" => $payload['token'],
-                "active" => $insert['active'],
-            ]);
-            $app->update("account_code",["status"=>1],["id"=>$getcode['id']]);
-            $app->setCookie('token', $token);
-            $jatbi->notification($getID,$getID,'Chào mừng','Chào mừng bạn đến với ELLM','/action/text/welcome','modal-url');
-            if($insert['invite']>0){
-                $jatbi->notification($insert['invite'],$insert['invite'],'Cảm ơn','Cám ơn bạn đã giới thiệu bạn bè của mình cho ELLM.','/action/text/thanks','modal-url');
-            }
-            $app->deleteCookie('invite-code');
-            $jatbi->logs('account','register',$payload);
-            echo json_encode(['status' => 'success','content' => $jatbi->lang('Đăng nhập thành công'),'load'=>"true"]);
+            // $getID = $app->id();
+            // $app->insert("settings",["account"=>$getID]);
+            // $directory = 'datas/'.$insert['active'];
+            // mkdir($directory, 0755, true);
+            // $imageUrl = 'images/accounts/avatar'.rand(1,10).'.png';
+            // $handle = $app->upload($imageUrl);
+            // $path_upload = 'datas/'.$insert['active'].'/images/';
+            // if (!is_dir($path_upload)) {
+            //     mkdir($path_upload, 0755, true);
+            // }
+            // $path_upload_thumb = 'datas/'.$insert['active'].'/images/thumb';
+            // if (!is_dir($path_upload_thumb)) {
+            //     mkdir($path_upload_thumb, 0755, true);
+            // }
+            // $newimages = $jatbi->active();
+            // if ($handle->uploaded) {
+            //     $handle->allowed        = array('image/*');
+            //     $handle->file_new_name_body = $newimages;
+            //     $handle->Process($path_upload);
+            //     $handle->image_resize   = true;
+            //     $handle->image_ratio_crop  = true;
+            //     $handle->image_y        = '200';
+            //     $handle->image_x        = '200';
+            //     $handle->allowed        = array('image/*');
+            //     $handle->file_new_name_body = $newimages;
+            //     $handle->Process($path_upload_thumb);
+            // }
+            // if($handle->processed ){
+            //     $getimage = 'upload/images/'.$newimages;
+            //     $data = [
+            //         "file_src_name" => $handle->file_src_name,
+            //         "file_src_name_body" => $handle->file_src_name_body,
+            //         "file_src_name_ext" => $handle->file_src_name_ext,
+            //         "file_src_pathname" => $handle->file_src_pathname,
+            //         "file_src_mime" => $handle->file_src_mime,
+            //         "file_src_size" => $handle->file_src_size,
+            //         "image_src_x" => $handle->image_src_x,
+            //         "image_src_y" => $handle->image_src_y,
+            //         "image_src_pixels" => $handle->image_src_pixels,
+            //     ];
+            //     $insert = [
+            //         "account" => $getID,
+            //         "type" => "images",
+            //         "content" => $path_upload.$handle->file_dst_name,
+            //         "date" => date("Y-m-d H:i:s"),
+            //         "active" => $newimages,
+            //         "size" => $data['file_src_size'],
+            //         "data" => json_encode($data),
+            //     ];
+            //     $app->insert("uploads",$insert);
+            //     $app->update("accounts",["avatar"=>$getimage],["id"=>$getID]);
+            // }
+            // $packages = [
+            //     "account"   => $getID,
+            //     "price"     => 2000,
+            //     "total"     => 2000,
+            //     "watermark" => 1,
+            //     "api"       => 1,
+            //     "date"      => $insert['date'],
+            // ];
+            // $app->insert("packages",$packages);
+            // $gettoken = $app->randomString(256);
+            // $payload = [
+            //     "ip"        => $app->xss($_SERVER['REMOTE_ADDR']),
+            //     "id"        => $insert['active'],
+            //     "email"     => $insert['email'],
+            //     "token"     => $gettoken,
+            //     "agent"     => $_SERVER["HTTP_USER_AGENT"],
+            // ];
+            // $token = $app->addJWT($payload);
+            // $getLogins = $app->get("accounts_login","*",[
+            //     "accounts"  => $getID,
+            //     "agent"     => $payload['agent'],
+            //     "deleted"   => 0,
+            // ]);
+            // $app->insert("accounts_login",[
+            //     "accounts" => $getID,
+            //     "ip"    =>  $payload['ip'],
+            //     "token" =>  $payload['token'],
+            //     "agent" =>  $payload["agent"],
+            //     "date"  => date("Y-m-d H:i:s"),
+            // ]);
+            // $app->setSession('accounts',[
+            //     "id" => $getID,
+            //     "agent" => $payload['agent'],
+            //     "token" => $payload['token'],
+            //     "active" => $insert['active'],
+            // ]);
+            //$app->update("account_code",["status"=>1],["id"=>$getcode['id']]);
+            //$app->setCookie('token', $token);
+            //$jatbi->notification($getID,$getID,'Chào mừng','Chào mừng bạn đến với ELLM','/action/text/welcome','modal-url');
+            // if($insert['invite']>0){
+            //     $jatbi->notification($insert['invite'],$insert['invite'],'Cảm ơn','Cám ơn bạn đã giới thiệu bạn bè của mình cho ELLM.','/action/text/thanks','modal-url');
+            // }
+            // $app->deleteCookie('invite-code');,'load'=>"true"
+            //$jatbi->logs('account','register',$payload);
+            echo json_encode(['status' => 'success','content' => $jatbi->lang('Đăng Ký thành công')]);
         }
         else {
             echo json_encode($error);
@@ -271,7 +288,7 @@
             echo json_encode(['status' => 'error','content' => $jatbi->lang('Vui lòng không để trống')]);
         }
         elseif (!filter_var($app->xss($_POST['email']), FILTER_VALIDATE_EMAIL)) {
-            echo json_encode(['status'=>'error','content'=>$jatbi->lang('Email không đúng')]);
+            echo json_encode(['status'=>'error','content'=>$jatbi->lang('Email không đúng'.$app->xss($_POST['email']))]);
         }
         if($app->xss($_POST['email'] && filter_var($app->xss($_POST['email']), FILTER_VALIDATE_EMAIL))){
             $checkaccount = $app->count("accounts", "id",["email"=>$app->xss($_POST['email']),"deleted"=>0]);
@@ -320,6 +337,79 @@
             $app->redirect('/');
         }
     });
+    $app->router("/forgot-password", 'POST', function($vars) use ($app, $jatbi) {
+        $app->header([
+            'Content-Type' => 'application/json',
+        ]);
+        if($app->xss($_POST['email'])=='' || $app->xss($_POST['password'])=='' || $app->xss($_POST['password-comfirm'])=='' || $app->xss($_POST['email-comfirm'])=='' ){
+            echo json_encode(['status' => 'error','content' => $jatbi->lang('Vui lòng không để trống')]);
+            return;
+        }
+        $checkaccount = $app->count("accounts", "id",["email"=>$app->xss($_POST['email']),"deleted"=>0]);
+        if($checkaccount>0)
+            $checkaccount = $app->get("accounts", ["email","deleted","status"],["email"=>$app->xss($_POST['email']),"ORDER"=>["id"=>"DESC"]]);
+        else $checkaccount = [
+            'email' => $app->xss($_POST['email']),
+            'deleted' => 1,
+            'status' => 'A'
+        ];
+        $getcode = $app->get("account_code",["code"],[
+            "email" => $app->xss($_POST['email']),
+            "type" => 'register',
+            "status" => 0,
+            "date[>=]" => date("Y-m-d H:i:s",strtotime("-5 minute")),
+            "ORDER" => ["id" => "DESC"],
+            "LIMIT" => 1
+        ]);
+        
+        if($app->xss($_POST['password-comfirm'])!=$app->xss($_POST['password'])){
+            $error = ['status'=>'error','content'=>$jatbi->lang('Mật khẩu không khớp')];
+        }
+        elseif (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
+            $error = ['status'=>'error','content'=>$jatbi->lang('Email không đúng')];
+        }
+        elseif($app->xss($_POST['email']) == $checkaccount['email'] && $checkaccount['deleted']==0 && $checkaccount['status']=='A'){
+            $error = ['status'=>'error','content'=>$jatbi->lang('Tài khoản đã có người sử dụng')];
+        }
+    
+        elseif ($getcode['code'] != $app->xss($_POST['email-comfirm'])) {
+            $error = ['status'=>'error','content'=>$jatbi->lang('Mã xác thực không đúng')];
+        }
+        elseif($checkaccount['status']=='D'){
+            $error = ['status'=>'error','content'=>$jatbi->lang('Email này đã bị vô hiệu hóa. Vui lòng liên hệ bộ phần kỹ thuật của ELLM'.$getcode['code'])];
+        }
+        if (empty($error)) {
+            $newid = $app->max("accounts", "id") + 1;
+            $insert = [
+                    "id"            => $newid, // Không cần truyền id, để DB tự động tăng
+                    "type"          => 1,
+                    "name"          => $app->xss($_POST['name']),
+                    "account"       => $app->xss($_POST['email']),
+                    "phone"         => '', // Google does not provide phone
+                    "email"         => $app->xss($_POST['email']),
+                    "password"      => password_hash($app->xss($_POST['password']), PASSWORD_DEFAULT),
+                    "active"        => $jatbi->active(),
+                    "avatar"        => 'no-image',
+                    "birthday"      => '', // Google does not provide birthday by default
+                    "gender"        => 1, // Google does not provide gender by default
+                    "date"          => date('Y-m-d H:i:s'),
+                    "status"        => 'A',
+                    "permission"    => 1, // Set default or leave empty
+                    "deleted"       => 0,
+                    "login"         => 'register',
+                    "online"        => 0,
+                    "root"          => 0,
+                    "lang"          => $_COOKIE['lang'] ?? 'vi',
+                ];
+            $app->insert("accounts",$insert);
+            
+            echo json_encode(['status' => 'success','content' => $jatbi->lang('Đăng Ký thành công')]);
+        }
+        else {
+            echo json_encode($error);
+        }
+    });
+
     $app->router("/lang/{active}", 'GET', function($vars) use ($app, $jatbi,$setting) {
         $app->setCookie('lang', $vars['active'],time()+$setting['cookie'],'/');
         $account = $app->get("accounts","id",["id"=>$app->getSession("accounts")['id']]);
@@ -346,15 +436,14 @@
             $app->redirect('/');
             return;
         }
-
         try {
             $userInfo = $googleAuth->getUserInfo($_GET['code']);
             // Kiểm tra hoặc tạo user
             $user = $app->get("accounts", "*", ["email" => $userInfo->email, "deleted" => 0, "status" => "A"]);
-
+            $newid = $app->max("accounts", "id") + 1;
             if (!$user) {
                 $insert = [
-                    "id"            => null, // auto-increment, let DB handle if needed
+                    "id"            => $newid,
                     "type"          => 1,
                     "name"          => $userInfo->name ?? 'No Name',
                     "account"       => $userInfo->email,
