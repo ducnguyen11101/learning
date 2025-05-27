@@ -87,8 +87,15 @@
                 ],
                 'course'=>[
                     "menu"=>$jatbi->lang("Cấu hình khóa học"),
-                    "url"=>'/course/subject',
-                    "icon"  => '<i class="fa fa-list-alt"></i>',
+                    "url"=>'/course',
+                    "icon"=> '<i class="fa fa-list-alt"></i>',
+                    "sub"=>[
+                        'courseCategoryManagement'   => [
+                            "name"  => $jatbi->lang("Quản lý danh mục"),
+                            "router"    => '/course/subject',
+                            "icon"  => '<i class="fas fa-ban"></i>',
+                        ],
+                    ],
                     "controllers"=>"controllers/core/course.php",
                     // "controllers" => [
                     //     "controllers/core/course.php",
@@ -103,7 +110,7 @@
                     // ],
                     "main"=>'false',
                     "permission" => [
-                        'course'       =>$jatbi->lang("Cấu hình khóa học"),
+                        'courseCategoryManagement'       =>$jatbi->lang("Quản lý danh mục khóa học"),
                         // 'project.add'   =>$jatbi->lang("Thêm dự án"),
                         // 'project.edit'  =>$jatbi->lang("Sửa dự án"),
                         // 'area'          =>$jatbi->lang("Khu vực"),
