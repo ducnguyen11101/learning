@@ -426,6 +426,8 @@
                 if($app->xss($_POST['remember'] ?? '' )){
                     $app->setCookie('token', $token,time()+$setting['cookie'],'/');
                 }
+                $payload['did'] = $app->getCookie('did');
+                $jatbi->logs('accounts','login',$payload);
                 $app->redirect('/');
         } catch (Exception $e) {
         error_log("Google Login Error: " . $e->getMessage());
