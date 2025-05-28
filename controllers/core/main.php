@@ -288,12 +288,22 @@
             echo json_encode(['status' => 'error','content' => $jatbi->lang('Vui lòng không để trống')]);
         }
         elseif (!filter_var($app->xss($_POST['email']), FILTER_VALIDATE_EMAIL)) {
-            echo json_encode(['status'=>'error','content'=>$jatbi->lang('Email không đúng'.$app->xss($_POST['email']))]);
+            echo json_encode(['status'=>'error','content'=>$jatbi->lang('Email không đúng')]);
         }
         if($app->xss($_POST['email'] && filter_var($app->xss($_POST['email']), FILTER_VALIDATE_EMAIL))){
-            $checkaccount = $app->count("accounts", "id",["email"=>$app->xss($_POST['email']),"deleted"=>0]);
-            if($checkaccount>0){
+            $checkaccount = $app->count("accounts", "id",["email"=>$app->xss($_POST['email'])]);
+            $templates = $app->xss($_POST['templates']);
+            if(!isset($templates)){
+                echo json_encode(value: ['status'=>'error','content'=>$jatbi->lang("templates không đúng")]);
+                return;
+            }
+            elseif($templates=='register' && $checkaccount>0){
                 echo json_encode(['status'=>'error','content'=>$jatbi->lang("Tài khoản đã có người sử dụng")]);
+                return;
+            }
+            elseif ($templates=='forgot' && !$checkaccount>0) {
+                echo json_encode(['status'=>'error','content'=>$jatbi->lang("Tài khoản không tồn tại")]);
+                return;
             }
             else {
                 $code = substr(str_shuffle("0123456789"), 0, 6);
@@ -321,7 +331,7 @@
                     </div>';
                     $mail->send();
                     echo json_encode(['status'=>'success','content'=>$jatbi->lang("Đã gửi mã xác thực. Vui lòng kiểm tra email của bạn")]);
-                    $app->insert("account_code",["email"=>$app->xss($_POST['email']),"code"=>$code,"date"=>date("Y-m-d H:i:s"),"type"=>'register']);
+                    $app->insert("account_code",["email"=>$app->xss($_POST['email']),"code"=>$code,"date"=>date("Y-m-d H:i:s"),"type"=>$templates,"status"=>0]);
                 } catch (Exception $e) {
                     echo $jatbi->lang("Có lỗi xảy ra vui lòng thử lại");
                 }
@@ -345,17 +355,15 @@
             echo json_encode(['status' => 'error','content' => $jatbi->lang('Vui lòng không để trống')]);
             return;
         }
-        $checkaccount = $app->count("accounts", "id",["email"=>$app->xss($_POST['email']),"deleted"=>0]);
-        if($checkaccount>0)
-            $checkaccount = $app->get("accounts", ["email","deleted","status"],["email"=>$app->xss($_POST['email']),"ORDER"=>["id"=>"DESC"]]);
-        else $checkaccount = [
-            'email' => $app->xss($_POST['email']),
-            'deleted' => 1,
-            'status' => 'A'
-        ];
+        $countaccount = $app->count("accounts", "id",["email"=>$app->xss($_POST['email'])]);
+        if($countaccount>0){
+            $checkaccount = $app->get("accounts",["email","status"],[
+                "email" => $app->xss($_POST['email']),
+            ]);
+        }
         $getcode = $app->get("account_code",["code"],[
             "email" => $app->xss($_POST['email']),
-            "type" => 'register',
+            "type" => 'forgot',
             "status" => 0,
             "date[>=]" => date("Y-m-d H:i:s",strtotime("-5 minute")),
             "ORDER" => ["id" => "DESC"],
@@ -368,10 +376,9 @@
         elseif (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
             $error = ['status'=>'error','content'=>$jatbi->lang('Email không đúng')];
         }
-        elseif($app->xss($_POST['email']) == $checkaccount['email'] && $checkaccount['deleted']==0 && $checkaccount['status']=='A'){
-            $error = ['status'=>'error','content'=>$jatbi->lang('Tài khoản đã có người sử dụng')];
-        }
-    
+        elseif(!$countaccount>0){
+            $error = ['status'=>'error','content'=>$jatbi->lang('Tài khoản không tồn tại')];
+        }   
         elseif ($getcode['code'] != $app->xss($_POST['email-comfirm'])) {
             $error = ['status'=>'error','content'=>$jatbi->lang('Mã xác thực không đúng')];
         }
@@ -379,31 +386,14 @@
             $error = ['status'=>'error','content'=>$jatbi->lang('Email này đã bị vô hiệu hóa. Vui lòng liên hệ bộ phần kỹ thuật của ELLM'.$getcode['code'])];
         }
         if (empty($error)) {
-            $newid = $app->max("accounts", "id") + 1;
-            $insert = [
-                    "id"            => $newid, // Không cần truyền id, để DB tự động tăng
-                    "type"          => 1,
-                    "name"          => $app->xss($_POST['name']),
-                    "account"       => $app->xss($_POST['email']),
-                    "phone"         => '', // Google does not provide phone
-                    "email"         => $app->xss($_POST['email']),
-                    "password"      => password_hash($app->xss($_POST['password']), PASSWORD_DEFAULT),
-                    "active"        => $jatbi->active(),
-                    "avatar"        => 'no-image',
-                    "birthday"      => '', // Google does not provide birthday by default
-                    "gender"        => 1, // Google does not provide gender by default
-                    "date"          => date('Y-m-d H:i:s'),
-                    "status"        => 'A',
-                    "permission"    => 1, // Set default or leave empty
-                    "deleted"       => 0,
-                    "login"         => 'register',
-                    "online"        => 0,
-                    "root"          => 0,
-                    "lang"          => $_COOKIE['lang'] ?? 'vi',
-                ];
-            $app->insert("accounts",$insert);
+            // Cập nhật mật khẩu mới cho tài khoản với email tương ứng
+            $app->update("accounts", [
+                "password" => password_hash($app->xss($_POST['password']), PASSWORD_DEFAULT)
+            ], [
+                "email" => $app->xss($_POST['email'])
+            ]);
             
-            echo json_encode(['status' => 'success','content' => $jatbi->lang('Đăng Ký thành công')]);
+            echo json_encode(['status' => 'success','content' => $jatbi->lang('Đổi mật khẩu thành công')]);
         }
         else {
             echo json_encode($error);
