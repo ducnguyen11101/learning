@@ -30,10 +30,9 @@
                             <div class="d-grid mt-4">
                                 <button class="btn btn-primary py-3 rounded-pill" type="submit" data-action="submit" data-load="/"><?=$jatbi->lang("Đăng nhập")?></button>
                             </div>
-                            <a href="/login/google" class="google-btn">  <!-- Đảm bảo khớp với rule trong .htaccess -->
-                                <img src="/assets/images/google-icon.png" alt="Google">
-                                Đăng nhập bằng Google
-                            </a>
+                            <div class="d-flex justify-content-between align-items-end mt-4">
+                                <h6 class="f-w-500 mb-0"><?=$jatbi->lang("Bạn chưa có tài khoản?")?></h6> <h6><a href="/register" class="link-primary" data-pjax><?=$jatbi->lang("Đăng ký")?></a></h6>
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -57,9 +56,14 @@
                         <form method="POST" action="/forgot-password">
                             <div class="mb-3">
                                 <label class="form-label"><?=$jatbi->lang("Email")?></label>
-                                <div class=" input-group">
+                                <div class="input-group">
+                                    <input type="hidden" id="templates" name="templates" value="forgot">
                                     <input type="email" id="email" name="email" placeholder="<?=$jatbi->lang('Email')?>" class="form-control py-3 rounded-start-4">
-                                    <button class="btn btn-primary py-3 rounded-end-4" type="button" data-action="click" data-url="/email-comfirm" data-form='{"email":"#email.val"}' data-alert="true"><?=$jatbi->lang("Xác thực")?></button>
+                                    <button class="btn btn-primary py-3 rounded-end-4" type="button"
+                                        data-action="click"
+                                        data-url="/email-comfirm"
+                                        data-form='{"email":"#email.val","templates":"#templates.val"}'
+                                        data-alert="true"><?=$jatbi->lang("Xác thực")?></button>
                                 </div>
                             </div>
                             <div class="mb-3">
@@ -96,7 +100,7 @@
                     <div class="card-body p-4 pt-3">
                         <div class="text-center">
                             <div class="d-grid my-3">
-                                <a href="<?=$login_google?>" class="py-3 border bg-body-tertiary rounded-pill text-muted"><i class="ti ti-brand-google-filled me-2"></i> <span><?=$jatbi->lang("Đăng nhập với Google")?></span></a>
+                                <a href="/login/google" class="py-3 border bg-body-tertiary rounded-pill text-muted"><i class="ti ti-brand-google-filled me-2"></i> <span><?=$jatbi->lang("Đăng nhập với Google")?></span></a>
                             </div>
                             <div class="d-grid my-3">
                                 <a href="<?=$login_apple?>" class="py-3 border bg-body-tertiary rounded-pill text-muted"><i class="ti ti-brand-apple-filled me-2"></i> <span><?=$jatbi->lang("Đăng nhập với Apple")?></span></a>
@@ -105,15 +109,21 @@
                         <div class="saprator my-3"><span class="rounded-pill"><?=$jatbi->lang("Hoặc")?></span>
                         </div>
                         <form method="POST" action="/register">
+                            <input type="hidden" name="templates" value="register">
                             <div class="mb-3">
                                 <label class="form-label"><?=$jatbi->lang("Họ & Tên")?></label>
                                 <input type="text" name="name" placeholder="<?=$jatbi->lang('Họ & Tên')?>" class="form-control py-3 rounded-4">
                             </div>
                             <div class="mb-3">
                                 <label class="form-label"><?=$jatbi->lang("Email")?></label>
-                                <div class=" input-group">
+                                <div class="input-group">
+                                    <input type="hidden" id="templates" name="templates" value="register">
                                     <input type="email" id="email" name="email" placeholder="<?=$jatbi->lang('Email')?>" class="form-control py-3 rounded-start-4">
-                                    <button class="btn btn-danger py-3 rounded-end-4" type="button" data-action="click" data-url="/email-comfirm" data-form='{"email":"#email.val"}' data-alert="true"><?=$jatbi->lang("Xác thực")?></button>
+                                    <button class="btn btn-danger py-3 rounded-end-4" type="button"
+                                        data-action="click"
+                                        data-url="/email-comfirm"
+                                        data-form='{"email":"#email.val","templates":"#templates.val"}'
+                                        data-alert="true"><?=$jatbi->lang("Xác thực")?></button>
                                 </div>
                             </div>
                             <div class="mb-3">
