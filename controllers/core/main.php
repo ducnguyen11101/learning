@@ -11,6 +11,55 @@
             echo $app->render('templates/home.html', $vars);
         }
     });
+    $app->router("/lesson", 'GET', function($vars) use ($app) {
+        $id = intval($_GET['id'] ?? 3);
+
+        // Lấy thông tin câu hỏi
+        $question = $app->get("questions", "*", ["question_id" => $id]);
+        if (!$question) {
+            echo json_encode(['error' => 'Question not found']);
+            return;
+        }
+
+        // Lấy loại câu hỏi
+        $type = $app->get("question_types", "*", ["type_id" => $question['type_id']]);
+        $type_name = $type['type_name'];
+
+        // Lấy gợi ý
+        $hints = $app->select("hints", ["hint_text"], [
+            "question_id" => $id,
+            "ORDER" => ["display_order" => "ASC"]
+        ]);
+        $hintArr = [];
+        foreach ($hints as $h) $hintArr[] = $h['hint_text'];
+
+        $vars = [
+            "question_id"   => $question['question_id'],
+            "question_text" => $question['question_text'],
+            'type'          => $type_name,
+            "picture"     => $question['picture'],
+            "difficulty"    => $question['difficulty'],
+            "hints"         => $hintArr
+        ];
+
+        // Nếu là trắc nghiệm
+        if ($type_name === 'multiple_choice') {
+            $choices = $app->select("choices", ["choice_id", "choice_text"], [
+                "question_id" => $id,
+                "ORDER" => ["display_order" => "ASC"]
+            ]);
+            $vars['choices'] = $choices;
+        }
+        // Nếu là tự luận hoặc điền đáp án
+        else {
+            $open = $app->get("open_answers", "*", ["question_id" => $id]);
+            if ($open) {
+                $vars['answer_format'] = $open['answer_format'];
+                // Không trả về đáp án đúng cho client!
+            }
+        }
+        echo $app->render('templates/lessons/lesson.html', $vars);
+    });
     $app->router("/login", 'GET', function($vars) use ($app, $jatbi,$setting) {
         if(!$app->getSession("accounts")){
             $vars['templates'] = 'login';
