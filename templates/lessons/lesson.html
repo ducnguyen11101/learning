@@ -1,0 +1,97 @@
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-lg">
+                <div class="card-body p-5">
+                    <div class="row">
+                        <!-- Cột trái: 2 phần -->
+                        <div class="col-md-8 pe-4 ps-0">
+                            <?php if($type=='multiple_choice'){ ?>
+                                <h3 class="fw-bold mb-4">Câu <?= htmlspecialchars($question_id ?? 0) ?>: Chọn đáp án đúng. </h3>
+                                <p class="display-6 text-start mb-5"><?= htmlspecialchars($question_text ?? 0) ?></p>
+                                <?php if(!empty($picture)): ?>
+                                    <div class="question-image mb-4 text-center">
+                                        <img src="<?= htmlspecialchars($picture) ?>" 
+                                            alt="Hình minh họa câu hỏi" 
+                                            class="img-fluid rounded shadow-sm"
+                                            style="max-height: 250px; width: auto;">
+                                    </div>
+                                <?php endif; ?>
+                                <div class="d-grid gap-3">
+                                <?php foreach ($choices as $choice): ?>
+                                    <button class="btn btn-answer text-start py-3 px-4">
+                                        <?= $choice['choice_text'] ?>
+                                    </button>
+                                <?php endforeach; ?>
+                                </div>
+                            <?php } ?>
+                            <?php if($type=='fill_in_blank'){ ?>
+                                <h3 class="fw-bold mb-4">Câu <?= htmlspecialchars($question_id ?? 0) ?>: Điền vào chỗ trống. </h3>
+                                <p class="display-6 text-start mb-5"><?= htmlspecialchars($question_text ?? 0) ?></p>
+                                <?php if(!empty($picture)): ?>
+                                    <div class="question-image mb-4 text-center">
+                                        <img src="<?= htmlspecialchars($picture) ?>" 
+                                            alt="Hình minh họa câu hỏi" 
+                                            class="img-fluid rounded shadow-sm"
+                                            style="max-height: 250px; width: auto;">
+                                    </div>
+                                <?php endif; ?>
+                                <textarea class="form-control" rows="5" placeholder="Type your answer here..."></textarea>
+                            <?php } ?>
+                        </div>
+                        <!-- Cột phải: 1 phần -->
+                        <div class="col-md-4 ps-5">
+                            <div class="text-start">
+                                <h5 class="text-muted mb-4">Video</h5>
+                                <h5 class="text-muted mb-3">Questions answered</h5>
+                                <div class="display-2 fw-bold mb-4">1</div>
+                                <h5 class="text-muted mb-2">Time delayed</h5>
+                                <h4 class="text-warning fw-bold mb-4">PAUSED</h4>
+                                <h5 class="text-muted">Questioning about</h5>
+                                <div class="display-2 fw-bold mb-2">50</div>
+                                <div class="progress mt-3" style="height: 8px;">
+                                    <div class="progress-bar bg-primary" style="width: 10%;"></div>
+                                </div>
+                                <div class="text-muted mt-1">10</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Phần dưới: Nút Submit -->
+                    <div class="row mt-5">
+                        <div class="col-12 text-start">
+                            <button class="btn btn-submit px-5 py-3">
+                                Submit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    .btn-answer {
+        border: 2px solid #dee2e6;
+        background: white;
+        font-size: 1.1rem;
+        transition: all 0.2s;
+    }
+    
+    .btn-answer:hover {
+        border-color: #0d6efd;
+        background-color: #f8f9fa;
+    }
+    
+    .btn-submit {
+        background-color: #0d6efd;
+        color: white;
+        font-size: 1.2rem;
+        font-weight: bold;
+        border-radius: 50px;
+        min-width: 200px;
+    }
+    
+    .btn-submit:hover {
+        background-color: #0b5ed7;
+    }
+    </style>

@@ -1,0 +1,15 @@
+# Tắt directory listing
+Options -Indexes
+
+# Chặn mọi truy cập mặc định
+Deny from all
+
+# Cho phép truy cập file ảnh
+<FilesMatch "\.(jpg|jpeg|png|gif|webp|svg)$">
+    Allow from all
+</FilesMatch>
+
+# Hoặc cho phép tất cả file (nếu cần)
+# <FilesMatch ".*">
+#     Allow from all
+# </FilesMatch>
