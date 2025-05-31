@@ -592,4 +592,47 @@
         }
     })->setPermissions(['courseCategoryManagement']);
 
+    $app->router("/learning/reorderCategories", 'GET', function($vars) use ($app, $jatbi) {
+        $vars['title'] = $jatbi->lang("Sắp xếp Danh mục");
+        $units = $app->select("units","*",["grade"=>'1']);
+        $countLessons = $app->count("lessons",[
+             "[>]units" => ["unit" => "id"],
+        ],"*",[
+            "units.grade"=>'1'
+        ]);
+        $groupSize = ceil($countLessons / 3);
+        $group[1] = [];
+        $group[2] = [];
+        $group[3] = [];
+        $i = 1;
+
+        $totalGroup = 0;
+        foreach ($units as $unit) {
+            $count = $app->count("lessons",["unit"=>$unit["id"]]);
+            // if($count + $countLessons > $groupSize && count($group[$i])>1 && $i < 3) {
+            //     $i++;
+            //     $count = 0;
+            // }
+            // if(($totalGroup + $count > $groupSize) && count($group[$i]) > 0 && $i < 3 ) {
+            //     $totalGroup = 0;
+            //     $i++;
+            // }
+            if(($totalGroup + $count > $groupSize) && !empty($group[$i]) && $i < 3 ) {
+                $totalGroup = 0;
+                $i++;
+            }
+            // $group[1][] = $unit["id"];
+            $group[$i][] = $unit["id"];
+            $totalGroup += $count;
+            // // $count += $countLessons;
+        }
+
+
+        $vars['units'] = $units;
+        $vars['countLessons'] = $countLessons;
+        $vars['groupSize'] = $groupSize;
+        $vars['group'] = $group;
+        // $vars['datatable'] = $app->component('datatable',["datas"=>[],"search"=>[]]);
+        echo $app->render('templates/learning/reorderCategories.html', $vars);
+    })->setPermissions(['courseCategoryManagement']);
 ?>
