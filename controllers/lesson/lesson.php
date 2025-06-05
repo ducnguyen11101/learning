@@ -1,6 +1,7 @@
 <?php
 $app->router("/lesson", 'GET', function($vars) use ($app) {
         //Lấy tất cả id câu hỏi
+        require_once __DIR__ . '/../home/headerhome.php';
         $ids = $app->select("questions", ["question_id"], ["lesson_id" => 9]);
         if (!$ids || count($ids) === 0) {
             echo json_encode(['error' => 'No questions found']);

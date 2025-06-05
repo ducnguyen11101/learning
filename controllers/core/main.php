@@ -75,6 +75,7 @@
                 if($app->xss($_POST['remember'] ?? '' )){
                     $app->setCookie('token', $token,time()+$setting['cookie'],'/');
                 }
+
                 echo json_encode(['status' => 'success','content' => $jatbi->lang('Đăng nhập thành công')]);
                 $payload['did'] = $app->getCookie('did');
                 $jatbi->logs('accounts','login',$payload);
