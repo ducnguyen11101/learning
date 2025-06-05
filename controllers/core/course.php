@@ -51,16 +51,15 @@
             $datas[] = [
                 "checkbox"  => $app->component("box",["data"=>$data['id']]),
                 "label"     => $data['label'],
-                "name"      => $data['name'],
+                "name"      => '<a class="text-primary" href="/sua/skills-edit?grade='.$data['id'].'">' . $data['name'] .'</a>',
                 "totalTopics" => 1,
                 "totalSkills" => 2,
-                "location" => '<span class="">'.$data['location'].'</span>
-                                <button class="btn btn-outline-primary btn-sm rounded-2 button-filter">
+                "location" => '<a href="/course/subject" class="btn btn-outline-primary btn-sm rounded-2 py-1 px-2 button-filter">
                                     <i class="fa-solid fa-angle-up"></i>
-                                </button>
-                                <button class="btn btn-outline-primary btn-sm rounded-2 button-filter">
+                                </a>
+                                <a class="btn btn-outline-primary btn-sm rounded-2 py-1 px-2 button-filter">
                                     <i class="fa-solid fa-angle-down"></i>
-                                </button>',
+                                </a>',
                 "status" => $app->component("status",["url"=>"/learning/grades-status/".$data['id'],"data"=>$data['status'],"permission"=>['courseCategoryManagement']]),
                 "action" => $app->component("action",[
                     "button" => [
@@ -634,5 +633,40 @@
         $vars['group'] = $group;
         // $vars['datatable'] = $app->component('datatable',["datas"=>[],"search"=>[]]);
         echo $app->render('templates/learning/reorderCategories.html', $vars);
+    })->setPermissions(['courseCategoryManagement']);
+
+    // $app->router("/sua/skills-edit/{id}", 'GET', function($vars) use ($app, $jatbi) {
+    //     $vars['title'] = $jatbi->lang("Sửa");
+    //     $vars['data'] = $app->get("skills","*",["id"=>$vars['id'],"deleted"=>0]);
+    //     if($vars['data']>1){
+    //         echo $app->render('templates/learning/reorder.html', $vars);
+    //     }
+    //     else {
+    //         echo $app->render('templates/common/error-modal.html', $vars);
+    //     }
+    // })->setPermissions(['courseCategoryManagement']);
+
+    $app->router("/sua/skills-edit", 'GET', function($vars) use ($app, $jatbi) {
+        $vars['title'] = $jatbi->lang("Sửa");
+        $grade = $app->xss($_GET['grade']??'1');
+        $unit = $app->xss($_GET['unit']??"");
+        // $unit = explode(',', $app->xss($_GET['unit']));
+        $vars['units'] = $app->select("units","*",["grade"=>$grade]);
+        // if($unit) {
+            $vars['lessons'] = $app->select("lessons","*",["unit"=>$unit]);
+        // }
+        // $vars['lessons'] = [];
+        $vars['datatable'] = $app->component('datatable',["datas"=>[],"search"=>[]]);
+        echo $app->render('templates/learning/reorder.html', $vars);
+    })->setPermissions(['courseCategoryManagement']);
+
+    $app->router("/learning/test-add", 'GET', function($vars) use ($app, $jatbi) {
+        $vars['title'] = $jatbi->lang("Thêm Lớp học");
+        $vars['data'] = [
+            "status" => 'A',
+        ];
+        // echo $app->render('templates/learning/test-post.html', $vars, 'global');
+        echo $app->render('templates/learning/test-post.html', $vars, 'global');
+
     })->setPermissions(['courseCategoryManagement']);
 ?>
