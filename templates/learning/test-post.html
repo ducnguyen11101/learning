@@ -77,11 +77,30 @@
             
 		</div>
 	</div>
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-              <script>
-    new Sortable(document.getElementById('sortable-list'), {
+    
+
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script>
+let sortableInstance;
+
+document.addEventListener('shown.bs.modal', function (e) {
+  const modal = e.target;
+  const list = modal.querySelector('#sortable-list');
+
+  // Kiểm tra nếu có danh sách cần sắp xếp
+  if (list) {
+    // Nếu đã có instance thì hủy trước (tránh lỗi nếu modal mở lại)
+    if (sortableInstance) sortableInstance.destroy();
+
+    // Gắn lại Sortable
+    sortableInstance = new Sortable(list, {
       animation: 150,
       ghostClass: 'sortable-ghost'
     });
-  </script>
-</div>
+  }
+});
+</script>
+
+

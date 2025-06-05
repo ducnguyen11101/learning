@@ -145,7 +145,7 @@
             <div class="card bg-body bg-opacity-50 shadow border-0 rounded-4 mb-3">
                 <div class="card-body">
                     <div class="list-group">
-                        <?php foreach ($lessons as $lesson) { ?>
+                        <!-- <?php foreach ($lessons as $lesson) { ?>
                         <a href="/sua/skills-edit/9" class="list-group-item list-group-item-action border-0 " data-pjax>
                             <div class="row">
                                 <div class="col-10"><?=$unit["name"]?></div>
@@ -175,7 +175,32 @@
                                 </div>
                             </div>
                         </a>
-                        <?php } ?>
+                        <?php } ?> -->
+                                    <!-- <style>
+                                        .sortable-item {
+                                        cursor: move;
+                                        transition: background-color 0.2s;
+                                        }
+                                        .sortable-ghost {
+                                        opacity: 0.4;
+                                        background-color: #dee2e6;
+                                        }
+                                    </style>
+                        			<h4 class="mb-3">📝 Danh sách kéo thả</h4>
+                    <ul class="list-group" id="sortable-list">
+                        <li class="list-group-item sortable-item">🍎 Táo</li>
+                        <li class="list-group-item sortable-item">🍌 Chuối</li>
+                        <li class="list-group-item sortable-item">🍇 Nho</li>
+                        <li class="list-group-item sortable-item">🥭 Xoài</li>
+                        <li class="list-group-item sortable-item">🍍 Dứa</li>
+                    </ul>
+                    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+              <script>
+    new Sortable(document.getElementById('sortable-list'), {
+      animation: 150,
+      ghostClass: 'sortable-ghost'
+    });
+  </script> -->
                     </div>
                 </div>
             </div>
