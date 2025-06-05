@@ -1,15 +1,15 @@
 <?php
 $app->router("/lesson", 'GET', function($vars) use ($app) {
-        // Lấy tất cả id câu hỏi
-        // $ids = $app->select("questions", ["question_id"]);
-        // if (!$ids || count($ids) === 0) {
-        //     echo json_encode(['error' => 'No questions found']);
-        //     return;
-        // }
-        // // Random 1 id trong số đó
-        // $randomIndex = array_rand($ids);
-        // $id = $ids[$randomIndex]['question_id'];
-        $id = intval($_GET['id'] ?? 3);
+        //Lấy tất cả id câu hỏi
+        $ids = $app->select("questions", ["question_id"], ["lesson_id" => 9]);
+        if (!$ids || count($ids) === 0) {
+            echo json_encode(['error' => 'No questions found']);
+            return;
+        }
+        // Random 1 id trong số đó
+        $randomIndex = array_rand($ids);
+        $id = $ids[$randomIndex]['question_id'];
+        //$id = intval($_GET['id'] ?? 3);
         // Lấy thông tin câu hỏi
         $question = $app->get("questions", "*", ["question_id" => $id]);
         if (!$question) {
@@ -44,6 +44,7 @@ $app->router("/lesson", 'GET', function($vars) use ($app) {
                 "question_id" => $id,
                 "ORDER" => ["display_order" => "ASC"]
             ]);
+            //$vars['choice_id'] = $choices['choice_id'];
             $vars['choices'] = $choices;
         }
         // Nếu là tự luận hoặc điền đáp án
@@ -71,7 +72,7 @@ $app->router("/lesson", 'GET', function($vars) use ($app) {
         $answer = trim($_POST['answer'] ?? '');
 
         if (!$question_id || $answer === '') {
-            echo json_encode(['status' => 'error', 'content' => 'Không được để trống']);
+            echo json_encode(['status' => 'error', 'content' => 'Không được để trống'.$question_id.' '. $answer]);
             return;
         }
 
@@ -98,8 +99,10 @@ $app->router("/lesson", 'GET', function($vars) use ($app) {
             ]);
             if ($correct_choice && $answer == $correct_choice['choice_id']) {
                 $result['message'] = 'Chính xác!';
+                $result['status'] = 'success';
+                $_SESSION['status'] = 'success';
             } else {
-                $result['message'] = 'Sai đáp án!';
+                $result['message'] = 'Sai đáp án!'.$question_id.' '. $answer;
             }
         } else {
             // Tự luận hoặc điền đáp án

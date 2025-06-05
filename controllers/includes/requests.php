@@ -14,22 +14,35 @@
                 ],
             ],
         ],
-        "page"=>[
+        "lesson"=>[
+            "name"=>$jatbi->lang("Bài học"),
+            "item"=>[
+                '/'=>[
+                    "menu"=>$jatbi->lang("Bài học"),
+                    "url"=>'/lesson',
+                    "icon"=>'<i class="ti ti-dashboard"></i>',
+                    "controllers"=>"controllers/lesson/lesson.php",
+                    "main"=>'true',
+                    "permission" => "",
+                ],
+            ],
+        ],
+        "admin"=>[ // Thay đổi key từ "page" thành "admin" để phản ánh rõ hơn
             "name"=>'Admin',
             "item"=>[
                 'users'=>[
                     "menu"=>$jatbi->lang("Người dùng"),
-                    "url"=>'/users',
+                    "url"=>'/admin/users', // Thêm /admin/ vào URL
                     "icon"=>'<i class="ti ti-user "></i>',
                     "sub"=>[
                         'accounts'      =>[
                             "name"  => $jatbi->lang("Tài khoản"),
-                            "router"=> '/users/accounts',
+                            "router"=> '/admin/users/accounts', // Thêm /admin/
                             "icon"  => '<i class="ti ti-user"></i>',
                         ],
                         'permission'    =>[
                             "name"  => $jatbi->lang("Nhóm quyền"),
-                            "router"=> '/users/permission',
+                            "router"=> '/admin/users/permission', // Thêm /admin/
                             "icon"  => '<i class="fas fa-universal-access"></i>',
                         ],
                     ],
@@ -46,29 +59,29 @@
                         'permission.deleted' => $jatbi->lang("Xóa Nhóm quyền"),
                     ]
                 ],
-                'admin'=>[
+                'settings'=>[
                     "menu"=>$jatbi->lang("Quản trị"),
-                    "url"=>'/admin',
+                    "url"=>'/admin/settings', // Thêm /admin/
                     "icon"=>'<i class="ti ti-settings "></i>',
                     "sub"=>[
                         'blockip'   => [
                             "name"  => $jatbi->lang("Chặn truy cập"),
-                            "router"    => '/admin/blockip',
+                            "router"    => '/admin/settings/blockip', // Thêm /admin/
                             "icon"  => '<i class="fas fa-ban"></i>',
                         ],
                         'trash'  => [
                             "name"  => $jatbi->lang("Thùng rác"),
-                            "router"    => '/admin/trash',
+                            "router"    => '/admin/settings/trash', // Thêm /admin/
                             "icon"  => '<i class="fa fa-list-alt"></i>',
                         ],
                         'logs'  => [
                             "name"  => $jatbi->lang("Nhật ký"),
-                            "router"    => '/admin/logs',
+                            "router"    => '/admin/settings/logs', // Thêm /admin/
                             "icon"  => '<i class="fa fa-list-alt"></i>',
                         ],
                         'config'    => [
                             "name"  => $jatbi->lang("Cấu hình"),
-                            "router"    => '/admin/config',
+                            "router"    => '/admin/settings/config', // Thêm /admin/
                             "icon"  => '<i class="fa fa-cog"></i>',
                             "req"   => 'modal-url',
                         ],
@@ -82,51 +95,30 @@
                         'blockip.deleted'=>$jatbi->lang("Xóa Chặn truy cập"),
                         'config'        =>$jatbi->lang("Cấu hình"),
                         'logs'          =>$jatbi->lang("Nhật ký"),
-                        'trash'          =>$jatbi->lang("Thùng rác"),
+                        'trash'         =>$jatbi->lang("Thùng rác"),
                     ]
                 ],
                 'course'=>[
                     "menu"=>$jatbi->lang("Cấu hình khóa học"),
-                    "url"=>'/course',
+                    "url"=>'/admin/course', // Thêm /admin/
                     "icon"=> '<i class="fa fa-list-alt"></i>',
                     "sub"=>[
                         'courseCategoryManagement'   => [
                             "name"  => $jatbi->lang("Quản lý danh mục"),
-                            "router"    => '/course/subject',
+                            "router"    => '/admin/course/subject', // Thêm /admin/
                             "icon"  => '<i class="fas fa-ban"></i>',
                         ],
                     ],
                     "controllers"=>"controllers/core/course.php",
-                    // "controllers" => [
-                    //     "controllers/core/course.php",
-                    //     // "controllers/core/projectDetail/projectDetail.php",
-                    //     // "controllers/core/projectDetail/projectDetail-area.php",
-                    //     // "controllers/core/projectDetail/projectDetail-camera.php",
-                    //     // "controllers/core/projectDetail/projectDetail-face.php",
-                    //     // "controllers/core/projectDetail/projectDetail-setting.php",
-                    //     // "controllers/core/projectDetail/projectDetail-logs/projectDetail-logsCamera.php",
-                    //     // "controllers/core/projectDetail/projectDetail-logs/projectDetail-logsFace.php",
-                    //     // "controllers/core/projectDetail/projectDetail-logs/projectDetail-logsWebhook.php",
-                    // ],
                     "main"=>'false',
                     "permission" => [
-                        'courseCategoryManagement'       =>$jatbi->lang("Quản lý danh mục khóa học"),
-                        // 'project.add'   =>$jatbi->lang("Thêm dự án"),
-                        // 'project.edit'  =>$jatbi->lang("Sửa dự án"),
-                        // 'area'          =>$jatbi->lang("Khu vực"),
-                        // 'area.add'      =>$jatbi->lang("Thêm khu vực"),
-                        // 'area.edit'     =>$jatbi->lang("Sửa khu vực"),
-                        // 'area.deleted'  =>$jatbi->lang("Xóa khu vực"),
-                        // 'project'           =>$jatbi->lang("Dự án"),
-                        // 'project.add'       =>$jatbi->lang("Thêm Dự án"),
-                        // 'project.edit'      =>$jatbi->lang("Sửa Dự án"),
-                        // 'project.delete'    =>$jatbi->lang("Xóa Dự án"),
-
+                        'courseCategoryManagement' => $jatbi->lang("Quản lý danh mục khóa học"),
                     ],
                 ],
             ],
         ],
     ];
+    
     foreach($requests as $request){
         foreach($request['item'] as $key_item =>  $items){
             $setRequest[] = [
@@ -143,4 +135,59 @@
             }
         }
     }
+    
+    $mains_frontend = [
+        "home"=>[
+            "controllers"=>"controllers/frontend/home.php",
+        ],
+        "lessons"=>[
+            "controllers"=>"controllers/frontend/lessons.php",
+        ],
+        "accounts"=>[
+            "controllers"=>"controllers/frontend/accounts.php",
+        ],
+        "affiliate"=>[
+            "controllers"=>"controllers/frontend/affiliate.php",
+        ],
+        "getlink"=>[
+            "controllers"=>"controllers/frontend/getlink.php",
+        ],
+        "payments"=>[
+            "controllers"=>"controllers/frontend/payments.php",
+        ],
+        "news"=>[
+            "controllers"=>"controllers/frontend/news.php",
+        ],
+        "statistics"=>[
+            "controllers"=>"controllers/frontend/statistics.php",
+        ],
+        "content"=>[
+            "controllers"=>"controllers/frontend/content.php",
+        ],
+        "contact"=>[
+            "controllers"=>"controllers/frontend/contact.php",
+        ],
+        "search"=>[
+            "controllers"=>"controllers/frontend/search.php",
+        ],
+        "test"=>[
+            "controllers"=>"controllers/frontend/test.php",
+        ],
+        "error"=>[
+            "controllers"=>"controllers/frontend/home.php",
+        ],
+        "api"=>[
+            "controllers"=>"controllers/api/api.php",
+        ],
+        "exam"=>[
+            "controllers"=>"controllers/frontend/exam.php",
+        ],
+        "details_level"=>[
+            "controllers"=>"controllers/frontend/details_level.php",
+        ],
+        // Thêm route cho trang admin chính
+        "admin"=>[
+            "controllers"=>"controllers/core/admin.php",
+        ],
+    ];
 ?>

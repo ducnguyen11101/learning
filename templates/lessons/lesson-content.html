@@ -1,7 +1,10 @@
 <div class="col-md-8 pe-4 ps-0">
     <?php if($type=='multiple_choice'){ ?>
         <h3 class="fw-bold mb-4">Câu <?= htmlspecialchars($question_id ?? 0) ?>: Chọn đáp án đúng. </h3>
-        <p class="display-6 text-start mb-5"><?= htmlspecialchars($question_text ?? 0) ?></p>
+        <button type="button" class="volume-button">
+            <img src="/assest-src/imglessons/volume.png" alt="Volume" class="volume-icon">
+        </button>
+        <p class="display-6 text-start mb-5 d-inline"><?= htmlspecialchars($question_text ?? 0) ?></p>
         <?php if(!empty($picture)): ?>
             <div class="question-image mb-4 text-center">
                 <img src="<?= htmlspecialchars($picture) ?>" 
@@ -10,18 +13,27 @@
                     style="max-height: 250px; width: auto;">
             </div>
         <?php endif; ?>
-        <div class="d-grid gap-3">
+        <div class="d-grid gap-3" style="margin-top:10px;">
+            <input type="hidden" name="question_id" value="<?= $question_id ?>">
+            <input type="hidden" id="selectedAnswer" name="answer" value="<?= $choice['choice_id'] ?>">
             <?php foreach ($choices as $choice): ?>
-                <button class="btn btn-answer text-start py-3 px-4">
-                    <?= $choice['choice_text'] ?>
-                </button>
+            <button 
+                class="btn btn-answer text-start py-3 px-4 <?= ($selected_choice == $choice['choice_id']) ? 'selected' : '' ?>" 
+                type="button" 
+                data-choice-id="<?= $choice['choice_id'] ?>"
+                onclick="selectAnswer(this)">
+                <?= $choice['choice_text'] ?>
+            </button>
             <?php endforeach; ?>
         </div>
     <?php } ?>
     
     <?php if($type=='fill_in_blank'){ ?>
         <h3 class="fw-bold mb-4">Câu <?= htmlspecialchars($question_id ?? 0) ?>: Điền vào chỗ trống. </h3>
-        <p class="display-6 text-start mb-5"><?= htmlspecialchars($question_text ?? 0) ?></p>
+        <button type="button" class="volume-button">
+            <img src="/assest-src/imglessons/volume.png" alt="Volume" class="volume-icon">
+        </button>
+        <p class="display-6 text-start mb-5 d-inline"><?= htmlspecialchars($question_text ?? 0) ?></p>
         <?php if(!empty($picture)): ?>
             <div class="question-image mb-4 text-center">
                 <img src="<?= htmlspecialchars($picture) ?>" 
@@ -30,10 +42,59 @@
                     style="max-height: 250px; width: auto;">
             </div>
         <?php endif; ?>
-        <textarea name="answer" class="form-control" rows="4" placeholder="Type your answer here..."></textarea>
-    <?php } ?>
-    <input type="hidden" name="question_id" value="<?= $question_id ?>">
-    <div class="col-12 text-start" style="margin-top:30px;">
-        <button class="btn btn-primary py-3 rounded-pill" type="submit" data-action="submit"  data-load="/lesson" data-alert="true"><?=$jatbi->lang("Xác nhận")?></button>
-    </div>
+        <div class="border rounded p-3 mb-3 bg-light">
+            <textarea name="answer" class="form-control" rows="4" placeholder="Type your answer here..."></textarea>
+        </div>
+        <input type="hidden" name="question_id" value="<?= $question_id ?>">
+        <?php } ?>
+        <div class="col-12 text-start" style="margin-top:30px;">
+            <button class="btn btn-primary py-3 rounded-pill" type="submit" data-action="submit" data-load="/lesson"><?=$jatbi->lang("Xác nhận")?></button>
+        </div>
 </div>
+<script>
+let currentSelectedBtn = null;
+function selectAnswer(btn) {
+    // Bỏ chọn nút cũ (nếu có)
+    if (currentSelectedBtn) {
+        currentSelectedBtn.classList.remove('selected');
+    }
+    
+    // Chọn nút mới
+    btn.classList.add('selected');
+    currentSelectedBtn = btn;
+    
+    // Cập nhật giá trị hidden input
+    document.getElementById('selectedAnswer').value = btn.dataset.choiceId;}
+</script>
+<style>
+    .btn-answer.selected {
+        background-color: #4CAF50 !important; /* Màu khi chọn */
+        color: white !important;
+        border: 2px solid #45a049 !important;
+    }
+    .volume-button {
+    background: none;
+    border: none;
+    padding: 0;
+    margin-right: 0.5rem;
+    margin-bottom: 1.5rem;
+    vertical-align: middle;
+    cursor: pointer;
+    }
+
+    .volume-icon {
+    width: 32px;
+    height: 32px;
+    display: block;
+    }
+
+    /* Hiệu ứng khi hover */
+    .volume-button:hover {
+    opacity: 0.8;
+    }
+
+    /* Hiệu ứng khi click */
+    .volume-button:active {
+    transform: scale(0.95);
+    }
+</style>
