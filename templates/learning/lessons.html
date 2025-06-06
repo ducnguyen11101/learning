@@ -64,12 +64,12 @@
     </div>
     <?php } ?>
     <?php include 'templates/learning/learning-menu.html'; ?>
-	<div class="card bg-body bg-opacity-50 shadow border-0 rounded-4 mb-2">
+	<div class="card bg-body bg-opacity-50 shadow border-0 rounded-4 mb-3">
 		<div class="card-body">
             <div class="custom-buttons d-none">
                 <div class="d-flex align-items-center justify-content-end">
                     <button class="btn rounded-pill btn-sm btn-primary d-flex align-items-center me-1" data-action="modal" data-url="/learning/grades-add"><i class="ti ti-plus fs-6 me-1" aria-hidden="true"></i> <?=$jatbi->lang("Thêm")?></button>
-                    <button class="btn rounded-pill btn-sm btn-primary d-flex align-items-center me-1" data-action="modal" data-url="/learning/grades-reorder"><i class="ti ti-plus fs-6 me-1" aria-hidden="true"></i> <?=$jatbi->lang("Sắp xếp")?></button>
+                    <button class="btn rounded-pill btn-sm btn-primary d-flex align-items-center me-1" data-action="modal" data-url="/learning/test-add"><i class="ti ti-plus fs-6 me-1" aria-hidden="true"></i> <?=$jatbi->lang("Sắp xếp")?></button>
                     <button class="btn rounded-pill btn-sm btn-danger d-flex align-items-center" data-action="modal" data-checkbox="input.checker" data-url="/learning/grades-deleted"><i class="ti ti-trash fs-6 me-1" aria-hidden="true"></i> <?=$jatbi->lang("Xóa")?></button>
                 </div>
             </div>
@@ -86,13 +86,9 @@
                     style="width:100%">
                 <thead>
                     <tr>
-                        <th data-name="checkbox" data-orderable="false" class="text-nowrap " data-visible="true" data-class="text-center" style="width: 10%;"><div class="form-check"><input class="form-check-input checkall" type="checkbox" value="" data-checkbox="input.checker""></div></th>
-                        <th data-name="label" data-orderable="true" class="text-nowrap " data-visible="true" data-class="text-start" style="width: 20%;"><?=$jatbi->lang("Nhãn")?></th>
+                        <th data-name="checkbox" data-orderable="false" class="text-nowrap " data-visible="true" data-class="text-center"><div class="form-check"><input class="form-check-input checkall" type="checkbox" value="" data-checkbox="input.checker"></div></th>
                         <th data-name="name" data-orderable="true" class="text-nowrap " data-visible="true" data-class="text-start"><?=$jatbi->lang("Tên")?></th>
-                        <!-- <th data-name="customer" data-orderable="true" class="text-nowrap " data-visible="true" data-class=""><?=$jatbi->lang("Khách hàng")?></th>
-                        <th data-name="startDate" data-orderable="true" class="text-nowrap " data-visible="true" data-class="text-start"><?=$jatbi->lang("Ngày bắt đầu")?></th>
-                        <th data-name="endDate" data-orderable="true" class="text-nowrap " data-visible="true" data-class="text-start"><?=$jatbi->lang("Ngày kết thúc")?></th> -->
-                        <th data-name="status" data-orderable="false" class="text-nowrap" data-visible="true" data-class="text-center"><?=$jatbi->lang("Trạng thái")?></th>
+                        <th data-name="status" data-orderable="false" class="text-nowrap" data-visible="true" data-class="text-center" style="width: 10%;"><?=$jatbi->lang("Trạng thái")?></th>
                         <th data-name="action" data-orderable="false" class="text-nowrap" data-visible="true" data-class="text-end" style="width: 10%;"><?=$jatbi->lang("Tùy chọn")?></th>
                     </tr>
                 </thead>

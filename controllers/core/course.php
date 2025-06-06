@@ -4,13 +4,13 @@
     $setting = $app->getValueData('setting');
     $common = $app->getValueData('common');
 
-    $app->router("/course/subject", 'GET', function($vars) use ($app, $jatbi) {
+    $app->router("/learning/grades", 'GET', function($vars) use ($app, $jatbi) {
         $vars['title'] = $jatbi->lang("Quản lý Danh mục");
         $vars['datatable'] = $app->component('datatable',["datas"=>[],"search"=>[]]);
         echo $app->render('templates/learning/grades.html', $vars);
     })->setPermissions(['courseCategoryManagement']);
 
-    $app->router("/course/subject", 'POST', function($vars) use ($app, $jatbi) {
+    $app->router("/learning/grades", 'POST', function($vars) use ($app, $jatbi) {
         $app->header([
             'Content-Type' => 'application/json',
         ]);
@@ -18,7 +18,7 @@
         $start = isset($_POST['start']) ? intval($_POST['start']) : 0;
         $length = isset($_POST['length']) ? intval($_POST['length']) : 10;
         $searchValue = isset($_POST['search']['value']) ? $_POST['search']['value'] : '';
-        $orderName = isset($_POST['order'][0]['name']) ? $_POST['order'][0]['name'] : 'id';
+        $orderName = isset($_POST['order'][0]['name']) ? $_POST['order'][0]['name'] : 'position';
         $orderDir = isset($_POST['order'][0]['dir']) ? $_POST['order'][0]['dir'] : 'DESC';
         $status = isset($_POST['status']) ? [$_POST['status'],$_POST['status']] : '';
         
@@ -39,27 +39,16 @@
             "AND" => $where['AND'],
         ]);
         $app->select("grades", [
-            //     "[>]permissions" => ["permission" => "id"]
-            // ], 
-            // [
             'grades.id',
             'grades.label',
             'grades.name',
             'grades.status',
-            'grades.location',
+            'grades.position',
             ], $where, function ($data) use (&$datas,$jatbi,$app) {
             $datas[] = [
                 "checkbox"  => $app->component("box",["data"=>$data['id']]),
                 "label"     => $data['label'],
-                "name"      => '<a class="text-primary" href="/sua/skills-edit?grade='.$data['id'].'">' . $data['name'] .'</a>',
-                "totalTopics" => 1,
-                "totalSkills" => 2,
-                "location" => '<a href="/course/subject" class="btn btn-outline-primary btn-sm rounded-2 py-1 px-2 button-filter">
-                                    <i class="fa-solid fa-angle-up"></i>
-                                </a>
-                                <a class="btn btn-outline-primary btn-sm rounded-2 py-1 px-2 button-filter">
-                                    <i class="fa-solid fa-angle-down"></i>
-                                </a>',
+                "name"      => '<a class="text-primary" href="/learning/grade/'.$data['id'].'">' . $data['name'] .'</a>',
                 "status" => $app->component("status",["url"=>"/learning/grades-status/".$data['id'],"data"=>$data['status'],"permission"=>['courseCategoryManagement']]),
                 "action" => $app->component("action",[
                     "button" => [
@@ -144,6 +133,7 @@
             "label"     => $app->xss($_POST['label']),
             "name"      => $app->xss($_POST['name']),
             "status"    => $app->xss($_POST['status']),
+            "position"  => $app->max("grades","position") + 1,   
         ];
         $app->insert("grades",$insert);
         // $jatbi->logs('learning','grades-add',$insert);
@@ -173,11 +163,11 @@
             echo json_encode(["status"=>"error","content"=>$jatbi->lang("Vui lòng không để trống.")]);
             exit;
         } 
-        if($app->has("grades", ["label" => $label]) && $data["label"]!=$label) {
+        if($app->has("grades", ["label" => $label]) && strtolower($data["label"]) != strtolower($label)) {
             echo json_encode(["status"=>"error","content"=>$jatbi->lang("Nhãn đã tồn tại")]);
             exit;
         }
-        if($app->has("grades", ["name" => $name]) && $data["name"]!=$name) {
+        if($app->has("grades", ["name" => $name]) && strtolower($data["name"]) != strtolower($name)) {
             echo json_encode(["status"=>"error","content"=>$jatbi->lang("Tên đã tồn tại")]);
             exit;
         }
@@ -191,6 +181,45 @@
         echo json_encode(['status'=>'success','content'=>$jatbi->lang("Cập nhật thành công")]);
         exit;
     })->setPermissions(['courseCategoryManagement']);
+
+    $app->router("/learning/grades-reorder", 'GET', function($vars) use ($app, $jatbi) {
+        $vars['title'] = $jatbi->lang("Sắp xếp vị trí Lớp học");
+        $vars['data'] = [
+            "status" => 'A',
+        ];
+        echo $app->render('templates/learning/grades-reorder.html', $vars, 'global');
+    })->setPermissions(['courseCategoryManagement']);
+
+    // $app->router("/learning/grades-add", 'POST', function($vars) use ($app, $jatbi) {
+    //     $app->header([
+    //         'Content-Type' => 'application/json',
+    //     ]);
+
+    //     $label = $app->xss($_POST['label']);
+    //     $name = $app->xss($_POST['name']);
+    //     if($label =='' || $name =='') {
+    //         echo json_encode(["status"=>"error","content"=>$jatbi->lang("Vui lòng không để trống.")]);
+    //         exit;
+    //     } 
+    //     if($app->has("grades", ["label" => $label])) {
+    //         echo json_encode(["status"=>"error","content"=>$jatbi->lang("Nhãn đã tồn tại")]);
+    //         exit;
+    //     }
+    //     if($app->has("grades", ["name" => $name])) {
+    //         echo json_encode(["status"=>"error","content"=>$jatbi->lang("Tên đã tồn tại")]);
+    //         exit;
+    //     }
+    //     $insert = [
+    //         "label"     => $app->xss($_POST['label']),
+    //         "name"      => $app->xss($_POST['name']),
+    //         "status"    => $app->xss($_POST['status']),
+    //         "position"  => $app->max("grades","position") + 1,   
+    //     ];
+    //     $app->insert("grades",$insert);
+    //     // $jatbi->logs('learning','grades-add',$insert);
+    //     echo json_encode(['status'=>'success','content'=>$jatbi->lang("Thêm thành công")]);
+    //     exit;
+    // })->setPermissions(['courseCategoryManagement']);
 
     $app->router("/learning/grades-deleted", 'GET', function($vars) use ($app, $jatbi) {
         $vars['title'] = $jatbi->lang("Xóa Lớp học");
@@ -217,6 +246,7 @@
         }
     })->setPermissions(['courseCategoryManagement']);
 
+    //--------------------------------------------------------------------
     $app->router("/learning/topics", 'GET', function($vars) use ($app, $jatbi) {
         $vars['title'] = $jatbi->lang("Quản lý Danh mục");
         $vars['datatable'] = $app->component('datatable',["datas"=>[],"search"=>[]]);
@@ -722,33 +752,253 @@
         echo $app->render('templates/learning/units-post.html', $vars, 'global');
     })->setPermissions(['courseCategoryManagement']);
 
-    // $app->router("/learning/grades-add", 'POST', function($vars) use ($app, $jatbi) {
-    //     $app->header([
-    //         'Content-Type' => 'application/json',
-    //     ]);
+    $app->router("/learning/units-edit/{id}", 'POST', function($vars) use ($app, $jatbi) {
+        $app->header([
+            'Content-Type' => 'application/json',
+        ]);
 
-    //     $label = $app->xss($_POST['label']);
-    //     $name = $app->xss($_POST['name']);
-    //     if($label =='' || $name =='') {
-    //         echo json_encode(["status"=>"error","content"=>$jatbi->lang("Vui lòng không để trống.")]);
-    //         exit;
-    //     } 
-    //     if($app->has("grades", ["label" => $label])) {
-    //         echo json_encode(["status"=>"error","content"=>$jatbi->lang("Nhãn đã tồn tại")]);
-    //         exit;
-    //     }
-    //     if($app->has("grades", ["name" => $name])) {
-    //         echo json_encode(["status"=>"error","content"=>$jatbi->lang("Tên đã tồn tại")]);
-    //         exit;
-    //     }
-    //     $insert = [
-    //         "label"     => $app->xss($_POST['label']),
-    //         "name"      => $app->xss($_POST['name']),
-    //         "status"    => $app->xss($_POST['status']),
-    //     ];
-    //     $app->insert("grades",$insert);
-    //     // $jatbi->logs('learning','grades-add',$insert);
-    //     echo json_encode(['status'=>'success','content'=>$jatbi->lang("Thêm thành công")]);
-    //     exit;
-    // })->setPermissions(['courseCategoryManagement']);
+        // $label = $app->xss($_POST['label']);
+        // $name = $app->xss($_POST['name']);
+
+        $order = $app->xss($_POST['order']);
+        $ids = explode(',', $order); // mảng ID theo thứ tự mới
+
+        // if($label =='' || $name =='') {
+        //     echo json_encode(["status"=>"error","content"=>$jatbi->lang("Vui lòng không để trống.")]);
+        //     exit;
+        // } 
+        // if($app->has("grades", ["label" => $label])) {
+        //     echo json_encode(["status"=>"error","content"=>$jatbi->lang("Nhãn đã tồn tại")]);
+        //     exit;
+        // }
+        // if($app->has("grades", ["name" => $name])) {
+        //     echo json_encode(["status"=>"error","content"=>$jatbi->lang("Tên đã tồn tại")]);
+        //     exit;
+        // }
+        // $insert = [
+        //     "label"     => $app->xss($_POST['label']),
+        //     "name"      => $app->xss($_POST['name']),
+        //     "status"    => $app->xss($_POST['status']),
+        // ];
+        // $app->insert("grades",$insert);
+        // $jatbi->logs('learning','grades-add',$insert);
+        // $c = count($ids);
+        foreach ($ids as $position => $id) {
+            $app->update('lessons', ['position' => $position + 1], ['id' => $id]);
+        }
+        echo json_encode(['status'=>'success','content'=>$jatbi->lang("Cập nhật thành công")]);
+        exit;
+    })->setPermissions(['courseCategoryManagement']);
+
+    $app->router("/learning/grade/{grade}", 'GET', function($vars) use ($app, $jatbi) {
+        $grade = $app->get("grades","*",["id"=>$vars['grade'],"deleted"=>0]);
+        $vars['title'] = $grade['name'];
+        $vars['datatable'] = $app->component('datatable',["datas"=>[],"search"=>[]]);
+        if($grade>0){
+            echo $app->render('templates/learning/units.html', $vars);
+        }
+        else {
+            echo $app->render('templates/common/error.html', $vars);
+        }
+    })->setPermissions(['courseCategoryManagement']);
+
+    $app->router("/learning/grade/{grade}", 'POST', function($vars) use ($app, $jatbi) {
+        $app->header([
+            'Content-Type' => 'application/json',
+        ]);
+        $draw = isset($_POST['draw']) ? intval($_POST['draw']) : 0;
+        $start = isset($_POST['start']) ? intval($_POST['start']) : 0;
+        $length = isset($_POST['length']) ? intval($_POST['length']) : 10;
+        $searchValue = isset($_POST['search']['value']) ? $_POST['search']['value'] : '';
+        $orderName = isset($_POST['order'][0]['name']) ? $_POST['order'][0]['name'] : 'position';
+        $orderDir = isset($_POST['order'][0]['dir']) ? $_POST['order'][0]['dir'] : 'DESC';
+        $status = isset($_POST['status']) ? [$_POST['status'],$_POST['status']] : '';
+        
+        $where = [
+            "AND" => [
+                "OR" => [
+                    "units.name[~]" => $searchValue,
+                ],
+                // "units.status[<>]" => $status,
+                // "units.deleted" => 0,
+            ],
+            "LIMIT" => [$start, $length],
+            "ORDER" => [$orderName => strtoupper($orderDir)]
+        ];
+
+        $count = $app->count("units",[
+            "AND" => $where['AND'],
+        ]);
+        $app->select("units", [
+            'units.id',
+            'units.name',
+            'units.status',
+            'units.position',
+            ], $where, function ($data) use (&$datas,$jatbi,$app) {
+            $datas[] = [
+                "checkbox"  => $app->component("box",["data"=>$data['id']]),
+                "name"      => '<a class="text-primary" href="/learning/unit/'.$data['id'].'">' . $data['name'] .'</a>',
+                "status" => $app->component("status",["url"=>"/learning/units-status/".$data['id'],"data"=>$data['status'],"permission"=>['courseCategoryManagement']]),
+                "action" => $app->component("action",[
+                    "button" => [
+                        [
+                            'type' => 'button',
+                            'name' => $jatbi->lang("Sửa"),
+                            'permission' => ['courseCategoryManagement'],
+                            'action' => ['data-url' => '/learning/grades-edit/'.$data['id'], 'data-action' => 'modal']
+                        ],
+                        [
+                            'type' => 'button',
+                            'name' => $jatbi->lang("Xóa"),
+                            'permission' => ['courseCategoryManagement'],
+                            'action' => ['data-url' => '/learning/grades-deleted?box='.$data['id'], 'data-action' => 'modal']
+                        ],
+                    ]
+                ]),
+            ];
+        });
+        echo json_encode([
+            "draw" => $draw,
+            "recordsTotal" => $count,
+            "recordsFiltered" => $count,
+            "data" => $datas ?? []
+        ]);
+    })->setPermissions(['courseCategoryManagement']);
+
+    $app->router("/learning/units-status/{id}", 'POST', function($vars) use ($app, $jatbi) {
+        $app->header([
+            'Content-Type' => 'application/json',
+        ]);
+        $data = $app->get("grades","*",["id"=>$vars['id'],"deleted"=>0]);
+        if($data>1){
+            if($data>1){
+                if($data['status']==='A'){
+                    $status = "D";
+                } 
+                elseif($data['status']==='D'){
+                    $status = "A";
+                }
+                $app->update("units",["status"=>$status],["id"=>$data['id']]);
+                // $jatbi->logs('accounts','accounts-status',$data);
+                echo json_encode(['status'=>'success','content'=>$jatbi->lang("Cập nhật thành công")]);
+            }
+            else {
+                echo json_encode(['status'=>'error','content'=>$jatbi->lang("Cập nhật thất bại"),]);
+            }
+        }
+        else {
+            echo json_encode(["status"=>"error","content"=>$jatbi->lang("Không tìm thấy dữ liệu")]);
+        }
+    })->setPermissions(['courseCategoryManagement']);
+
+    $app->router("/learning/units-add", 'GET', function($vars) use ($app, $jatbi) {
+        $vars['title'] = $jatbi->lang("Thêm Chương");
+        $vars['grades'] = $app->select("grades","*",["deleted"=>'0',"ORDER" => ["position" => "ASC"]]);
+        $vars['data'] = [
+            "status" => 'A',
+        ];
+        echo $app->render('templates/learning/units-post.html', $vars, 'global');
+    })->setPermissions(['courseCategoryManagement']);
+
+    $app->router("/learning/unit/{unit}", 'GET', function($vars) use ($app, $jatbi) {
+        $unit = $app->get("units","*",["id"=>$vars['unit']]);
+        $vars['title'] = "name";
+        $vars['datatable'] = $app->component('datatable',["datas"=>[],"search"=>[]]);
+        if($unit>1){
+            echo $app->render('templates/learning/units.html', $vars);
+        }
+        else {
+            echo $app->render('templates/common/error.html', $vars);
+        }
+    })->setPermissions(['courseCategoryManagement']);
+
+    $app->router("/learning/unit/{unit}", 'POST', function($vars) use ($app, $jatbi) {
+        $app->header([
+            'Content-Type' => 'application/json',
+        ]);
+        $draw = isset($_POST['draw']) ? intval($_POST['draw']) : 0;
+        $start = isset($_POST['start']) ? intval($_POST['start']) : 0;
+        $length = isset($_POST['length']) ? intval($_POST['length']) : 10;
+        $searchValue = isset($_POST['search']['value']) ? $_POST['search']['value'] : '';
+        $orderName = isset($_POST['order'][0]['name']) ? $_POST['order'][0]['name'] : 'position';
+        $orderDir = isset($_POST['order'][0]['dir']) ? $_POST['order'][0]['dir'] : 'DESC';
+        $status = isset($_POST['status']) ? [$_POST['status'],$_POST['status']] : '';
+        
+        $where = [
+            "AND" => [
+                "OR" => [
+                    "lessons.name[~]" => $searchValue,
+                ],
+                // "units.status[<>]" => $status,
+                "units.deleted" => 0,
+                "lessons.unit" => $vars['unit'],
+            ],
+            "LIMIT" => [$start, $length],
+            "ORDER" => [$orderName => strtoupper($orderDir)]
+        ];
+
+        $count = $app->count("units",[
+            "AND" => $where['AND'],
+        ]);
+        $app->select("lessons", [
+            'lessons.id',
+            'lessons.name',
+            'lessons.status',
+            'lessons.position',
+            ], $where, function ($data) use (&$datas,$jatbi,$app) {
+            $datas[] = [
+                "checkbox"  => $app->component("box",["data"=>$data['id']]),
+                "name"      => '<a class="text-primary" href="/learning/unit/'.$data['id'].'">' . $data['name'] .'</a>',
+                "status" => $app->component("status",["url"=>"/learning/lessons-status/".$data['id'],"data"=>$data['status'],"permission"=>['courseCategoryManagement']]),
+                "action" => $app->component("action",[
+                    "button" => [
+                        [
+                            'type' => 'button',
+                            'name' => $jatbi->lang("Sửa"),
+                            'permission' => ['courseCategoryManagement'],
+                            'action' => ['data-url' => '/learning/grades-edit/'.$data['id'], 'data-action' => 'modal']
+                        ],
+                        [
+                            'type' => 'button',
+                            'name' => $jatbi->lang("Xóa"),
+                            'permission' => ['courseCategoryManagement'],
+                            'action' => ['data-url' => '/learning/grades-deleted?box='.$data['id'], 'data-action' => 'modal']
+                        ],
+                    ]
+                ]),
+            ];
+        });
+        echo json_encode([
+            "draw" => $draw,
+            "recordsTotal" => $count,
+            "recordsFiltered" => $count,
+            "data" => $datas ?? []
+        ]);
+    })->setPermissions(['courseCategoryManagement']);
+
+    $app->router("/learning/lessons-status/{id}", 'POST', function($vars) use ($app, $jatbi) {
+        $app->header([
+            'Content-Type' => 'application/json',
+        ]);
+        $data = $app->get("grades","*",["id"=>$vars['id'],"deleted"=>0]);
+        if($data>1){
+            if($data>1){
+                if($data['status']==='A'){
+                    $status = "D";
+                } 
+                elseif($data['status']==='D'){
+                    $status = "A";
+                }
+                $app->update("lessons",["status"=>$status],["id"=>$data['id']]);
+                // $jatbi->logs('accounts','accounts-status',$data);
+                echo json_encode(['status'=>'success','content'=>$jatbi->lang("Cập nhật thành công")]);
+            }
+            else {
+                echo json_encode(['status'=>'error','content'=>$jatbi->lang("Cập nhật thất bại"),]);
+            }
+        }
+        else {
+            echo json_encode(["status"=>"error","content"=>$jatbi->lang("Không tìm thấy dữ liệu")]);
+        }
+    })->setPermissions(['courseCategoryManagement']);
 ?>
