@@ -1,3 +1,13 @@
+<style>
+    .sortable-item {
+        cursor: grab;
+        transition: background-color 0.2s;
+    }
+    .sortable-ghost {
+        opacity: 0.4;
+        background-color: #dee2e6;
+    }
+</style>
 <div class="modal fade modal-load" tabindex="-1"  data-bs-backdrop="static">
 	<div class="modal-dialog modal-lg pt-standalone">
 		<div class="modal-content rounded-5">
@@ -9,30 +19,48 @@
 			<div class="modal-body">
 				<h5 class="fw-bold text-body mb-3"><?=$title?></h5>
 				<form method="POST" action="<?=$_SERVER['REQUEST_URI']?>">
-					<div class="mb-3"> 
-						<label class="fw-bold text-body mb-2"><?=$jatbi->lang("Tên")?> <span class="text-danger">*</span></label>
-						<input type="text" name="name" class="form-control py-3 rounded-4 bg-body-tertiary" placeholder="<?=$jatbi->lang("Tên")?>" value="<?=$data['name'] ?? ''?>">
-					</div>
-                    <div class="mb-3"> 
-						<label class="fw-bold text-body mb-2"><?=$jatbi->lang("Lớp")?> <span class="text-danger">*</span></label>
-						<select data-select data-style="form-select bg-body-tertiary py-3 rounded-4 w-100" data-live-search="true" data-width="100%" name="status">
-                        <?php foreach ($grades as $grade) { ?>
-                            <option value="A"><?=$grade["name"]?></option>
-                        <?php } ?> 
-                        </select>
-					</div>
 					<div class="mb-3">
-						<label class="fw-bold text-body mb-2"><?=$jatbi->lang("Trạng thái")?> <span class="text-danger">*</span></label>
-						<select data-select data-style="form-select bg-body-tertiary py-3 rounded-4 w-100" data-live-search="true" data-width="100%" name="status">
-							<option value="A" <?=$data['status']== 'A'?'selected':''?>><?=$jatbi->lang('Kích hoạt')?></option>
-							<option value="D" <?=$data['status']== 'D'?'selected':''?>><?=$jatbi->lang('Không kích hoạt')?></option>
-						</select>
+						<ul class="list-group" id="sortable-list">
+                            <?php foreach($grades as $grade) { ?>
+                            <li class="list-group-item sortable-item list-group-item-action p-3 rounded-3 <?php if($grade["status"] === 'D') { ?>list-group-item-secondary<?php } ?>" data-id="<?=$grade["id"] ?>"><?=$grade["name"] ?></li>
+                            <?php } ?>
+                        </ul> 
+                        <input type="hidden" name="order" id="order-input">
 					</div>
 					<div class="col-lg-12">
-						<button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold" data-action="submit" data-alert="true" data-load="this"><?=$jatbi->lang("Hoàn thành")?></button>
+						<button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold" data-action="submit" data-alert="true" data-load="this" onclick="setLessonOrder()"><?=$jatbi->lang("Hoàn thành")?></button>
 					</div>
 				</form>
 			</div>
 		</div>
 	</div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script>
+    let sortableInstance;
+
+    document.addEventListener('shown.bs.modal', function (e) {
+        const modal = e.target;
+        const list = modal.querySelector('#sortable-list');
+
+        // Kiểm tra nếu có danh sách cần sắp xếp
+        if (list) {
+            // Nếu đã có instance thì hủy trước (tránh lỗi nếu modal mở lại)
+            if (sortableInstance) sortableInstance.destroy();
+
+            // Gắn lại Sortable
+            sortableInstance = new Sortable(list, {
+            animation: 350,
+            ghostClass: 'sortable-ghost'
+            });
+        }
+    });
+
+    function setLessonOrder() {
+        document.getElementById('order-input').value = "";
+        const items = document.querySelectorAll('#sortable-list .sortable-item');
+        const ids = Array.from(items).map(item => item.getAttribute('data-id'));
+        document.getElementById('order-input').value = ids.join(',');
+    }
+
+</script>
