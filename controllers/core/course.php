@@ -176,7 +176,7 @@
             "name"      => $app->xss($_POST['name']),
             "status"    => $app->xss($_POST['status']),
         ];
-        $app->update("grades",$insert,["id"=>$vars['id']]);
+        $app->update("grades",$insert,["id"=>$data['id']]);
         // $jatbi->logs('learning','grades-add',$insert);
         echo json_encode(['status'=>'success','content'=>$jatbi->lang("Cập nhật thành công")]);
         exit;
@@ -727,59 +727,14 @@
     // })->setPermissions(['courseCategoryManagement']);
 
 //--------------------------------------------------------------------------------------------
-    $app->router("/learning/units-edit/{id}", 'GET', function($vars) use ($app, $jatbi) {
-        $vars['title'] = $jatbi->lang("Sửa Chủ đề");
-        $vars['data'] = [
-            "status" => 'A',
-        ];
-        $vars['lessons'] = $app->select("lessons","*",["unit"=>$vars['id']]);
-        echo $app->render('templates/learning/units-post.html', $vars, 'global');
-    })->setPermissions(['courseCategoryManagement']);
 
-    $app->router("/learning/units-edit/{id}", 'POST', function($vars) use ($app, $jatbi) {
-        $app->header([
-            'Content-Type' => 'application/json',
-        ]);
-
-        // $label = $app->xss($_POST['label']);
-        // $name = $app->xss($_POST['name']);
-
-        $order = $app->xss($_POST['order']);
-        $ids = explode(',', $order); // mảng ID theo thứ tự mới
-
-        // if($label =='' || $name =='') {
-        //     echo json_encode(["status"=>"error","content"=>$jatbi->lang("Vui lòng không để trống.")]);
-        //     exit;
-        // } 
-        // if($app->has("grades", ["label" => $label])) {
-        //     echo json_encode(["status"=>"error","content"=>$jatbi->lang("Nhãn đã tồn tại")]);
-        //     exit;
-        // }
-        // if($app->has("grades", ["name" => $name])) {
-        //     echo json_encode(["status"=>"error","content"=>$jatbi->lang("Tên đã tồn tại")]);
-        //     exit;
-        // }
-        // $insert = [
-        //     "label"     => $app->xss($_POST['label']),
-        //     "name"      => $app->xss($_POST['name']),
-        //     "status"    => $app->xss($_POST['status']),
-        // ];
-        // $app->insert("grades",$insert);
-        // $jatbi->logs('learning','grades-add',$insert);
-        // $c = count($ids);
-        foreach ($ids as $position => $id) {
-            $app->update('lessons', ['position' => $position + 1], ['id' => $id]);
-        }
-        echo json_encode(['status'=>'success','content'=>$jatbi->lang("Cập nhật thành công")]);
-        exit;
-    })->setPermissions(['courseCategoryManagement']);
 
 //--------------------------------------------------------------------------------------------
     $app->router("/learning/grade/{grade}", 'GET', function($vars) use ($app, $jatbi) {
-        $grade = $app->get("grades","*",["id"=>$vars['grade'],"deleted"=>0]);
-        $vars['title'] = $grade['name'];
+        $vars['grade'] = $app->get("grades","*",["id"=>$vars['grade'],"deleted"=>0]);
+        $vars['title'] = $jatbi->lang("Quản lý Danh mục");
         $vars['datatable'] = $app->component('datatable',["datas"=>[],"search"=>[]]);
-        if($grade>0){
+        if($vars['grade']>0){
             echo $app->render('templates/learning/units.html', $vars);
         }
         else {
@@ -796,7 +751,7 @@
         $length = isset($_POST['length']) ? intval($_POST['length']) : 10;
         $searchValue = isset($_POST['search']['value']) ? $_POST['search']['value'] : '';
         $orderName = isset($_POST['order'][0]['name']) ? $_POST['order'][0]['name'] : 'position';
-        $orderDir = isset($_POST['order'][0]['dir']) ? $_POST['order'][0]['dir'] : 'DESC';
+        $orderDir = isset($_POST['order'][0]['dir']) ? $_POST['order'][0]['dir'] : 'ASC';
         $status = isset($_POST['status']) ? [$_POST['status'],$_POST['status']] : '';
         
         $where = [
@@ -804,7 +759,7 @@
                 "OR" => [
                     "units.name[~]" => $searchValue,
                 ],
-                // "units.status[<>]" => $status,
+                "units.status[<>]" => $status,
                 "units.deleted" => 0,
                 "units.grade" => $vars["grade"],
             ],
@@ -831,13 +786,13 @@
                             'type' => 'button',
                             'name' => $jatbi->lang("Sửa"),
                             'permission' => ['courseCategoryManagement'],
-                            'action' => ['data-url' => '/learning/grades-edit/'.$data['id'], 'data-action' => 'modal']
+                            'action' => ['data-url' => '/learning/units-edit/'.$data['id'], 'data-action' => 'modal']
                         ],
                         [
                             'type' => 'button',
                             'name' => $jatbi->lang("Xóa"),
                             'permission' => ['courseCategoryManagement'],
-                            'action' => ['data-url' => '/learning/grades-deleted?box='.$data['id'], 'data-action' => 'modal']
+                            'action' => ['data-url' => '/learning/units-deleted?box='.$data['id'], 'data-action' => 'modal']
                         ],
                     ]
                 ]),
@@ -855,7 +810,7 @@
         $app->header([
             'Content-Type' => 'application/json',
         ]);
-        $data = $app->get("grades","*",["id"=>$vars['id'],"deleted"=>0]);
+        $data = $app->get("units","*",["id"=>$vars['id'],"deleted"=>0]);
         if($data>1){
             if($data>1){
                 if($data['status']==='A'){
@@ -881,9 +836,74 @@
         $vars['title'] = $jatbi->lang("Thêm Chương");
         $vars['grades'] = $app->select("grades","*",["deleted"=>'0',"ORDER" => ["position" => "ASC"]]);
         $vars['data'] = [
+            "grade" => $app->xss($_GET['ingrade']),
             "status" => 'A',
         ];
         echo $app->render('templates/learning/units-post.html', $vars, 'global');
+    })->setPermissions(['courseCategoryManagement']);
+
+    $app->router("/learning/units-add", 'POST', function($vars) use ($app, $jatbi) {
+        $app->header([
+            'Content-Type' => 'application/json',
+        ]);
+        $grade = $app->get("grades","*",["id"=>$app->xss($_POST['grade']),"deleted"=>0]);
+        $name = $app->xss($_POST['name']);
+        if($name =='') {
+            echo json_encode(["status"=>"error","content"=>$jatbi->lang("Vui lòng không để trống.")]);
+            exit;
+        } 
+        if($app->has("units", ["name" => $name,"grade" => $grade['id']])) {
+            echo json_encode(["status"=>"error","content"=>$jatbi->lang("Tên trong lớp ". $grade['name'] ." đã tồn tại.")]);
+            exit;
+        }
+        $insert = [
+            "name"      => $app->xss($_POST['name']),
+            "grade"     => $app->xss($_POST['grade']),
+            "status"    => $app->xss($_POST['status']),
+            "position"  => $app->max("units","position",["grade"=>$app->xss($_POST['grade'])])+1,
+        ];
+        $app->insert("units",$insert);
+        // $jatbi->logs('learning','grades-add',$insert);
+        echo json_encode(['status'=>'success','content'=>$jatbi->lang("Thêm thành công")]);
+        exit;
+    })->setPermissions(['courseCategoryManagement']);
+
+    $app->router("/learning/units-edit/{id}", 'GET', function($vars) use ($app, $jatbi) {
+        $vars['title'] = $jatbi->lang("Sửa Chương");
+        $vars['grades'] = $app->select("grades","*",["deleted"=>'0',"ORDER" => ["position" => "ASC"]]);
+        $vars['data'] = $app->get("units","*",["id"=>$vars['id'],"deleted"=>0]);
+        if($vars['data']>1){
+            echo $app->render('templates/learning/units-post.html', $vars, 'global');
+        }
+        else {
+            echo $app->render('templates/common/error-modal.html', $vars, 'global');
+        }
+    })->setPermissions(['courseCategoryManagement']);
+
+    $app->router("/learning/units-edit/{id}", 'POST', function($vars) use ($app, $jatbi) {
+        $app->header([
+            'Content-Type' => 'application/json',
+        ]);
+        $data = $app->get("units","*",["id"=>$vars['id'],"deleted"=>0]);
+        $grade = $app->get("grades","*",["id"=>$app->xss($_POST['grade']),"deleted"=>0]);
+        $name = $app->xss($_POST['name']);
+        if($name =='') {
+            echo json_encode(["status"=>"error","content"=>$jatbi->lang("Vui lòng không để trống.")]);
+            exit;
+        } 
+        if($app->has("units", ["name" => $name,"grade" => $grade['id']]) && strtolower($data["name"]) != strtolower($name)  && $data["grade"] != $data["id"]) {
+            echo json_encode(["status"=>"error","content"=>$jatbi->lang("Tên trong lớp ". $grade['name'] ." đã tồn tại.")]);
+            exit;
+        }
+        $insert = [
+            "name"      => $app->xss($_POST['name']),
+            "grade"     => $app->xss($_POST['grade']),
+            "status"    => $app->xss($_POST['status']),
+        ];
+        $app->update("units",$insert,["id"=>$data['id']]);
+        // $jatbi->logs('learning','grades-add',$insert);
+        echo json_encode(['status'=>'success','content'=>$jatbi->lang("Cập nhật thành công")]);
+        exit;
     })->setPermissions(['courseCategoryManagement']);
 
     $app->router("/learning/unit/{unit}", 'GET', function($vars) use ($app, $jatbi) {

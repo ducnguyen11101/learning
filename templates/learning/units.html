@@ -64,12 +64,12 @@
     </div>
     <?php } ?>
     <?php include 'templates/learning/learning-menu.html'; ?>
-	<div class="card bg-body bg-opacity-50 shadow border-0 rounded-4 mb-3">
+	<div class="card bg-body bg-opacity-50 shadow border-0 rounded-4 mb-2">
 		<div class="card-body">
             <div class="custom-buttons d-none">
                 <div class="d-flex align-items-center justify-content-end">
-                    <button class="btn rounded-pill btn-sm btn-primary d-flex align-items-center me-1" data-action="modal" data-url="/learning/units-add"><i class="ti ti-plus fs-6 me-1" aria-hidden="true"></i> <?=$jatbi->lang("Thêm")?></button>
-                    <button class="btn rounded-pill btn-sm btn-primary d-flex align-items-center me-1" data-action="modal" data-url="/learning/test-add"><i class="ti ti-plus fs-6 me-1" aria-hidden="true"></i> <?=$jatbi->lang("Sắp xếp")?></button>
+                    <button class="btn rounded-pill btn-sm btn-primary d-flex align-items-center me-1" data-action="modal" data-url="/learning/units-add?ingrade=<?=$grade['id']?>"><i class="ti ti-plus fs-6 me-1" aria-hidden="true"></i> <?=$jatbi->lang("Thêm")?></button>
+                    <button class="btn rounded-pill btn-sm btn-primary d-flex align-items-center me-1" data-action="modal" data-url="/learning/units-reorder"><i class="ti ti-plus fs-6 me-1" aria-hidden="true"></i> <?=$jatbi->lang("Sắp xếp")?></button>
                     <button class="btn rounded-pill btn-sm btn-danger d-flex align-items-center" data-action="modal" data-checkbox="input.checker" data-url="/learning/grades-deleted"><i class="ti ti-trash fs-6 me-1" aria-hidden="true"></i> <?=$jatbi->lang("Xóa")?></button>
                 </div>
             </div>
