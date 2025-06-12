@@ -4,9 +4,9 @@
         "main"=>[
             "name"=>$jatbi->lang("Chính"),
             "item"=>[
-                '/'=>[
+                '/admin'=>[
                     "menu"=>$jatbi->lang("Trang chủ"),
-                    "url"=>'/',
+                    "url"=>'/admin',
                     "icon"=>'<i class="ti ti-dashboard"></i>',
                     "controllers"=>"controllers/core/main.php",
                     "main"=>'true',

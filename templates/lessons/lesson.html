@@ -1,22 +1,45 @@
-<div class="container">
+<div class="container main-container" style="width:1100px;max-width:1100px;min-width:1100px;margin:0 auto; position:relative;">
+    <!-- Thanh công cụ vẽ -->
+    <div id="draw-toolbar" style="position:fixed; top:80px; left:30px; z-index:1100; background:#fff; border-radius:8px; box-shadow:0 2px 8px #0002; padding:8px 10px; display:flex; gap:10px;">
+        <button id="pen-tool-btn" title="Bút vẽ" style="background:none;border:none;cursor:pointer;">
+            🖊️
+        </button>
+        <button id="highlight-tool-btn" title="Bút highlight" style="background:none;border:none;cursor:pointer;">
+            🖍️
+        </button>
+        <button id="eraser-tool-btn" title="Cục tẩy" style="background:none;border:none;cursor:pointer;">
+            🧽
+        </button>
+        <button id="pen-clear-btn" title="Xóa nét vẽ" style="background:none;border:none;cursor:pointer;">
+            🗑️
+        </button>
+    </div>
+    <!-- Canvas vẽ phủ lên toàn bộ nội dung trang -->
+    <canvas id="draw-canvas" style="position:absolute; left:0; top:0; width:100%; height:100%; z-index:1099; display:none; pointer-events:auto;"></canvas>
     <div class="row justify-content-center">
         <div class="col-lg-10">
             <div class="card shadow-lg">
                 <div class="card-body p-5">
                     <form method="POST" action="/lesson">
+                        <input type="hidden" name="duration" id="duration-input" value="0">
                         <div class="row">
                             <!-- Cột trái: 2 phần -->
                             <?php if($status=='success'){ ?>
                                 <div class="col-md-8 pe-4 ps-0">
                                     <div class="d-flex justify-content-start" style="margin-left: 30px; margin-top: 50px;">
                                         <img src="/assest-src/imglessons/fantastic.png" 
-                                            alt="Hình minh họa câu hỏi" 
+                                            alt="Hình minh họa" 
                                             class="img-fluid rounded shadow-sm"
                                             style="width: 400px; height: 150px;">
                                     </div>
-                                    <?php unset($_SESSION['status']); ?>
-                                    <meta http-equiv="refresh" content="3;url=<?= $_SERVER['REQUEST_URI'] ?>">
+                                    <div class="col-12 text-start" style="margin-top:30px;">
+                                        <input type="hidden" name="status" value="success">                                      
+                                        <button class="btn btn-primary py-3 rounded-pill" type="submit" data-action="submit" data-load="/lesson"><?=$jatbi->lang("Tiếp tục")?></button>
+                                    </div>        
                                 </div>
+                            <?php } ?>
+                            <?php if($status=='false'){ ?>
+                                <?php include __DIR__ . '/lesson-false.html'; ?>
                             <?php } ?>
                             <?php if($status==''){ ?>
                                 <?php include __DIR__ . '/lesson-content.html'; ?>
@@ -25,19 +48,71 @@
                             <div class="col-md-4 ps-5">
                                 <div class="text-start">
                                     <h5 class="text-muted mb-4">Video</h5>
-                                    <h5 class="text-muted mb-3">Questions answered</h5>
-                                    <div class="display-2 fw-bold mb-4">1</div>
-                                    <h5 class="text-muted mb-2">Time delayed</h5>
-                                    <h4 class="text-warning fw-bold mb-4">PAUSED</h4>
-                                    <h5 class="text-muted">Questioning about</h5>
-                                    <div class="display-2 fw-bold mb-2">50</div>
-                                    <div class="progress mt-3" style="height: 8px;">
-                                        <div class="progress-bar bg-primary" style="width: 10%;"></div>
+                                    <h5 class="text-muted mb-3">Câu hỏi đã trả lời</h5>
+                                    <div class="display-2 fw-bold mb-4" id="answered-count">
+                                        <?= $_SESSION['lesson_stats']['answered'] ?? 0 ?>
                                     </div>
-                                    <div class="text-muted mt-1">10</div>
+                                    <h5 class="text-muted mb-2">Thời gian làm</h5>
+                                    <h4 class="text-warning fw-bold mb-4" id="duration-display">
+                                    </h4>
+                                    <h5 class="text-muted">Điểm số</h5>
+                                    <div class="display-2 fw-bold mb-2" id="score-display">
+                                        <?= $_SESSION['lesson_stats']['score'] ?? 0 ?>
+                                    </div>
+                                    <div class="progress mt-3" style="height: 8px;">
+                                        <div class="progress-bar bg-primary" id="progress-bar" 
+                                            style="width: <?= isset($_SESSION['lesson_stats']['answered']) && $_SESSION['lesson_stats']['answered'] > 0 
+                                                ? ($_SESSION['lesson_stats']['correct'] / $_SESSION['lesson_stats']['answered'] * 100) 
+                                                : 0 ?>%;">
+                                        </div>
+                                    </div>
+                                    <div class="text-muted mt-1" id="correct-count">
+                                        <?= $_SESSION['lesson_stats']['correct'] ?? 0 ?> / <?= $_SESSION['lesson_stats']['answered'] ?? 0 ?>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                        <!-- Đặt phần tài nguyên IXL Learning ở đây, vẫn nằm trong form -->
+                        <div class="container mt-4">
+                            <div class="card shadow-sm">
+                                <div class="card-body p-4">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <span class="fw-bold fs-5" style="color:#357abD;">More fourth grade math resources from IXL Learning</span>
+                                        <button type="button" class="btn-close" aria-label="Close" onclick="this.closest('.card').style.display='none';"></button>
+                                    </div>
+                                    <div class="row text-center">
+                                        <div class="col">
+                                            <img src="/assest-src/imglessons/video-tutorials.png" alt="Video tutorials" style="width:32px;height:32px;">
+                                            <div class="mt-2">Video tutorials</div>
+                                        </div>
+                                        <div class="col">
+                                            <img src="/assest-src/imglessons/private-tutoring.png" alt="Private tutoring" style="width:32px;height:32px;">
+                                            <div class="mt-2">Private tutoring</div>
+                                        </div>
+                                        <div class="col">
+                                            <img src="/assest-src/imglessons/teacher-activities.png" alt="Teacher-created activities" style="width:32px;height:32px;">
+                                            <div class="mt-2" style="color:#7bb661;">Teacher-created<br>activities</div>
+                                        </div>
+                                        <div class="col">
+                                            <img src="/assest-src/imglessons/games.png" alt="Games" style="width:32px;height:32px;">
+                                            <div class="mt-2">Games</div>
+                                        </div>
+                                        <div class="col">
+                                            <img src="/assest-src/imglessons/interactive-worksheets.png" alt="Interactive worksheets" style="width:32px;height:32px;">
+                                            <div class="mt-2" style="color:#f26c23;">Interactive<br>worksheets</div>
+                                        </div>
+                                        <div class="col">
+                                            <img src="/assest-src/imglessons/workbooks.png" alt="Workbooks" style="width:32px;height:32px;">
+                                            <div class="mt-2">Workbooks</div>
+                                        </div>
+                                    </div>
+                                    <div class="text-center mt-4">
+                                        <a href="#" class="btn btn-primary px-4">See all &gt;</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Kết thúc phần tài nguyên IXL Learning -->
                     </form>
                 </div>
             </div>
@@ -45,6 +120,13 @@
     </div>
 </div>
 <style>
+    .main-container {
+        width: 1100px !important;
+        max-width: 1100px !important;
+        min-width: 1100px !important;
+        margin: 0 auto !important;
+        position: relative !important;
+    }
     .btn-answer {
         border: 2px solid #dee2e6;
         background: white;
@@ -69,4 +151,191 @@
     .btn-submit:hover {
         background-color: #0b5ed7;
     }
+    #draw-canvas.active {
+        display: block !important;
+        cursor: crosshair;
+    }
 </style>
+<script>
+function initLessonPage() {
+    let duration = 0;
+    let timerInterval = null;
+
+    function updateDurationDisplay(sec) {
+        const h = Math.floor(sec / 3600);
+        const m = Math.floor((sec % 3600) / 60);
+        const s = sec % 60;
+        document.getElementById('duration-display').textContent =
+            (h < 10 ? '0' : '') + h + ':' +
+            (m < 10 ? '0' : '') + m + ':' +
+            (s < 10 ? '0' : '') + s;
+        document.getElementById('duration-input').value = sec;
+    }
+
+    function startTimer() {
+        if (timerInterval) clearInterval(timerInterval);
+        timerInterval = setInterval(function() {
+            duration++;
+            updateDurationDisplay(duration);
+        }, 1000);
+    }
+
+    updateDurationDisplay(duration);
+    startTimer();
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            document.getElementById('duration-input').value = duration;
+        });
+    }
+
+    // --- Drawing tool logic ---
+    const penBtn = document.getElementById('pen-tool-btn');
+    const highlightBtn = document.getElementById('highlight-tool-btn');
+    const eraserBtn = document.getElementById('eraser-tool-btn');
+    const clearBtn = document.getElementById('pen-clear-btn');
+    const canvas = document.getElementById('draw-canvas');
+    const container = document.querySelector('.main-container');
+    let drawing = false;
+    let ctx = null;
+    let tool = 'pen'; // pen | highlight | eraser
+
+    function setActiveTool(t) {
+        tool = t;
+        penBtn.style.background = (tool === 'pen') ? '#e0e0e0' : '';
+        highlightBtn.style.background = (tool === 'highlight') ? '#ffe0fa' : '';
+        eraserBtn.style.background = (tool === 'eraser') ? '#ffe0b2' : '';
+    }
+
+    function resizeCanvas() {
+        let temp = null;
+        if (ctx) {
+            temp = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        }
+        canvas.width = container.offsetWidth;
+        canvas.height = container.offsetHeight;
+        if (temp) {
+            ctx.putImageData(temp, 0, 0);
+        }
+    }
+    window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('scroll', resizeCanvas);
+    resizeCanvas();
+
+    penBtn.onclick = function() {
+        canvas.classList.toggle('active');
+        resizeCanvas();
+        setActiveTool('pen');
+    };
+    highlightBtn.onclick = function() {
+        canvas.classList.add('active');
+        resizeCanvas();
+        setActiveTool('highlight');
+    };
+    eraserBtn.onclick = function() {
+        canvas.classList.add('active');
+        resizeCanvas();
+        setActiveTool('eraser');
+    };
+    clearBtn.onclick = function() {
+        if (!ctx) ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    };
+
+    function getCanvasPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        return {
+            x: (e.clientX - rect.left),
+            y: (e.clientY - rect.top)
+        };
+    }
+
+    canvas.onmousedown = function(e) {
+        if (!canvas.classList.contains('active')) return;
+        if (tool === 'eraser') {
+            drawing = true;
+            if (!ctx) ctx = canvas.getContext('2d');
+            const pos = getCanvasPos(e);
+            ctx.save();
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.beginPath();
+            ctx.arc(pos.x, pos.y, 20, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.restore();
+            return;
+        }
+        drawing = true;
+        if (!ctx) ctx = canvas.getContext('2d');
+        if (tool === 'highlight') {
+            ctx.save();
+            ctx.globalAlpha = 1;
+            ctx.globalCompositeOperation = 'multiply';
+            ctx.strokeStyle = "rgba(255, 0, 255, 0.18)";
+            ctx.lineWidth = 22;
+        } else {
+            ctx.globalAlpha = 1;
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.strokeStyle = "#111";
+            ctx.lineWidth = 2;
+        }
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        const pos = getCanvasPos(e);
+        ctx.moveTo(pos.x, pos.y);
+    };
+    canvas.onmousemove = function(e) {
+        if (!drawing || !canvas.classList.contains('active')) return;
+        if (!ctx) ctx = canvas.getContext('2d');
+        if (tool === 'eraser') {
+            const pos = getCanvasPos(e);
+            ctx.save();
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.beginPath();
+            ctx.arc(pos.x, pos.y, 20, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.restore();
+            return;
+        }
+        if (tool === 'highlight') {
+            const pos = getCanvasPos(e);
+            const imageData = ctx.getImageData(pos.x, pos.y, 1, 1).data;
+            if (imageData[3] < 10) {
+                ctx.globalAlpha = 0.18;
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.strokeStyle = "rgba(255, 0, 255, 0.18)";
+                ctx.lineWidth = 22;
+                ctx.lineTo(pos.x, pos.y);
+                ctx.stroke();
+            }
+            return;
+        } else {
+            ctx.globalAlpha = 1;
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.strokeStyle = "#111";
+            ctx.lineWidth = 2;
+        }
+        const pos = getCanvasPos(e);
+        ctx.lineTo(pos.x, pos.y);
+        ctx.stroke();
+    };
+    canvas.onmouseup = function(e) {
+        if (!canvas.classList.contains('active')) return;
+        drawing = false;
+        if (!ctx) ctx = canvas.getContext('2d');
+        if (tool === 'highlight') ctx.restore();
+        ctx.closePath();
+    };
+    canvas.onmouseleave = function(e) {
+        if (!canvas.classList.contains('active')) return;
+        drawing = false;
+        if (!ctx) ctx = canvas.getContext('2d');
+        if (tool === 'highlight') ctx.restore();
+        ctx.closePath();
+    };
+    canvas.ontouchmove = function(e) {
+        if (canvas.classList.contains('active')) e.preventDefault();
+    };
+}
+
+document.addEventListener('DOMContentLoaded', initLessonPage);
+</script>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chương trình học - Lớp <?= htmlspecialchars($grade) ?></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .unit-label {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #2d7a2d;
+        }
+        .unit-section {
+            margin-bottom: 2rem;
+        }
+        .lesson-list {
+            list-style: none;
+            padding-left: 0;
+        }
+        .lesson-list li {
+            margin-bottom: 4px;
+        }
+        .unit-badge {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #4a89dc;
+            color: #fff;
+            text-align: center;
+            line-height: 28px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        /* ...add more color classes as needed... */
+    </style>
+</head>
+<body>
+    <h2 class="mb-4">
+        <span class="text-primary">Chương trình học</span> - Lớp <?= htmlspecialchars($grade) ?> Toán
+    </h2>
+<div class="container py-4">
+    
+    <?php
+    // Chia đều các unit vào 3 cột
+    $columns = 3;
+    $totalUnits = count($units);
+    $cols = array_fill(0, $columns, []);
+    foreach ($units as $i => $unit) {
+        $cols[$i % $columns][] = $unit;
+    }
+    ?>
+    <div class="row">
+        <?php for ($col = 0; $col < $columns; $col++): ?>
+            <div class="col-md-4">
+                <?php foreach ($cols[$col] as $unit): ?>
+                    <div class="unit-section">
+                        <span class="unit-badge">
+                            <?= $unit['id'] ?>
+                        </span>
+                        <span class="unit-label"><?= htmlspecialchars($unit['name']) ?></span>
+                        <ul class="lesson-list mt-2">
+                            <?php foreach ($unit['lessons'] as $idx => $lesson): ?>
+                                <li>
+                                    <?php unset($_SESSION['lesson_stats']); ?>
+                                    <a href="/lesson?lesson_id=<?= $lesson['id'] ?>">
+                                        <?= ($idx + 1) . '. ' . htmlspecialchars($lesson['name']) ?>
+                                    </a>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php endfor; ?>
+    </div>
+</div>
+</body>
+</html>
