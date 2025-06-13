@@ -118,7 +118,7 @@
                     "sub"=>[
                         'courseCategoryManagement'   => [
                             "name"  => $jatbi->lang("Quản lý danh mục"),
-                            "router"    => '/course/subject',
+                            "router"    => '/learning/grades',
                             "icon"  => '<i class="fas fa-ban"></i>',
                         ],
                     ],

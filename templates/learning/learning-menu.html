@@ -1,38 +1,26 @@
 <div class="card bg-body bg-opacity-50 card-custom shadow-sm border-0 rounded-4 mb-2">
     <div class="card-body flex-column ">
         <div class="card-rounded d-flex flex-stack flex-wrap ">
+            <?php if(!empty($unit)) {
+                $grade = $app->get("grades","*",["id"=>$unit['grade'],"deleted"=>0]);
+            } ?>
             <ul class="nav flex-wrap border-transparent fw-bold">
+                <li class="nav-item mx-2">
+                    <a class="btn fw-bold border-0 <?=$active=='projects-views'?'text-primary':''?>"
+                        href="/learning/grades" data-pjax><?=$jatbi->lang("Lớp học")?></a>
+                </li>
+                <?php if(!empty($grade)) { ?>
                 <li class="nav-item mx-3">
                     <a class="btn fw-bold border-0 <?=$active=='projects-views'?'text-primary':''?>"
-                        href="/course/subject" data-pjax><?=$jatbi->lang("Lớp học")?></a>
-                </li>
+                        href="/learning/units/<?=$grade['id']?>" data-pjax><?=$grade['name']?></a>
+                </li>    
+                <?php } ?>
+                <?php if(!empty($unit)) { ?>
                 <li class="nav-item mx-3">
-                    <a class="btn fw-bold border-0 <?=$active=='area'?'text-primary':''?>"
-                        href="/learning/topics?id=<?=$id?>" data-pjax><?=$jatbi->lang("Chủ đề")?></a>
-                </li>
-                <li class="nav-item mx-3">
-                    <a class="btn fw-bold border-0 <?=$active=='camera'?'text-primary':''?>"
-                        href="/learning/skills?id=<?=$id?>" data-pjax><?=$jatbi->lang("Kỹ năng")?></a>
-                </li>
-                <li class="nav-item">
-                    <a class="btn fw-bold border-0 <?=$active=='face'?'text-primary':''?>"
-                        href="/learning/reorderCategories" data-pjax><?=$jatbi->lang("Sắp xếp thứ tự danh mục")?></a>
-                </li>
-                <!-- <li class="nav-item my-0">
-                    <a class="btn fw-bold border-0 <?=$active=='face'?'text-primary':''?>"
-                        href="/projects/projects-views/face?id=<?=$id?> " data-pjax>GƯƠNG MẶT</a>
-                </li>
-                <li class="nav-item my-0">
-                    <a class="btn fw-bold border-0 <?=$active=='logs'?'text-primary':''?>"
-                        href="/projects/projects-views/logs/logs-face?id=<?=$id?> " data-pjax>NHẬT KÝ</a>
-                </li>
-                <li class="nav-item my-0">
-                    <a class="btn fw-bold border-0 <?=$active=='setting'?'text-primary':''?>"
-                        href="/projects/projects-views/setting?id=<?=$id?>" "
-                    data-pjax
-                    >CÀI ĐẶT</a
-                >
-                </li>  -->
+                    <a class="btn fw-bold border-0 <?=$active=='projects-views'?'text-primary':''?>"
+                        href="/learning/lessons/<?=$unit['id']?>" data-pjax><?=$unit['name']?></a>
+                </li>    
+                <?php } ?>
             </ul>
         </div>
     </div>

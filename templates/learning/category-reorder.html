@@ -1,0 +1,66 @@
+<style>
+    .sortable-item {
+        cursor: grab;
+        transition: background-color 0.2s;
+    }
+    .sortable-ghost {
+        opacity: 0.4;
+        background-color: #dee2e6;
+    }
+</style>
+<div class="modal fade modal-load" tabindex="-1"  data-bs-backdrop="static">
+	<div class="modal-dialog modal-lg pt-standalone">
+		<div class="modal-content rounded-5">
+			<div class="d-flex w-100 justify-content-end align-items-center position-relative">
+				<button type="button" class="btn btn-primary position-absolute z-1 rounded-circle d-flex align-items-center justify-content-center width height top right" data-bs-dismiss="modal" aria-label="Close " style="--width:50px;--height:50px;--top:-5px;--right:-5px">
+					<i class="ti ti-x fs-4"></i>
+				</button>
+			</div>
+			<div class="modal-body">
+				<h5 class="fw-bold text-body mb-3"><?=$title?></h5>
+				<form method="POST" action="<?=$_SERVER['REQUEST_URI']?>">
+					<div class="mb-3">
+						<ul class="list-group" id="sortable-list">
+                            <?php foreach($datas as $data) { ?>
+                            <li class="list-group-item sortable-item list-group-item-action p-3 rounded-3 <?php if($data["status"] === 'D') { ?>list-group-item-secondary<?php } ?>" data-id="<?=$data["id"] ?>"><?=$data["name"] ?></li>
+                            <?php } ?>
+                        </ul> 
+                        <input type="hidden" name="order" id="order-input">
+					</div>
+					<div class="col-lg-12">
+						<button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold" data-action="submit" data-alert="true" data-load="this" onclick="setLessonOrder()"><?=$jatbi->lang("Hoàn thành")?></button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script>
+    let sortableInstance;
+
+    document.addEventListener('shown.bs.modal', function (e) {
+        const modal = e.target;
+        const list = modal.querySelector('#sortable-list');
+
+        // Kiểm tra nếu có danh sách cần sắp xếp
+        if (list) {
+            // Nếu đã có instance thì hủy trước (tránh lỗi nếu modal mở lại)
+            if (sortableInstance) sortableInstance.destroy();
+
+            // Gắn lại Sortable
+            sortableInstance = new Sortable(list, {
+            animation: 350,
+            ghostClass: 'sortable-ghost'
+            });
+        }
+    });
+
+    function setLessonOrder() {
+        document.getElementById('order-input').value = "";
+        const items = document.querySelectorAll('#sortable-list .sortable-item');
+        const ids = Array.from(items).map(item => item.getAttribute('data-id'));
+        document.getElementById('order-input').value = ids.join(',');
+    }
+
+</script>
