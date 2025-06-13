@@ -21,8 +21,8 @@
 				<form method="POST" action="<?=$_SERVER['REQUEST_URI']?>">
 					<div class="mb-3">
 						<ul class="list-group" id="sortable-list">
-                            <?php foreach($grades as $grade) { ?>
-                            <li class="list-group-item sortable-item list-group-item-action p-3 rounded-3 <?php if($grade["status"] === 'D') { ?>list-group-item-secondary<?php } ?>" data-id="<?=$grade["id"] ?>"><?=$grade["name"] ?></li>
+                            <?php foreach($datas as $data) { ?>
+                            <li class="list-group-item sortable-item list-group-item-action p-3 rounded-3 <?php if($data["status"] === 'D') { ?>list-group-item-secondary<?php } ?>" data-id="<?=$data["id"] ?>"><?=$data["name"] ?></li>
                             <?php } ?>
                         </ul> 
                         <input type="hidden" name="order" id="order-input">
