@@ -1,3 +1,4 @@
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <div class="container main-container" style="width:1100px;max-width:1100px;min-width:1100px;margin:0 auto; position:relative;">
     <!-- Thanh công cụ vẽ -->
     <div id="draw-toolbar" style="position:fixed; top:80px; left:30px; z-index:1100; background:#fff; border-radius:8px; box-shadow:0 2px 8px #0002; padding:8px 10px; display:flex; gap:10px;">
@@ -20,30 +21,16 @@
         <div class="col-lg-10">
             <div class="card shadow-lg">
                 <div class="card-body p-5">
-                    <form method="POST" action="/lesson">
-                        <input type="hidden" name="duration" id="duration-input" value="0">
+                    <input type="hidden" name="duration" id="duration-input">
                         <div class="row">
-                            <!-- Cột trái: 2 phần -->
-                            <?php if($status=='success'){ ?>
-                                <div class="col-md-8 pe-4 ps-0">
-                                    <div class="d-flex justify-content-start" style="margin-left: 30px; margin-top: 50px;">
-                                        <img src="/assest-src/imglessons/fantastic.png" 
-                                            alt="Hình minh họa" 
-                                            class="img-fluid rounded shadow-sm"
-                                            style="width: 400px; height: 150px;">
+                            <div class="col-md-8 pe-4 ps-0" id="question-content">
+                                <div class="text-center py-5">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
                                     </div>
-                                    <div class="col-12 text-start" style="margin-top:30px;">
-                                        <input type="hidden" name="status" value="success">                                      
-                                        <button class="btn btn-primary py-3 rounded-pill" type="submit" data-action="submit" data-load="/lesson"><?=$jatbi->lang("Tiếp tục")?></button>
-                                    </div>        
+                                    <p>Đang tải câu hỏi...</p>
                                 </div>
-                            <?php } ?>
-                            <?php if($status=='false'){ ?>
-                                <?php include __DIR__ . '/lesson-false.html'; ?>
-                            <?php } ?>
-                            <?php if($status==''){ ?>
-                                <?php include __DIR__ . '/lesson-content.html'; ?>
-                            <?php } ?>
+                            </div>
                             <!-- Cột phải: 1 phần -->
                             <div class="col-md-4 ps-5">
                                 <div class="text-start">
@@ -113,7 +100,6 @@
                             </div>
                         </div>
                         <!-- Kết thúc phần tài nguyên IXL Learning -->
-                    </form>
                 </div>
             </div>
         </div>
@@ -155,10 +141,21 @@
         display: block !important;
         cursor: crosshair;
     }
+    .selected {
+        background-color: #d1e7dd !important;
+        border-color: #0f5132 !important;
+        color: #0f5132 !important;
+    }
+    .selected-wrong {
+        background-color: #f8d7da !important;
+        border-color: #842029 !important;
+        color: #842029 !important;
+    }
 </style>
 <script>
 function initLessonPage() {
-    let duration = 0;
+    // Khởi tạo duration từ session PHP
+    let duration = <?= isset($_SESSION['lesson_stats']['duration']) ? (int)$_SESSION['lesson_stats']['duration'] : 0 ?>;
     let timerInterval = null;
 
     function updateDurationDisplay(sec) {
@@ -337,5 +334,248 @@ function initLessonPage() {
     };
 }
 
-document.addEventListener('DOMContentLoaded', initLessonPage);
+// --- AJAX logic ---
+function loadQuestion() {
+    // Lấy lesson_id từ URL nếu có
+    const urlParams = new URLSearchParams(window.location.search);
+    let lessonId = urlParams.get('lesson_id') || '';
+    let url = '/lesson?ajax=1';
+    if (lessonId) url += '&lesson_id=' + encodeURIComponent(lessonId);
+
+    fetch(url)
+    .then(response => response.json())
+    .then(data => {
+        updateUI(data);
+    })
+    .catch(error => {
+        console.error('Lỗi kết nối:', error);
+    });
+}
+
+function updateUI(data) {
+    // Cập nhật thống kê
+    document.getElementById('answered-count').textContent = data.stats.answered;
+    document.getElementById('score-display').textContent = data.stats.score;
+    document.getElementById('correct-count').textContent = `${data.stats.correct}/${data.stats.answered}`;
+    document.getElementById('progress-bar').style.width = `${(data.stats.answered > 0 ? (data.stats.correct / data.stats.answered) * 100 : 0)}%`;
+    
+    const formContent = document.querySelector('.col-md-8');
+    if (data.status === 'success') {
+        formContent.innerHTML = `
+            <div class="d-flex justify-content-start" style="margin-left: 30px; margin-top: 50px;">
+                <img src="/assest-src/imglessons/fantastic.png" 
+                    alt="Hình minh họa" 
+                    class="img-fluid rounded shadow-sm"
+                    style="width: 400px; height: 150px;">
+            </div>
+            <div class="col-12 text-start" style="margin-top:30px;">
+                <input type="hidden" name="status" value="success">                                      
+                <button class="btn btn-primary py-3 rounded-pill" type="button" onclick="continueAfterSuccess()">Tiếp tục</button>
+            </div>
+        `;
+    } 
+    else if (data.status === 'false') {
+        // Copy từ lesson-false.html sang đây
+        if (data.question.type === 'multiple_choice') {
+            formContent.innerHTML = `
+                <h2>Rất Tiếc ... câu trả lời sai !</h2>
+                <h3 class="fw-bold mb-4">Câu ${data.question.question_id}: Chọn đáp án đúng. </h3>
+                <button type="button" class="volume-button" onclick="speakQuestionText('${data.question.question_text}')">
+                    <img src="/assest-src/imglessons/volume.png" alt="Volume" class="volume-icon">
+                </button>
+                <p class="display-6 text-start mb-5 d-inline">${data.question.question_text}</p>
+                ${data.question.picture ? `
+                    <div class="question-image mb-4 text-center">
+                        <img src="${data.question.picture}" alt="Hình minh họa câu hỏi" class="img-fluid rounded shadow-sm" style="max-height: 250px; width: auto;">
+                    </div>
+                ` : ''}
+                <div class="d-grid gap-3" style="margin-top:10px;">
+                    ${data.question.choices.map(choice => {
+                        let btnClass = 'btn btn-answer text-start py-3 px-4';
+                        if (String(data.answer_wrong) === String(choice.choice_id)) {
+                            btnClass += ' selected-wrong';
+                        } else if (String(choice.choice_id) === String(data.correct_choice)) {
+                            btnClass += ' selected';
+                        }
+                        return `
+                            <button class="${btnClass}" type="button" disabled>
+                                ${choice.choice_text}
+                            </button>
+                        `;
+                    }).join('')}
+                    <div class="border rounded p-3 mb-3 bg-light">
+                        <textarea name="answer" class="form-control" style="font-weight:bold; font-size:1.25rem;"> Giải thích: ${data.question.explanation || ''}</textarea>
+                    </div>
+                </div>
+                <div class="col-12 text-start" style="margin-top:30px;">
+                    <input type="hidden" name="status" value="false">
+                    <button class="btn btn-primary py-3 rounded-pill" type="button" onclick="continueAfterWrong()">Tiếp tục</button>
+                </div>
+            `;
+        } else if (data.question.type === 'fill_in_blank') {
+            formContent.innerHTML = `
+                <h2>Rất Tiếc ... câu trả lời sai !</h2>
+                <h3 class="fw-bold mb-4">Câu ${data.question.question_id}: Điền vào chỗ trống. </h3>
+                <button type="button" class="volume-button" onclick="speakQuestionText('${data.question.question_text}')">
+                    <img src="/assest-src/imglessons/volume.png" alt="Volume" class="volume-icon">
+                </button>
+                <p class="display-6 text-start mb-5 d-inline">${data.question.question_text}</p>
+                ${data.question.picture ? `
+                    <div class="question-image mb-4 text-center">
+                        <img src="${data.question.picture}" alt="Hình minh họa câu hỏi" class="img-fluid rounded shadow-sm" style="max-height: 250px; width: auto;">
+                    </div>
+                ` : ''}
+                <div class="border rounded p-3 mb-3 bg-light">
+                    <textarea name="answer" class="form-control" style="font-weight:bold; font-size:1.25rem;"> Câu trả lời của bạn là: ${data.answer_wrong || ''}</textarea>
+                </div>
+                <div class="border rounded p-3 mb-3 bg-light">
+                    <textarea name="answer" class="form-control" style="font-weight:bold; font-size:1.25rem;"> Đáp án đúng là: ${data.correct_choice || ''}</textarea>
+                    <textarea name="answer" class="form-control" style="font-weight:bold; font-size:1.25rem;"> Giải thích: ${data.question.explanation || ''}</textarea>
+                </div>
+                <div class="col-12 text-start" style="margin-top:30px;">
+                    <input type="hidden" name="status" value="false">
+                    <button class="btn btn-primary py-3 rounded-pill" type="button" onclick="continueAfterWrong()">Tiếp tục</button>
+                </div>
+            `;
+        }
+    }
+    else if (data.status === '') {
+        // Copy từ lesson-content.html sang đây
+        if (data.question.type === 'multiple_choice') {
+            formContent.innerHTML = `
+                <h3 class="fw-bold mb-4">Câu ${data.question.question_id}: Chọn đáp án đúng. </h3>
+                <button type="button" class="volume-button" onclick="speakQuestionText('${data.question.question_text}')">
+                    <img src="/assest-src/imglessons/volume.png" alt="Volume" class="volume-icon">
+                </button>
+                <p class="display-6 text-start mb-5 d-inline">${data.question.question_text}</p>
+                ${data.question.picture ? `
+                    <div class="question-image mb-4 text-center">
+                        <img src="${data.question.picture}" alt="Hình minh họa câu hỏi" class="img-fluid rounded shadow-sm" style="max-height: 250px; width: auto;">
+                    </div>
+                ` : ''}
+                <div class="d-grid gap-3" style="margin-top:10px;">
+                    ${data.question.choices.map(choice => `
+                        <button 
+                            class="btn btn-answer text-start py-3 px-4"
+                            type="button"
+                            onclick="submitAnswer(${data.question.question_id}, ${choice.choice_id})">
+                            ${choice.choice_text}
+                        </button>
+                    `).join('')}
+                </div>
+            `;
+        } else if (data.question.type === 'fill_in_blank') {
+            formContent.innerHTML = `
+                <h3 class="fw-bold mb-4">Câu ${data.question.question_id}: Điền vào chỗ trống. </h3>
+                <button type="button" class="volume-button" onclick="speakQuestionText('${data.question.question_text}')">
+                    <img src="/assest-src/imglessons/volume.png" alt="Volume" class="volume-icon">
+                </button>
+                <p class="display-6 text-start mb-5 d-inline">${data.question.question_text}</p>
+                ${data.question.picture ? `
+                    <div class="question-image mb-4 text-center">
+                        <img src="${data.question.picture}" alt="Hình minh họa câu hỏi" class="img-fluid rounded shadow-sm" style="max-height: 250px; width: auto;">
+                    </div>
+                ` : ''}
+                <div class="border rounded p-3 mb-3 bg-light">
+                    <textarea id="answer-input" class="form-control" rows="4" placeholder="Type your answer here..."></textarea>
+                </div>
+                <div class="col-12 text-start" style="margin-top:30px;">
+                    <button class="btn btn-primary py-3 rounded-pill" onclick="submitAnswer(${data.question.question_id}, document.getElementById('answer-input').value)">Xác nhận</button>
+                </div>
+            `;
+        }
+    }
+}
+
+// Thêm hàm speakQuestionText cho nút volume
+function speakQuestionText(text) {
+    if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'vi-VN';
+        window.speechSynthesis.speak(utterance);
+    } else {
+        alert('Trình duyệt của bạn không hỗ trợ đọc văn bản.');
+    }
+}
+
+function submitAnswer(questionId, answer) {
+    const formData = new FormData();
+    formData.append('question_id', questionId);
+    formData.append('answer', answer);
+    formData.append('duration', document.getElementById('duration-input').value);
+
+    fetch('/lesson', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'error') {
+            alert(data.content);
+        } else {
+            updateUI(data);
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+// Hàm xử lý khi bấm "Tiếp tục" sau khi sai
+function continueAfterWrong() {
+    const formData = new FormData();
+    formData.append('status', 'false');
+    formData.append('duration', document.getElementById('duration-input').value);
+
+    fetch('/lesson', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'completed' && data.redirect) {
+            window.location.href = data.redirect;
+        } else {
+            loadQuestion();
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+// Thêm hàm xử lý khi bấm "Tiếp tục" sau khi đúng
+function continueAfterSuccess() {
+    const formData = new FormData();
+    formData.append('status', 'success');
+    formData.append('duration', document.getElementById('duration-input').value);
+
+    fetch('/lesson', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'completed' && data.redirect) {
+            window.location.href = data.redirect;
+        } else {
+            loadQuestion();
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+// Khởi tạo trang
+document.addEventListener('DOMContentLoaded', function() {
+    loadQuestion();
+    initLessonPage();
+});
 </script>
