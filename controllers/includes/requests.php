@@ -14,32 +14,6 @@
                 ],
             ],
         ],
-        "lesson"=>[
-            "name"=>$jatbi->lang("Bài học"),
-            "item"=>[
-                '/'=>[
-                    "menu"=>$jatbi->lang("Bài học"),
-                    "url"=>'/lesson',
-                    "icon"=>'<i class="ti ti-dashboard"></i>',
-                    "controllers"=>"controllers/lesson/lesson.php",
-                    "main"=>'true',
-                    "permission" => "",
-                ],
-            ],
-        ],
-        "home"=>[
-            "name"=>$jatbi->lang("Bài học"),
-            "item"=>[
-                '/'=>[
-                    "menu"=>$jatbi->lang("Bài học"),
-                    "url"=>'/home',
-                    "icon"=>'<i class="ti ti-dashboard"></i>',
-                    "controllers"=>"controllers/home/home.php",
-                    "main"=>'true',
-                    "permission" => "",
-                ],
-            ],
-        ],
         "page"=>[
             "name"=>'Admin',
             "item"=>[
@@ -169,54 +143,22 @@
             }
         }
     }
+    
     $mains_frontend = [
-		"home"=>[
-			"controllers"=>"controllers/frontend/home.php",
+		""=>[
+			"controllers"=>"controllers/home/home.php",
 		],
-		"lessons"=>[
-			"controllers"=>"controllers/frontend/lessons.php",
+		"analytics"=>[
+			"controllers"=>"controllers/lesson/analytics.php",
 		],
-		"accounts"=>[
-			"controllers"=>"controllers/frontend/accounts.php",
-		],
-		"affiliate"=>[
-			"controllers"=>"controllers/frontend/affiliate.php",
-		],
-		"getlink"=>[
-			"controllers"=>"controllers/frontend/getlink.php",
-		],
-		"payments"=>[
-			"controllers"=>"controllers/frontend/payments.php",
-		],
-		"news"=>[
-			"controllers"=>"controllers/frontend/news.php",
-		],
-		"statistics"=>[
-			"controllers"=>"controllers/frontend/statistics.php",
-		],
-		"content"=>[
-			"controllers"=>"controllers/frontend/content.php",
-		],
-		"contact"=>[
-			"controllers"=>"controllers/frontend/contact.php",
-		],
-		"search"=>[
-			"controllers"=>"controllers/frontend/search.php",
-		],
-		"test"=>[
-			"controllers"=>"controllers/frontend/test.php",
-		],
-		"error"=>[
-			"controllers"=>"controllers/frontend/home.php",
-		],
-		"api"=>[
-			"controllers"=>"controllers/api/api.php",
-		],
-		"exam"=>[
-			"controllers"=>"controllers/frontend/exam.php",
-		],
-		"details_level"=>[
-			"controllers"=>"controllers/frontend/details_level.php",
+		"lesson"=>[
+			"controllers"=>"controllers/lesson/lesson.php",
 		],
 	];
+    foreach($mains_frontend as $key => $item) {
+        $setRequest[] = [
+            "key" => $key,
+            "controllers" => $item['controllers'],
+        ];
+    }
 ?>

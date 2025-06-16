@@ -1,6 +1,7 @@
 <?php
 $app->router("/", 'GET', function($vars) use ($app) {
     require_once 'headerhome.php';
+    $vars['math'] = '1';
     // Lấy các trường cần thiết từ bảng grades, chỉ lấy các bản ghi chưa xóa và đang hoạt động
     $gradesRaw = $app->select('grades', '*', [
         'deleted' => 0,
