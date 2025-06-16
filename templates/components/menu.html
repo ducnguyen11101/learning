@@ -1,0 +1,54 @@
+<header
+    style="background-color: white; padding: 10px; color: white; display: flex; justify-content: space-between; align-items: center;">
+    <div class="container">
+        <div class="row w-100">
+            <div class="col-2 text-start">
+                <h1 class="text-secondary">LOGO</h1>
+            </div>
+            <div class="col-8">
+                <nav class="navbar navbar-expand-sm bg-white ">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#">Math</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Link</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Link</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link disabled" href="">Disabled</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            <div class="col-2 text-end">
+                <?php if(count($account) > 0 ) { ?>
+                <div class="dropdown pb-0">
+                    <button class="btn d-inline-flex align-items-center btn-info rounded-5 p-1 mt-2"
+                        style="max-width: 70%;" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <img src="https://jbagy.me/wp-content/uploads/2025/03/Hinh-anh-avatar-con-vit-vang-cute-1.jpg"
+                            alt="Icon" class="rounded-circle me-2" style="width: 30%;">
+                        <span class="text-white">Name</span>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end border-0 p-3 shadow-sm rounded-2 min-width bg-blur"
+                        style="--min-width:200px;--min-width-xs:100vw">
+                        <div class="mb-2">
+                            <a href=""><?=$jatbi->lang("Hồ sơ và cài đặt")?></a>
+                        </div>
+                        <div>
+                            <a href=""><?=$jatbi->lang("Chi tiết đăng ký")?></a>
+                        </div>
+                        <hr>
+                        <a href="/logout"><?=$jatbi->lang("Đăng suất")?></a>
+                    </div>
+                </div>
+                <?php } else { ?>
+                <a href="/login" class="btn text-white rounded-5 px-3 mt-2"
+                    style="background-color: #249fff;"><?=$jatbi->lang("Đăng nhập")?></a>
+                <?php }?>
+            </div>
+        </div>
+    </div>
+</header>

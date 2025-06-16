@@ -46,5 +46,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body  data-bs-theme="dark" data-sidebar="full">
+    <?php if(!empty(math)){ require_once 'templates/components/menu.html'; } ?>
     <?php if(count($account)>0){ echo $app->component("sidebar"); } ?>
     <div class="page-load-container pt-standalone <?=count($account)==0?'ms-0':''?>" pjax-load-content>
