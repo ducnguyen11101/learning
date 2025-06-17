@@ -131,31 +131,34 @@ $app->router("/math/units/{grade}", 'GET', function($vars) use ($app) {
         $totalGroup = 0;
         foreach ($units as $unit) {
             $count = $app->count("lessons",["unit"=>$unit["id"]]);
-            // if($count + $countLessons > $groupSize && count($group[$i])>1 && $i < 3) {
-            //     $i++;
-            //     $count = 0;
-            // }
-            // if(($totalGroup + $count > $groupSize) && count($group[$i]) > 0 && $i < 3 ) {
-            //     $totalGroup = 0;
-            //     $i++;
-            // }
             if(($totalGroup + $count > $groupSize) && !empty($group[$i]) && $i < 3 ) {
                 $totalGroup = 0;
                 $i++;
             }
-            // $group[1][] = $unit["id"];
             $group[$i][] = $unit["id"];
             $totalGroup += $count;
-            // // $count += $countLessons;
         }
-
-
-        $vars['tittle'] = $grade['name'];
+        $vars['title'] = $grade['name'];
         $vars['countLessons'] = $countLessons;
         $vars['groupSize'] = $groupSize;
         $vars['group'] = $group;
         echo $app->render('templates/frontend/category.html', $vars);
     } else echo $app->render('templates/error.html', $vars);
 });
+
+$app->router("/information-edit/{id}", 'GET', function($vars) use ($app) {
+    $data = $app->get("accounts","*",["status"=>'A',"deleted"=>0]);
+    if($data) {
+        $vars['title'] = "Sửa thông tin";
+        $vars['data'] = $data;
+        echo $app->render('templates/frontend/information-edit.html', $vars, 'global');
+    } else echo $app->render('templates/common/error-modal.html', $vars, 'global');
+});
+
+// $app->router("/math", 'GET', function($vars) use ($app) {
+//     $vars['templates'] = 'grade';
+//     $vars['grades'] = $app->select("grades","*",["status"=>'A',"deleted"=>0]);
+//     echo $app->render('templates/frontend/category.html', $vars);
+// });
 
 ?>

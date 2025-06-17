@@ -1,9 +1,20 @@
 <div class="container">
     <div class="row justify-content-center align-items-center">
         <div class="col-lg-7">
-            <div class="card border-1 rounded-2 mt-3 ">
+            <div class="card border-1 rounded-3 mt-3 ">
+                <div class="card-header bg-body row border-0 mx-0 mt-2 pb-0">
+                    <div class="col-11">
+                        <h3><?=$jatbi->lang("Thông tin cá nhân")?></h3>
+                    </div>
+                    <div class="col-1">
+                    <button class="btn border-0 rounded-pill" data-action="modal" data-url="/information-edit/<?=$account['id']?>"><i class="fa-solid fa-pen"></i></button>
+
+                        <!-- <button class="btn" data-action="modal" data-url="/information-edit/12">
+                            <i class="fa-solid fa-pen"></i>
+                        </button> -->
+                    </div> 
+                </div>
                 <div class="card-body mx-2">
-                    <h3 class="mb-2 mt-1"><?=$jatbi->lang("Thông tin cá nhân")?></h3>
                     <table class="table">
                         <tbody>
                             <tr>
