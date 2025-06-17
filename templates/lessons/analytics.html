@@ -42,17 +42,30 @@
                     <canvas id="categoryPie" width="120" height="120"></canvas>
                 </div>
                 <ul class="list-unstyled mt-2 small" style="font-size: 0.85rem;">
-                    <li><span style="color:#4caf50;">■</span> 4% Counting to 100 (First grade)</li>
-                    <li><span style="color:#2196f3;">■</span> 4% Counting to 10 (Kindergarten)</li>
-                    <li><span style="color:#fbc02d;">■</span> 2% Comparing up to 10 (Kindergarten)</li>
-                    <li><span style="color:#ff9800;">■</span> 2% Understand multiplication (Third grade)</li>
-                    <li><span style="color:#9c27b0;">■</span> 2% Addition strategies: one digit (Second grade)</li>
-                    <li><span style="color:#bdbdbd;">■</span> 86% Other</li>
+                    <?php
+                        $labels = $topLessonIds;
+                        $colors = [
+                            '#4caf50',
+                            '#2196f3',
+                            '#fbc02d',
+                            '#ff9800',
+                            '#9c27b0',
+                            '#bdbdbd'
+                        ];
+                        $total = array_sum($lessons);
+                        foreach ($lessons as $i => $num) {
+                            $percent = $total > 0 ? round($num * 100 / $total) : 0;
+                            echo '<li><span style="color:' . $colors[$i] . ';">■</span> ' . $percent . '% ' . $labels[$i] . '</li>';
+                        }
+                    ?>
                 </ul>
             </div>
             <div class="col-8">
                 <div class="fw-bold mb-2" style="color:#357abd;">Luyện tập theo ngày</div>
-                <canvas id="practiceBar" height="120"></canvas>
+                <div style="position: relative;">
+                    <span style="position: absolute; left: -65px; top: 50%; transform: translateY(-50%) rotate(-90deg); font-size: 0.95rem; color: #357abd; letter-spacing: 1px;">Số câu trả lời</span>
+                    <canvas id="practiceBar" height="120"></canvas>
+                </div>
             </div>
         </div>
     </div>
@@ -143,7 +156,7 @@
                 'Other'
             ],
             datasets: [{
-                data: [4, 4, 2, 2, 2, 86],
+                data: <?= json_encode($lessons) ?>,
                 backgroundColor: [
                     '#4caf50',
                     '#2196f3',
@@ -169,14 +182,14 @@
             labels: <?= json_encode($date) ?>,
             datasets: [{
                 label: 'Questions answered',
-                data: [50, 120, 300, 180, 40, 10, 0, 0, 2, 0, 30, 200, 400, 608, 500, 20],
+                data: <?= json_encode($datas) ?>,
                 backgroundColor: '#2196f3'
             }]
         },
         options: {
             plugins: { legend: { display: false } },
             scales: {
-                y: { beginAtZero: true, max: 750, ticks: { stepSize: 150 } }
+                y: { beginAtZero: true, max: 700, ticks: { stepSize: 100 } }
             }
         }
     });

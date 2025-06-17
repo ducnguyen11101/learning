@@ -54,6 +54,8 @@ $app->router("/lesson", 'GET', function($vars) use ($app) {
                     "id_account" => $_SESSION['account_id'] ?? 16,
                     "id_lesson"  => $_SESSION['lesson_id'] ?? 0,
                     "point"      => $stats['score'],
+                    "answer"     => $stats['answered'],
+                    "wrong"     => $stats['answered'] - $stats['correct'],
                     "time"       => $stats['duration'],
                     "date"       => date('Y-m-d H:i:s'),
                     "deleted"    => 0
