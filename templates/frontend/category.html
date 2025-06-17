@@ -1,0 +1,60 @@
+<?php if($templates=='grade'){ ?>
+    <style>
+        .c-hover:hover {
+        transform: translateY(-5px);               /* hiệu ứng nâng lên */
+        transition: all 0.3s ease-in-out;          /* mượt mà */
+        }
+    </style>
+    <div class="container">
+        <div class="row mt-5 g-4">
+            <?php foreach($grades as $grade) { ?>
+                <div class="col-4">
+                    <a href="">
+                        <div class="c-hover card shadow border-0 rounded-3" style="height: 200px;">
+                            <div class="card-header rounded-top-3 pt-3 pb-2" style="background-color: #FF9E40;">
+                                <h5 class="text-white"><?=$grade['name']?></h5>
+                            </div>
+                            <div class="card-body">
+
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            <?php } ?>
+        </div>
+    </div>
+<?php } ?>
+<?php if($templates=='unit'){ ?>
+    <style>
+        .c-hover:hover {
+        transform: translateY(-5px);               /* hiệu ứng nâng lên */
+        transition: all 0.3s ease-in-out;          /* mượt mà */
+        }
+    </style>
+    <div class="container ps-0 pe-2">
+        <div class="card px-1">
+            <div class="card-header bg-white border-0">
+                <h1 class="mb-0"><?=$tittle?></h1>
+            </div>
+            <div class="card-body row">
+                 <?php $abc = 'A';
+                for ($i = 1; $i <= 3; $i++) { ?>
+                <div class="col-lg-4">
+                    <?php foreach ($group[$i] as $group1) { 
+                        $unit = $app->get("units", "*", ["id" => $group1]); ?>
+                        <div class="fs-5 text-success pb-2"><?= $abc. ". " .$unit["name"] ?></div>
+                        <?php $abc++; 
+                        $def = 1;
+                        $lessons = $app->select("lessons", "*", ["unit" => $group1]);
+                        foreach ($lessons as $lesson) { ?>
+                        <div class="ms-3 fs-6"><?= $def. ". " .$lesson["name"] ?></div>
+                        <?php $def++;
+                        } ?>
+                        <br>
+                    <?php } ?>
+                </div>
+            <?php } ?>
+            </div>
+        </div>
+    </div>
+<?php } ?>

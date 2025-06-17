@@ -1,7 +1,7 @@
 <?php
 $app->router("/", 'GET', function($vars) use ($app) {
     $vars['math'] = '1';
-    require_once 'headerhome.php';
+    $vars['templates'] = '123';
     // Lấy các trường cần thiết từ bảng grades, chỉ lấy các bản ghi chưa xóa và đang hoạt động
     $gradesRaw = $app->select('grades', '*', [
         'deleted' => 0,
@@ -98,4 +98,64 @@ $app->router("/grade", 'GET', function($vars) use ($app) {
     ]);
     require_once 'footerhome.php';
 });
+
+$app->router("/profile", 'GET', function($vars) use ($app) {
+    if($app->getSession("accounts")) {
+        $vars['account'] = $app->get("accounts","*",["id"=>$app->getSession("accounts")['id']]);
+        echo $app->render('templates/frontend/frofile.html', $vars);
+    } else echo $app->render('templates/error.html', $vars);
+});
+
+$app->router("/math", 'GET', function($vars) use ($app) {
+    $vars['templates'] = 'grade';
+    $vars['grades'] = $app->select("grades","*",["status"=>'A',"deleted"=>0]);
+    echo $app->render('templates/frontend/category.html', $vars);
+});
+
+$app->router("/math/units/{grade}", 'GET', function($vars) use ($app) {
+    $vars['templates'] = 'unit';
+    $grade = $app->get("grades","*",["id"=>$vars['grade'],"status"=>'A',"deleted"=>0]);
+    $units = $app->select("units","*",["grade"=>$vars['grade'],"status"=>'A',"deleted"=>0]);
+    if($grade) {
+        $countLessons = $app->count("lessons",[
+             "[>]units" => ["unit" => "id"],
+        ],"*",[
+            "units.grade"=>'1'
+        ]);
+        $groupSize = ceil($countLessons / 3);
+        $group[1] = [];
+        $group[2] = [];
+        $group[3] = [];
+        $i = 1;
+
+        $totalGroup = 0;
+        foreach ($units as $unit) {
+            $count = $app->count("lessons",["unit"=>$unit["id"]]);
+            // if($count + $countLessons > $groupSize && count($group[$i])>1 && $i < 3) {
+            //     $i++;
+            //     $count = 0;
+            // }
+            // if(($totalGroup + $count > $groupSize) && count($group[$i]) > 0 && $i < 3 ) {
+            //     $totalGroup = 0;
+            //     $i++;
+            // }
+            if(($totalGroup + $count > $groupSize) && !empty($group[$i]) && $i < 3 ) {
+                $totalGroup = 0;
+                $i++;
+            }
+            // $group[1][] = $unit["id"];
+            $group[$i][] = $unit["id"];
+            $totalGroup += $count;
+            // // $count += $countLessons;
+        }
+
+
+        $vars['tittle'] = $grade['name'];
+        $vars['countLessons'] = $countLessons;
+        $vars['groupSize'] = $groupSize;
+        $vars['group'] = $group;
+        echo $app->render('templates/frontend/category.html', $vars);
+    } else echo $app->render('templates/error.html', $vars);
+});
+
 ?>

@@ -1,0 +1,53 @@
+<div class="container">
+    <div class="row justify-content-center align-items-center">
+        <div class="col-lg-7">
+            <div class="card border-1 rounded-2 mt-3 ">
+                <div class="card-body mx-2">
+                    <h3 class="mb-2 mt-1"><?=$jatbi->lang("Thông tin cá nhân")?></h3>
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <td style="width: 35%;"><?=$jatbi->lang("Họ và tên")?></td>
+                                <td style="width: 65%;"><?=$account['name']?></td>
+                            </tr>
+                            <tr>
+                                <td style="width: 35%;"><?=$jatbi->lang("Ngày sinh")?></td>
+                                <td style="width: 65%;"><?=$account['birthday']?></td>
+                            </tr>
+                            <tr>
+                                <td style="width: 35%;"><?=$jatbi->lang("Giới tính")?></td>
+                                <td style="width: 65%;"><?=$account['gender']?></td>
+                            </tr>
+                            <tr>
+                                <td style="width: 35%;"><?=$jatbi->lang("Email")?></td>
+                                <td style="width: 65%;"><?=$account['email']?></td>
+                            </tr>
+                            <tr>
+                                <td style="width: 35%;"><?=$jatbi->lang("Số điện thoại")?></td>
+                                <td style="width: 65%;"><?=$account['phone']?></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card border-1 rounded-4 mt-3 ">
+                <div class="card-body mx-2">
+                    <h3 class="mb-2 mt-1"><?=$jatbi->lang("Thông tin đăng nhập")?></h3>
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <td style="width: 35%;"><?=$jatbi->lang("Tài khoản")?></td>
+                                <td style="width: 65%;"><?=$account['account']?></td>
+                            </tr>
+                            <tr>
+                                <td style="width: 35%;"><?=$jatbi->lang("Mật khẩu")?></td>
+                                <td style="width: 65%;">
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
