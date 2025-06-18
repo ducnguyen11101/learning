@@ -24,6 +24,7 @@ $app->router("/lesson", 'GET', function($vars) use ($app) {
                 'score' => 0,
                 'duration' => 0
             ];
+            $_SESSION['status'] = '';
         }
         if (isset($_GET['lesson_id'])) {
             $_SESSION['lesson_id'] = intval($_GET['lesson_id']);
@@ -36,12 +37,6 @@ $app->router("/lesson", 'GET', function($vars) use ($app) {
 
         // Nếu đã đủ 10 câu, chuyển hướng sang /lesson-complete
         if ($_SESSION['lesson_stats']['answered'] >= 10) {
-            // if ($isAjax) {
-            //     echo json_encode([
-            //         'status' => 'completed',
-            //         'redirect' => '/lesson-complete'
-            //     ]);
-            // } else {
                 // Gộp xử lý hoàn thành vào đây, không chuyển hướng nữa
                 $stats = $_SESSION['lesson_stats'];
                 $vars['answered'] = $stats['answered'];
