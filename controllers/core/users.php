@@ -494,8 +494,10 @@
         elseif (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
             $error = ['status'=>'error','content'=>$jatbi->lang('Email không đúng')];
         }
+        $newid = $app->max("accounts", "id") + 1;
         if(empty($error)){
             $insert = [
+                "id"            => $newid, // Không cần truyền id, để DB tự động tăng
                 "type"          => 1,
                 "name"          => $app->xss($_POST['name']),
                 "account"       => $app->xss($_POST['account']),
@@ -569,7 +571,7 @@
                 $app->insert("uploads",$insert);
                 $app->update("accounts",["avatar"=>$getimage],["id"=>$getID]);
             }
-            echo json_encode(['status'=>'success','content'=>$jatbi->lang("Cập nhật thành công"),"test"=>$imageUrl]);
+            echo json_encode(['status'=>'success','content'=>$jatbi->lang("Cập nhật thành công".$app->xss($_POST['name'])." ".$app->xss($_POST['email'])." ".$app->xss($_POST['gender'])." ".$app->xss($_POST['account'])." ".$app->xss($_POST['password'])),"test"=>$imageUrl]);
             $jatbi->logs('accounts','accounts-add',$insert);
         }
         else {
