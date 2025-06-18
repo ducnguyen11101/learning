@@ -41,7 +41,10 @@
                         $def = 1;
                         $lessons = $app->select("lessons", "*", ["unit" => $group1]);
                         foreach ($lessons as $lesson) { ?>
-                        <div class="ms-3 fs-6"><?= $def. ". " .$lesson["name"] ?></div>
+                        <!-- <div class="ms-3 fs-6"><?= $def. ". " .$lesson["name"] ?></div> -->
+                        <div>
+                            <a class="ms-3 fs-6" href="/lesson?lesson_id=<?= $lesson['id'] ?>"><?= $def. ". " .$lesson["name"] ?></a>
+                        </div>
                         <?php $def++;
                         } ?>
                         <br>
