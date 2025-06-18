@@ -47,6 +47,14 @@
 </head>
 <body  data-bs-theme="dark" data-sidebar="full">
     <?php if(true) { require_once 'templates/components/menu.html'; } ?>
+    <!-- <?php $url = $_SERVER['REQUEST_URI'];
+    $parts = explode('/', trim($url, '/'));
+
+    if (isset($parts[0]) && $parts[0] === 'admin' && count($account)>0) {
+        echo $app->component("sidebar");
+    } else {
+        require_once 'templates/components/menu.html';
+    } ?> -->
     <!-- <?php if(count($account)>0 && empty($math)){ echo $app->component("sidebar"); } ?> -->
     <!-- <?php if(count($account) == 0 ) { require_once 'templates/components/menu.html'; } ?>
     <?php if(count($account)>0 && empty($math)){ echo $app->component("sidebar"); } ?> -->

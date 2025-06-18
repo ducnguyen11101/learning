@@ -9,7 +9,7 @@
         <div class="row mt-5 g-4">
             <?php foreach($grades as $grade) { ?>
                 <div class="col-4">
-                    <a href="">
+                    <a href="/math/units/<?=$grade['id']?>" data-pjax>
                         <div class="c-hover card shadow border-0 rounded-3" style="height: 200px;">
                             <div class="card-header rounded-top-3 pt-3 pb-2" style="background-color: #FF9E40;">
                                 <h5 class="text-white"><?=$grade['name']?></h5>

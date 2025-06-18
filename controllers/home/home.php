@@ -1,4 +1,8 @@
 <?php
+    if (!defined('ECLO')) die("Hacking attempt");
+    $jatbi = new Jatbi($app);
+    $setting = $app->getValueData('setting');
+
 $app->router("/", 'GET', function($vars) use ($app) {
     $vars['math'] = '1';
     $vars['templates'] = '123';
@@ -146,14 +150,39 @@ $app->router("/math/units/{grade}", 'GET', function($vars) use ($app) {
     } else echo $app->render('templates/error.html', $vars);
 });
 
-$app->router("/information-edit/{id}", 'GET', function($vars) use ($app) {
-    $data = $app->get("accounts","*",["status"=>'A',"deleted"=>0]);
+$app->router("/information-edit/{id}", 'GET', function($vars) use ($app, $jatbi) {
+    $data = $app->get("accounts","*",["id"=>$vars['id'],"status"=>'A',"deleted"=>0]);
     if($data) {
         $vars['title'] = "Sửa thông tin";
         $vars['data'] = $data;
         echo $app->render('templates/frontend/information-edit.html', $vars, 'global');
     } else echo $app->render('templates/common/error-modal.html', $vars, 'global');
 });
+
+$app->router("/information-edit/{id}", 'POST', function($vars) use ($app, $jatbi) {
+    $app->header([
+        'Content-Type' => 'application/json',
+    ]);
+  
+    if($app->xss($_POST['name'])=='' || $app->xss($_POST['birthday'])=='' || $app->xss($_POST['email'])=='' || $app->xss($_POST['phone'])==''){
+        echo json_encode(['status'=>'error','content'=>$jatbi->lang("Vui lòng không để trống")]);
+        exit;
+    }
+    if (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
+        echo json_encode(['status'=>'error','content'=>$jatbi->lang('Email không đúng')]);
+        exit;
+    }
+    $insert = [
+        "name"          => $app->xss($_POST['name']),
+        "birthday"      => $app->xss($_POST['birthday']),
+        "gender"        => $app->xss($_POST['gender']),
+        "email"         => $app->xss($_POST['email']),
+        "phone"         => $app->xss($_POST['phone']),
+    ];
+    $app->update("accounts",$insert,["id"=>$vars['id']]);
+    echo json_encode(['status'=>'success','content'=>$jatbi->lang("Cập nhật thành công")]);
+});
+
 
 // $app->router("/math", 'GET', function($vars) use ($app) {
 //     $vars['templates'] = 'grade';

@@ -2,7 +2,6 @@
     if (!defined('ECLO')) die("Hacking attempt");
     $jatbi = new Jatbi($app);
     $setting = $app->getValueData('setting');
-    $common = $app->getValueData('common');
 
     $app->router("/learning/grades", 'GET', function($vars) use ($app, $jatbi) {
         $vars['title'] = $jatbi->lang("Quản lý Danh mục");
