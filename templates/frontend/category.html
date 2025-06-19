@@ -11,8 +11,8 @@
                 <div class="col-4">
                     <a href="/math/units/<?=$grade['id']?>" data-pjax>
                         <div class="c-hover card shadow border-0 rounded-3" style="height: 220px; transition: transform 0.3s;">
-                            <div class="card-header rounded-top-3 pt-3 pb-2" style="background-color: #81C784;">
-                                <h5 class="text-white"><?=$grade['name']?></h5>
+                            <div class="card-header rounded-top-3 pt-3 pb-0" style="background-color: <?=$grade['color']?>;">
+                                <p class="fs-4 text-white"><?=$grade['name']?></p>
                             </div>
                             <div class="card-body mx-1">
                                 <p class="fs-6"><?=$grade['description']?></p> 
@@ -26,7 +26,7 @@
 <?php } ?>
 <?php if($templates=='unit'){ ?>
     <div class="container">
-        <div class="card px-1">
+        <div class="card px-1 mt-4 mb-2">
             <div class="card-header bg-white border-0">
                 <h1 class="mb-0"><?=$title?></h1>
             </div>
