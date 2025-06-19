@@ -4,8 +4,6 @@
     $setting = $app->getValueData('setting');
 
 $app->router("/", 'GET', function($vars) use ($app) {
-    $vars['math'] = '1';
-    $vars['templates'] = '123';
     // Lấy các trường cần thiết từ bảng grades, chỉ lấy các bản ghi chưa xóa và đang hoạt động
     $gradesRaw = $app->select('grades', '*', [
         'deleted' => 0,
