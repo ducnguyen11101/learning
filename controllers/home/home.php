@@ -10,7 +10,7 @@ $app->router("/", 'GET', function($vars) use ($app) {
     $gradesRaw = $app->select('grades', '*', [
         'deleted' => 0,
         'status' => 0,
-        'ORDER' => ['location' => 'ASC']
+        'ORDER' => ['position' => 'ASC']
     ]);
     $gradeColors = [
         0 => '#FF9E40', // Lớp 1 - cam
@@ -57,7 +57,7 @@ $app->router("/", 'GET', function($vars) use ($app) {
     ];
     $grades = [];
     foreach ($gradesRaw as $g) {
-        $idx = $g['location'];
+        $idx = $g['position'];
         $grades[] = [
             'id' => $g['id'],
             'name' => $g['name'],
