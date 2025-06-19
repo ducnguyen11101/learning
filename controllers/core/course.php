@@ -133,6 +133,7 @@
         $insert = [
             "label"     => $app->xss($_POST['label']),
             "name"      => $app->xss($_POST['name']),
+            "color"     => $app->xss($_POST['color']),
             "status"    => $app->xss($_POST['status']),
             "position"  => ($position > 0) ? $position + 1 : 0,
         ];
@@ -175,6 +176,7 @@
         $insert = [
             "label"     => $app->xss($_POST['label']),
             "name"      => $app->xss($_POST['name']),
+            "color"     => $app->xss($_POST['color']),
             "status"    => $app->xss($_POST['status']),
         ];
         $app->update("grades",$insert,["id"=>$data['id']]);

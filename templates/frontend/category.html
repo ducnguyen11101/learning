@@ -12,10 +12,10 @@
                     <a href="/math/units/<?=$grade['id']?>" data-pjax>
                         <div class="c-hover card shadow border-0 rounded-3" style="height: 220px; transition: transform 0.3s;">
                             <div class="card-header rounded-top-3 pt-3 pb-0" style="background-color: <?=$grade['color']?>;">
-                                <p class="fs-4 text-white"><?=$grade['name']?></p>
+                                <p class="mx-1 fw-bold fs-4 text-white"><?=$grade['name']?></p>
                             </div>
-                            <div class="card-body mx-1">
-                                <p class="fs-6"><?=$grade['description']?></p> 
+                            <div class="card-body ">
+                                <p class="fs-6 mx-1"><?=$grade['description']?></p> 
                             </div>
                         </div>
                     </a>
@@ -28,7 +28,7 @@
     <div class="container">
         <div class="card px-1 mt-4 mb-2">
             <div class="card-header bg-white border-0">
-                <h1 class="mb-0"><?=$title?></h1>
+                <h1 class="mb-0 fw-bold" style="color: <?=$grade['color']?>;"><?=$grade['name']?></h1>
             </div>
             <div class="card-body row">
                  <?php $abc = 'A';
@@ -43,7 +43,7 @@
                         foreach ($lessons as $lesson) { ?>
                         <!-- <div class="ms-3 fs-6"><?= $def. ". " .$lesson["name"] ?></div> -->
                         <div>
-                            <a class="ms-3 fs-6" href="/lesson?lesson_id=<?= $lesson['id'] ?>"><?= $def. ". " .$lesson["name"] ?></a>
+                            <a class="ms-3 fs-6" href="/lesson?lesson_id=<?= $lesson['id'] ?>" style="color: #515b3b;"><?= $def. ". " .$lesson["name"] ?></a>
                         </div>
                         <?php $def++;
                         } ?>

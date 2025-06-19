@@ -140,7 +140,7 @@ $app->router("/math/units/{grade}", 'GET', function($vars) use ($app) {
             $group[$i][] = $unit["id"];
             $totalGroup += $count;
         }
-        $vars['title'] = $grade['name'];
+        $vars['grade'] = $grade;
         $vars['countLessons'] = $countLessons;
         $vars['groupSize'] = $groupSize;
         $vars['group'] = $group;

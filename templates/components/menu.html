@@ -26,7 +26,10 @@
                 </nav>
             </div>
             <div class="col-2 text-end">
-                <?php if(count($account) > '0' ) { ?>
+                <?php if(!$app->getSession("accounts")) { ?>
+                <a href="/login" class="btn text-white rounded-5 px-3 mt-2"
+                    style="background-color: #249fff;" data-pjax><?=$jatbi->lang("Đăng nhập")?></a>
+                <?php } else { ?>
                 <div class="dropdown pb-0">
                     <button class="btn d-inline-flex align-items-center btn-info rounded-5 p-1 mt-2"
                         style="max-width: 70%;" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -39,16 +42,17 @@
                         <div class="mb-2">
                             <a href="/profile" data-pjax><?=$jatbi->lang("Hồ sơ và cài đặt")?></a>
                         </div>
-                        <div>
+                        <div class="mb-2">
                             <a href=""><?=$jatbi->lang("Chi tiết đăng ký")?></a>
+                        </div>
+                        <div class="mb-2">
+                            <a href="/admin" data-pjax><?=$jatbi->lang("Quản lý")?></a>
                         </div>
                         <hr>
                         <a href="/logout"><?=$jatbi->lang("Đăng suất")?></a>
                     </div>
                 </div>
-                <?php } else { ?>
-                <a href="/login" class="btn text-white rounded-5 px-3 mt-2"
-                    style="background-color: #249fff;" data-pjax><?=$jatbi->lang("Đăng nhập")?></a>
+                
                 <?php }?>
             </div>
         </div>
