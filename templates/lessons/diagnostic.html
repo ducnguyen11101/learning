@@ -1,0 +1,90 @@
+<div class="row mb-4" style="width:950px;max-width:950px;min-width:950px;margin:0 auto; position:relative;">
+    <div class="card shadow-sm mb-4 p-4" style="background: linear-gradient(180deg,rgb(255, 255, 255) 0%, #fff 100%); border: none;">
+        <div style="background: url('/assest-src/area.jpg') center center/cover no-repeat; border-radius: 12px; padding: 32px 0 24px 0; margin-bottom: 24px;">
+            <div class="row mb-4">
+                <div class="col text-center">
+                    <span class="fs-4 fw-bold" style="color:white;">Thống kê chẩn đoán của bạn đã được cập nhật đầy đủ.<br>Khám phá các kỹ năng được đề xuất!</span>
+                </div>
+                </div>
+                <div class="row mb-4 justify-content-center">
+                <div class="col-auto"></br>
+                    <button class="btn px-4 py-2 fw-bold" style="background:#4caf50;border:none;font-size:1.2rem;color:#fff;box-shadow:0 2px 8px #b2dfdb;">Vào đấu trường</button>
+                </div>
+            </div>
+        </div>
+        <div class="row mb-4 justify-content-center">
+            <div class="col-12 d-flex justify-content-center align-items-center" style="position:relative;min-height:450px;">
+                <svg width="630" height="450" viewBox="0 0 630 450" style="position:absolute;left:50%;transform:translateX(-50%);top:0px;z-index:1;opacity:0.7;">
+                    <!-- Regular hexagon centered at (315,225), radius 165 -->
+                    <polygon 
+                        points="480,225  397.5,83.7  232.5,83.7  150,225  232.5,366.3  397.5,366.3" 
+                        fill="#b2ebf2" stroke="#0097a7" stroke-width="3" opacity="0.5"/>
+                    <!-- Example: radius = 90px from center -->
+                    <polygon 
+                        points="<?= trim($points) ?>"
+                        fill="#00bcd4" stroke="#0097a7" stroke-width="3" opacity="0.9"/>
+                    <!-- Draw 6 axis lines for a regular hexagon centered at (315,225), radius 165 -->
+                    <line x1="315" y1="225" x2="480" y2="225" stroke="#0097a7" stroke-width="1.5" opacity="0.5"/>
+                    <line x1="315" y1="225" x2="397.5" y2="83.7" stroke="#0097a7" stroke-width="1.5" opacity="0.5"/>
+                    <line x1="315" y1="225" x2="232.5" y2="83.7" stroke="#0097a7" stroke-width="1.5" opacity="0.5"/>
+                    <line x1="315" y1="225" x2="150" y2="225" stroke="#0097a7" stroke-width="1.5" opacity="0.5"/>
+                    <line x1="315" y1="225" x2="232.5" y2="366.3" stroke="#0097a7" stroke-width="1.5" opacity="0.5"/>
+                    <line x1="315" y1="225" x2="397.5" y2="366.3" stroke="#0097a7" stroke-width="1.5" opacity="0.5"/>
+                </svg>
+                <!-- Category cards and overall math level -->
+                <div style="position:relative;z-index:2;width:100%;">
+                    <div class="d-flex justify-content-between" style="margin-top:0px;">
+                        <div style="width:220px;">
+                            <div class="border rounded p-2 mb-3" style="border-color:#b2dfdb;background:#f1fcfa;">
+                                <div class="fw-bold" style="color:#009688;">Phân số</div>
+                                <div class="fs-4 fw-bold" style="color:#009688;"><?= htmlspecialchars($users['fractions']) ?></div>
+                                <div class="text-muted small">1 kỹ năng gợi ý</div>
+                            </div>
+                            <div class="border rounded p-2 mb-3" style="border-color:#ffcc80;background:#fff8e1;">
+                                <div class="fw-bold" style="color:#f9a825;">Đại số &amp; Tư duy đại số</div>
+                                <div class="fs-4 fw-bold" style="color:#f9a825;"><?= htmlspecialchars($users['algebra']) ?></div>
+                                <div class="text-muted small">1 kỹ năng gợi ý</div>
+                            </div>
+                            <div class="border rounded p-2" style="border-color:#b39ddb;background:#f3e8fd;">
+                                <div class="fw-bold" style="color:#7e57c2;">Số &amp; Phép tính</div>
+                                <div class="fs-4 fw-bold" style="color:#7e57c2;"><?= htmlspecialchars($users['numbers']) ?></div>
+                                <div class="text-muted small">3 kỹ năng gợi ý</div>
+                            </div>
+                        </div>
+                        <div style="width:220px;">
+                            <div class="border rounded p-2 mb-3" style="border-color:#f8bbd0;background:#fce4ec;">
+                                <div class="fw-bold" style="color:#d81b60;">Hình học</div>
+                                <div class="fs-4 fw-bold" style="color:#d81b60;"><?= htmlspecialchars($users['geometry']) ?></div>
+                                <div class="text-muted small">1 kỹ năng gợi ý</div>
+                            </div>
+                            <div class="border rounded p-2 mb-3" style="border-color:#90caf9;background:#e3f2fd;">
+                                <div class="fw-bold" style="color:#1976d2;">Đo lường</div>
+                                <div class="fs-4 fw-bold" style="color:#1976d2;"><?= htmlspecialchars($users['measurement']) ?></div>
+                                <div class="text-muted small">4 kỹ năng gợi ý</div>
+                            </div>
+                            <div class="border rounded p-2" style="border-color:#c8e6c9;background:#e8f5e9;">
+                                <div class="fw-bold" style="color:#388e3c;">Dữ liệu, Thống kê, &amp; Xác suất</div>
+                                <div class="fs-4 fw-bold" style="color:#388e3c;"><?= htmlspecialchars($users['data']) ?></div>
+                                <div class="text-muted small">2 kỹ năng gợi ý</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center" style="position:absolute;left:50%;top:110%;transform:translate(-50%,-50%);width:260px;">
+                        <div class="fw-bold fs-1" style="color:#424242;font-size:3.5rem;">310</div>
+                        <div class="text-muted" style="font-size:1.1rem;">Trình độ toán tổng quát</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mb-3 justify-content-center">
+            <div class="col-auto text-center">
+                <span class="text-muted">Bạn muốn xem báo cáo đầy đủ về trình độ hiện tại và các kỹ năng được đề xuất?</span>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-auto">
+                <button class="btn px-4 py-2 fw-bold" style="background:#03a9f4;border:none;color:#fff;">In kế hoạch hành động</button>
+            </div>
+        </div>
+    </div>
+</div>
