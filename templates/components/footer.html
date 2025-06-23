@@ -1,5 +1,9 @@
     </div>
-    <?php if (isset($parts[0]) && in_array($parts[0], $allowed) && count($account)>0) { ?>
+    <?php $url = $_SERVER['REQUEST_URI'];
+    $parts = explode('/', trim($url, '/'));
+    $allowed = ['admin', 'users', 'learning'];
+
+    if (isset($parts[0]) && in_array($parts[0], $allowed) && $app->getSession("accounts")) {?>
     <?php } else { ?>
     <footer class="bg-light py-4 border-top text-center">
         <div class="container my-4">
@@ -29,23 +33,7 @@
             </div>
         </div>
     </footer>
-
     <?php } ?>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     <script src="<?=$setting['template']?>/assets/js/jquery-3.7.1.min.js"></script>
     <script src="<?=$setting['template']?>/assets/js/bootstrap.bundle.min.js"></script>
