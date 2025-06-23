@@ -1,41 +1,48 @@
 <div class="container">
     <div class="row justify-content-center align-items-center">
-        <div class="col-lg-7">
+        <div class="col-lg-8">
             <div class="card border-1 rounded-3 mt-3 ">
                 <div class="card-header bg-body row border-0 mx-0 mt-2 pb-0">
                     <div class="col-11">
                         <h3><?=$jatbi->lang("Thông tin cá nhân")?></h3>
                     </div>
                     <div class="col-1">
-                    <button class="btn border-0 rounded-pill" data-action="modal" data-url="/information-edit/<?=$account['id']?>"><i class="fa-solid fa-pen"></i></button>
-
-                        <!-- <button class="btn" data-action="modal" data-url="/information-edit/12">
-                            <i class="fa-solid fa-pen"></i>
-                        </button> -->
+                        <button class="btn border-0 rounded-pill" data-action="modal" data-url="/information-edit/"><i class="fa-solid fa-pen"></i></button>
                     </div> 
                 </div>
                 <div class="card-body mx-2">
                     <table class="table">
                         <tbody>
                             <tr>
-                                <td style="width: 35%;"><?=$jatbi->lang("Họ và tên")?></td>
-                                <td style="width: 65%;"><?=$account['name']?></td>
+                                <td style="width: 40%;"><?=$jatbi->lang("Họ và tên")?></td>
+                                <td style="width: 6%;"><?=$account['name']?></td>
+                            </tr>
+                             <tr>
+                                <td style="width: 40%;"><?=$jatbi->lang("Ảnh")?></td>
+                                <td style="width: 60%;">
+                                    <img src="https://jbagy.me/wp-content/uploads/2025/03/Hinh-anh-avatar-con-vit-vang-cute-1.jpg"
+                            alt="Icon" class="rounded-circle me-2" style="width: 80px;">
+                                </td>
+                            </tr>
+                             <tr>
+                                <td style="width: 40%;"><?=$jatbi->lang("Tài khoản")?></td>
+                                <td style="width: 60%;"><?=$account['account']?></td>
                             </tr>
                             <tr>
-                                <td style="width: 35%;"><?=$jatbi->lang("Ngày sinh")?></td>
-                                <td style="width: 65%;"><?=$account['birthday']?></td>
+                                <td style="width: 40%;"><?=$jatbi->lang("Ngày sinh")?></td>
+                                <td style="width: 60%;"><?=$account['birthday']?></td>
                             </tr>
                             <tr>
-                                <td style="width: 35%;"><?=$jatbi->lang("Giới tính")?></td>
-                                <td style="width: 65%;"><?=$account['gender']?></td>
+                                <td style="width: 40%;"><?=$jatbi->lang("Giới tính")?></td>
+                                <td style="width: 60%;"><?=$account['gender']?></td>
                             </tr>
                             <tr>
-                                <td style="width: 35%;"><?=$jatbi->lang("Email")?></td>
-                                <td style="width: 65%;"><?=$account['email']?></td>
+                                <td style="width: 40%;"><?=$jatbi->lang("Email")?></td>
+                                <td style="width: 60%;"><?=$account['email']?></td>
                             </tr>
                             <tr>
-                                <td style="width: 35%;"><?=$jatbi->lang("Số điện thoại")?></td>
-                                <td style="width: 65%;"><?=$account['phone']?></td>
+                                <td style="width: 40%;"><?=$jatbi->lang("Số điện thoại")?></td>
+                                <td style="width: 60%;"><?=$account['phone']?></td>
                             </tr>
                         </tbody>
                     </table>
@@ -43,20 +50,8 @@
             </div>
             <div class="card border-1 rounded-4 mt-3 ">
                 <div class="card-body mx-2">
-                    <h3 class="mb-2 mt-1"><?=$jatbi->lang("Thông tin đăng nhập")?></h3>
-                    <table class="table">
-                        <tbody>
-                            <tr>
-                                <td style="width: 35%;"><?=$jatbi->lang("Tài khoản")?></td>
-                                <td style="width: 65%;"><?=$account['account']?></td>
-                            </tr>
-                            <tr>
-                                <td style="width: 35%;"><?=$jatbi->lang("Mật khẩu")?></td>
-                                <td style="width: 65%;">
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <h3 class="mb-2 mt-1"><?=$jatbi->lang("Mật khẩu")?></h3>
+                    <button class="btn border-0" data-action="modal" data-url="/change-password"><?=$jatbi->lang("Đổi mật khẩu")?></button>
                 </div>
             </div>
         </div>

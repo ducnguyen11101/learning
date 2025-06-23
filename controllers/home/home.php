@@ -148,8 +148,8 @@ $app->router("/math/units/{grade}", 'GET', function($vars) use ($app) {
     } else echo $app->render('templates/error.html', $vars);
 });
 
-$app->router("/information-edit/{id}", 'GET', function($vars) use ($app, $jatbi) {
-    $data = $app->get("accounts","*",["id"=>$vars['id'],"status"=>'A',"deleted"=>0]);
+$app->router("/information-edit/", 'GET', function($vars) use ($app, $jatbi) {
+    $data = $app->get("accounts","*",["id"=>$app->getSession("accounts")['id'],"status"=>'A',"deleted"=>0]);
     if($data) {
         $vars['title'] = "Sửa thông tin";
         $vars['data'] = $data;
@@ -181,11 +181,36 @@ $app->router("/information-edit/{id}", 'POST', function($vars) use ($app, $jatbi
     echo json_encode(['status'=>'success','content'=>$jatbi->lang("Cập nhật thành công")]);
 });
 
+$app->router("/change-password", 'GET', function($vars) use ($app, $jatbi) {
+    $data = $app->get("accounts","*",["id"=>$app->getSession("accounts")['id'],"status"=>'A',"deleted"=>0]);
+    if($data) {
+        $vars['title'] = "Đổi mật khẩu";
+        echo $app->render('templates/frontend/change-password.html', $vars, 'global');
+    } else echo $app->render('templates/common/error-modal.html', $vars, 'global');
+});
 
-// $app->router("/math", 'GET', function($vars) use ($app) {
-//     $vars['templates'] = 'grade';
-//     $vars['grades'] = $app->select("grades","*",["status"=>'A',"deleted"=>0]);
-//     echo $app->render('templates/frontend/category.html', $vars);
-// });
+$app->router("/change-password", 'POST', function($vars) use ($app, $jatbi) {
+    $app->header([
+        'Content-Type' => 'application/json',
+    ]);
+    $data = $app->get("accounts","*",["id"=>$app->getSession("accounts")['id'],"status"=>'A',"deleted"=>0]);
+    if($app->xss($_POST['password_old'])=='' || $app->xss($_POST['password_new'])=='' || $app->xss($_POST['password_confirm'])==''){
+        echo json_encode(['status'=>'error','content'=>$jatbi->lang("Vui lòng không để trống")]);
+        exit;
+    }
+    if(!password_verify($app->xss($_POST['password_old']), $data['password'])){
+        echo json_encode(['status'=>'error','content'=>$jatbi->lang("Mật khẩu cũ không chính xác")]);
+        exit;
+    }
+    if($app->xss($_POST['password_new'])!=$app->xss($_POST['password_confirm'])){
+        echo json_encode(['status'=>'error','content'=>$jatbi->lang("Mật khẩu mới không chính xác")]);
+        exit;
+    }
+    $insert = [
+        "password"      => password_hash($app->xss($_POST['password_confirm']), PASSWORD_DEFAULT),
+    ];
+    $app->update("accounts",$insert,["id"=>$vars['id']]);
+    echo json_encode(['status' => 'success','content' => $jatbi->lang('Cập nhật thành công')]);
+});
 
 ?>

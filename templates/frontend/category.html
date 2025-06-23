@@ -5,17 +5,23 @@
         transition: all 0.3s ease-in-out;          /* mượt mà */
         }
     </style>
-    <div class="container">
-        <div class="row mt-5 g-4">
+    <!-- <img src="https://pikbest.com/backgrounds/education-training-book-banner-poster-background_552544.html" alt="" style="width: 100%;"> -->
+    <div class="container py-5">
+        <div class="row g-4">
             <?php foreach($grades as $grade) { ?>
                 <div class="col-4">
                     <a href="/math/units/<?=$grade['id']?>" data-pjax>
-                        <div class="c-hover card shadow border-0 rounded-3" style="height: 220px; transition: transform 0.3s;">
+                        <div class="c-hover card shadow border-0 rounded-3" style="transition: transform 0.3s;">
                             <div class="card-header rounded-top-3 pt-3 pb-0" style="background-color: <?=$grade['color']?>;">
                                 <p class="mx-1 fw-bold fs-4 text-white"><?=$grade['name']?></p>
                             </div>
                             <div class="card-body ">
-                                <p class="fs-6 mx-1"><?=$grade['description']?></p> 
+                                <div style="height: 100px;">
+                                    <p class="fs-6 mx-1"><?=$grade['description']?></p> 
+                                </div>
+                                <div class="text-end text-primary">
+                                    <?=$app->count("units", ["grade"=>$grade['id']])?> chủ đề
+                                </div>
                             </div>
                         </div>
                     </a>
@@ -25,8 +31,8 @@
     </div>
 <?php } ?>
 <?php if($templates=='unit'){ ?>
-    <div class="container">
-        <div class="card px-1 mt-4 mb-2">
+    <div class="container py-5">
+        <div class="card px-1">
             <div class="card-header bg-white border-0">
                 <h1 class="mb-0 fw-bold" style="color: <?=$grade['color']?>;"><?=$grade['name']?></h1>
             </div>
@@ -42,8 +48,8 @@
                         $lessons = $app->select("lessons", "*", ["unit" => $group1]);
                         foreach ($lessons as $lesson) { ?>
                         <!-- <div class="ms-3 fs-6"><?= $def. ". " .$lesson["name"] ?></div> -->
-                        <div>
-                            <a class="ms-3 fs-6" href="/lesson?lesson_id=<?= $lesson['id'] ?>" style="color: #515b3b;"><?= $def. ". " .$lesson["name"] ?></a>
+                        <div class="mx-3">
+                            <a class="fs-6" href="/lesson?lesson_id=<?= $lesson['id'] ?>" style="color: #515b3b;"><?= $def. ". " .$lesson["name"] ?></a>
                         </div>
                         <?php $def++;
                         } ?>

@@ -1,4 +1,52 @@
     </div>
+    <?php if (isset($parts[0]) && in_array($parts[0], $allowed) && count($account)>0) { ?>
+    <?php } else { ?>
+    <footer class="bg-light py-4 border-top text-center">
+        <div class="container my-4">
+            <div class="mb-2 small text-secondary">
+                <a href="#" class="text-decoration-none text-primary mx-1">Company</a> |
+                <a href="#" class="text-decoration-none text-primary mx-1">Membership</a> |
+                <a href="#" class="text-decoration-none text-primary mx-1">Blog</a> |
+                <a href="#" class="text-decoration-none text-primary mx-1">Help center</a> |
+                <a href="#" class="text-decoration-none text-primary mx-1">User guides</a> |
+                <a href="#" class="text-decoration-none text-primary mx-1">Tell us what you think</a> |
+                <a href="#" class="text-decoration-none text-primary mx-1">Testimonials</a> |
+                <a href="#" class="text-decoration-none text-primary mx-1">Careers</a> |
+                <a href="#" class="text-decoration-none text-primary mx-1">Contact us</a> |
+                <a href="#" class="text-decoration-none text-primary mx-1">Terms of service</a> |
+                <a href="#" class="text-decoration-none fw-bold text-primary mx-1">Privacy policy</a>
+            </div>
+            <div class="mb-2">
+                <img src="/controllers/home/assets/images/logo.png" alt="Logo" style="height: 20px;" class="me-2 align-middle">
+                <span class="text-uppercase small fw-light text-muted">Learning © 2025 IXL Learning. All rights reserved.</span>
+                <span class="mx-1 text-muted small">Follow us</span>
+                <a href="#"><i class="fab fs-5 px-1 fa-facebook-f text-primary"></i></a>
+                <a href="#"><i class="fab fs-5 px-1 fa-x-twitter text-dark"></i></a>
+                <a href="#"><i class="fab fs-5 px-1 fa-pinterest text-danger"></i></a>
+                <a href="#"><i class="fab fs-5 px-1 fa-instagram text-danger"></i></a>
+                <a href="#"><i class="fab fs-5 px-1 fa-youtube text-danger"></i></a>
+                <a href="#"><i class="fab fs-5 px-1 fa-linkedin-in text-primary"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <?php } ?>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     <script src="<?=$setting['template']?>/assets/js/jquery-3.7.1.min.js"></script>
     <script src="<?=$setting['template']?>/assets/js/bootstrap.bundle.min.js"></script>
     <script src="<?=$setting['template']?>/assets/js/crypto-js.min.js"></script>
