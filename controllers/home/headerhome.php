@@ -15,7 +15,7 @@
                 <ul style="display:flex;gap:32px;list-style:none;margin:0;">
                     <li><a href="/">My IXL</a></li>
                     <li><a href="#">Học tập</a></li>
-                    <li><a href="#">Thi đua</a></li>
+                    <li><a href="/diagnostic">Thi đua</a></li>
                     <li><a href="/analytics">Phân tích</a></li>
                 </ul>
             </nav>

@@ -154,6 +154,9 @@
 		"lesson"=>[
 			"controllers"=>"controllers/lesson/lesson.php",
 		],
+        "diagnostic"=>[
+			"controllers"=>"controllers/lesson/diagnostic.php",
+		],
 	];
     foreach($mains_frontend as $key => $item) {
         $setRequest[] = [
