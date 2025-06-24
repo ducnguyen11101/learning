@@ -9,37 +9,6 @@ $app->router("/", 'GET', function($vars) use ($app) {
     echo $app->render('templates/frontend/category.html', $vars);
 });
 
-// Thêm router cho trang grade
-$app->router("/grade", 'GET', function($vars) use ($app) {
-    require_once 'headerhome.php';
-    $grade = strtolower($_GET['grade'] ?? '1');
-
-    // Nếu grade là chuỗi (first, second...), chuyển về số nếu cần
-    $gradeMap = [
-        'first' => 1, 'second' => 2, 'third' => 3, 'fourth' => 4, 'fifth' => 5,
-        'sixth' => 6, 'seventh' => 7, 'eighth' => 8, 'ninth' => 9, 'tenth' => 10,
-        'prek' => 0, 'kindergarten' => 0
-    ];
-    $gradeId = is_numeric($grade) ? intval($grade) : ($gradeMap[$grade] ?? 1);
-
-    $units = [];
-    $unitRows = $app->select('units', '*', ['grade' => $gradeId, 'ORDER' => ['id' => 'ASC']]);
-    foreach ($unitRows as $unit) {
-        $lessons = $app->select('lessons', '*', ['unit' => $unit['id'], 'ORDER' => ['id' => 'ASC']]);
-        $units[] = [
-            'id' => $unit['id'],
-            'name' => $unit['name'],
-            'lessons' => $lessons
-        ];
-    }
-
-    echo $app->render('templates/home/grades.html', [
-        'grade' => $grade,
-        'units' => $units
-    ]);
-    require_once 'footerhome.php';
-});
-
 $app->router("/profile", 'GET', function($vars) use ($app) {
     if($app->getSession("accounts")) {
         $vars['account'] = $app->get("accounts","*",["id"=>$app->getSession("accounts")['id']]);

@@ -141,7 +141,24 @@
 <!-- Thêm Chart.js để vẽ biểu đồ -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+    let pieChart = null;
+    let barChart = null;
+
+    function destroyCharts() {
+        if (pieChart) {
+            pieChart.destroy();
+            pieChart = null;
+        }
+        if (barChart) {
+            barChart.destroy();
+            barChart = null;
+        }
+    }
+
     function initializeCharts() {
+        // Destroy charts cũ trước khi tạo mới
+        destroyCharts();
+        
         // Kiểm tra xem canvas đã tồn tại chưa
         const piCanvas = document.getElementById('categoryPie');
         const barCanvas = document.getElementById('practiceBar');
@@ -152,7 +169,7 @@
 
         // Pie chart
         const ctxPie = piCanvas.getContext('2d');
-        new Chart(ctxPie, {
+        pieChart = new Chart(ctxPie, {
             type: 'doughnut',
             data: {
                 labels: [
@@ -184,7 +201,7 @@
 
         // Bar chart
         const ctxBar = barCanvas.getContext('2d');
-        new Chart(ctxBar, {
+        barChart = new Chart(ctxBar, {
             type: 'bar',
             data: {
                 labels: <?= json_encode($date) ?>,
@@ -207,13 +224,18 @@
     document.addEventListener('DOMContentLoaded', initializeCharts);
     
     // Khởi tạo biểu đồ sau khi PJAX load
-    document.addEventListener('pjax:complete', initializeCharts);
+    document.addEventListener('pjax:complete', function() {
+        setTimeout(initializeCharts, 100);
+    });
+    
+    // Destroy charts khi rời khỏi trang
+    document.addEventListener('pjax:beforeSend', destroyCharts);
     
     // Fallback cho trường hợp script chạy sau khi DOM đã sẵn sàng
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initializeCharts);
     } else {
-        initializeCharts();
+        setTimeout(initializeCharts, 100);
     }
 </script>
 
