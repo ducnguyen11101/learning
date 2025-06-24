@@ -25,7 +25,7 @@
                     </ul>
                 </nav>
             </div>
-            <div class="col-2 text-end">
+            <div class="col-2 text-end" pjax-load-content>
                 <?php if(!$app->getSession("accounts")) { ?>
                 <a href="/login" class="btn text-white rounded-5 px-3 mt-2"
                     style="background-color: #249fff;" data-pjax><?=$jatbi->lang("Đăng nhập")?></a>

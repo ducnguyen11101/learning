@@ -95,6 +95,11 @@
                             "router"    => '/learning/grades',
                             "icon"  => '<i class="fas fa-ban"></i>',
                         ],
+                        'userAccount'   => [
+                            "name"  => $jatbi->lang("Tài khoản người dùng"),
+                            "router"    => '/course/users',
+                            "icon"  => '<i class="fas fa-ban"></i>',
+                        ],
                     ],
                     "controllers"=>"controllers/core/course.php",
                     // "controllers" => [
@@ -110,7 +115,8 @@
                     // ],
                     "main"=>'false',
                     "permission" => [
-                        'courseCategoryManagement'       =>$jatbi->lang("Quản lý danh mục khóa học"),
+                        'courseCategoryManagement'      =>$jatbi->lang("Quản lý danh mục khóa học"),
+                        'userAccount'                   =>$jatbi->lang("Quản lý tài khoản người dùng"),
                         // 'project.add'   =>$jatbi->lang("Thêm dự án"),
                         // 'project.edit'  =>$jatbi->lang("Sửa dự án"),
                         // 'area'          =>$jatbi->lang("Khu vực"),

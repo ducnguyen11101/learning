@@ -1159,4 +1159,94 @@
         echo json_encode(['status'=>'success','content'=>$jatbi->lang("Cập nhật thành công")]);
         exit;
     })->setPermissions(['courseCategoryManagement']);
+
+    $app->router("/course/users", 'GET', function($vars) use ($app, $jatbi) {
+        $vars['unit'] = $app->get("units","*",["id"=>$vars['unit'],"deleted"=>'0']);
+        $vars['title'] = "Tài khoản người dùng";
+        $vars['datatable'] = $app->component('datatable',["datas"=>[],"search"=>[]]);
+       
+        echo $app->render('templates/learning/users.html', $vars);
+    })->setPermissions(['courseCategoryManagement']);
+
+    $app->router("/course/users", 'POST', function($vars) use ($app, $jatbi) {
+        $app->header([
+            'Content-Type' => 'application/json',
+        ]);
+        $draw = isset($_POST['draw']) ? intval($_POST['draw']) : 0;
+        $start = isset($_POST['start']) ? intval($_POST['start']) : 0;
+        $length = isset($_POST['length']) ? intval($_POST['length']) : 10;
+        $searchValue = isset($_POST['search']['value']) ? $_POST['search']['value'] : '';
+        $orderName = isset($_POST['order'][0]['name']) ? $_POST['order'][0]['name'] : 'id';
+        $orderDir = isset($_POST['order'][0]['dir']) ? $_POST['order'][0]['dir'] : 'DESC';
+        $status = isset($_POST['status']) ? [$_POST['status'],$_POST['status']] : '';
+        $permission = isset($_POST['permission']) ? $_POST['permission'] : '';
+        $where = [
+            "AND" => [
+                "OR" => [
+                    "accounts.name[~]" => $searchValue,
+                    "accounts.email[~]" => $searchValue,
+                    "accounts.account[~]" => $searchValue,
+                ],
+                "accounts.type" => '2',
+                "accounts.status[<>]" => $status,
+                "accounts.deleted" => 0,
+            ],
+            "LIMIT" => [$start, $length],
+            "ORDER" => [$orderName => strtoupper($orderDir)]
+        ];
+        if (!empty($permission)) {
+            $where["AND"]["accounts.permission"] = $permission;
+        }
+        $count = $app->count("accounts",[
+            "AND" => $where['AND'],
+        ]);
+        $app->select("accounts", [
+                "[>]permissions" => ["permission" => "id"]
+            ], 
+            [
+            'accounts.id',
+            'accounts.name',
+            'accounts.active',
+            'accounts.email',
+            'accounts.avatar',
+            'accounts.status',
+            'permissions.name (permission)',
+            ], $where, function ($data) use (&$datas,$jatbi,$app) {
+            $datas[] = [
+                "checkbox" => $app->component("box",["data"=>$data['active']]),
+                "name" => '<img src="/' . $data['avatar'] . '?type=thumb" class="width rounded-circle me-2" style="--width:40px"> '.$data['name'],
+                "email" => $data['email'],
+                "permission" => $data['permission'],
+                "status" => $app->component("status",["url"=>"/users/accounts-status/".$data['active'],"data"=>$data['status'],"permission"=>['accounts.edit']]),
+                "action" => $app->component("action",[
+                    "button" => [
+                        [//thêm
+                            'type' => 'link',
+                            'name' => $jatbi->lang("Xem chi tiết"),
+                            'permission' => ['accounts.edit'],
+                            'action' => ['href' => '/users/accounts-detail/'.$data['active']]
+                        ],
+                        [
+                            'type' => 'button',
+                            'name' => $jatbi->lang("Sửa"),
+                            'permission' => ['accounts.edit'],
+                            'action' => ['data-url' => '/users/accounts-edit/'.$data['active'], 'data-action' => 'modal']
+                        ],
+                        [
+                            'type' => 'button',
+                            'name' => $jatbi->lang("Xóa"),
+                            'permission' => ['accounts.deleted'],
+                            'action' => ['data-url' => '/users/accounts-deleted?box='.$data['active'], 'data-action' => 'modal']
+                        ],
+                    ]
+                ]),
+            ];
+        });
+        echo json_encode([
+            "draw" => $draw,
+            "recordsTotal" => $count,
+            "recordsFiltered" => $count,
+            "data" => $datas ?? []
+        ]);
+    })->setPermissions(['courseCategoryManagement']);
 ?>

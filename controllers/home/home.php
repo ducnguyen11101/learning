@@ -132,7 +132,7 @@ $app->router("/math/units/{grade}", 'GET', function($vars) use ($app) {
 
         $totalGroup = 0;
         foreach ($units as $unit) {
-            $count = $app->count("lessons",["unit"=>$unit["id"]]);
+            $count = $app->count("lessons",["unit"=>$unit["id"],"status"=>'A',"deleted"=>0]);
             if(($totalGroup + $count > $groupSize) && !empty($group[$i]) && $i < 3 ) {
                 $totalGroup = 0;
                 $i++;
@@ -157,7 +157,7 @@ $app->router("/information-edit/", 'GET', function($vars) use ($app, $jatbi) {
     } else echo $app->render('templates/common/error-modal.html', $vars, 'global');
 });
 
-$app->router("/information-edit/{id}", 'POST', function($vars) use ($app, $jatbi) {
+$app->router("/information-edit/", 'POST', function($vars) use ($app, $jatbi) {
     $app->header([
         'Content-Type' => 'application/json',
     ]);
@@ -177,7 +177,7 @@ $app->router("/information-edit/{id}", 'POST', function($vars) use ($app, $jatbi
         "email"         => $app->xss($_POST['email']),
         "phone"         => $app->xss($_POST['phone']),
     ];
-    $app->update("accounts",$insert,["id"=>$vars['id']]);
+    $app->update("accounts",$insert,["id"=>$app->getSession("accounts")['id']]);
     echo json_encode(['status'=>'success','content'=>$jatbi->lang("Cập nhật thành công")]);
 });
 

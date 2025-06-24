@@ -45,7 +45,7 @@
                         <div class="fs-5 text-success pb-2"><?= $abc. ". " .$unit["name"] ?></div>
                         <?php $abc++; 
                         $def = 1;
-                        $lessons = $app->select("lessons", "*", ["unit" => $group1]);
+                        $lessons = $app->select("lessons", "*", ["unit" => $group1,"status"=>'A',"deleted"=>0]);
                         foreach ($lessons as $lesson) { ?>
                         <!-- <div class="ms-3 fs-6"><?= $def. ". " .$lesson["name"] ?></div> -->
                         <div class="mx-3">
