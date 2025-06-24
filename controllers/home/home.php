@@ -4,70 +4,9 @@
     $setting = $app->getValueData('setting');
 
 $app->router("/", 'GET', function($vars) use ($app) {
-    // Lấy các trường cần thiết từ bảng grades, chỉ lấy các bản ghi chưa xóa và đang hoạt động
-    $gradesRaw = $app->select('grades', '*', [
-        'deleted' => 0,
-        'status' => 0,
-        'ORDER' => ['position' => 'ASC']
-    ]);
-    $gradeColors = [
-        0 => '#FF9E40', // Lớp 1 - cam
-        1 => '#FF6B6B', // Lớp 2 - đỏ
-        2 => '#4ECDC4', // Lớp 3 - xanh ngọc
-        3 => '#45B7D1', // Lớp 4 - xanh dương nhạt
-        4 => '#A37EBA', // Lớp 5 - tím
-        5 => '#FF8A65', // Lớp 6 - cam nhạt
-        6 => '#7986CB', // Lớp 7 - xanh tím
-        7 => '#4DB6AC', // Lớp 8 - xanh ngọc đậm
-        8 => '#9575CD', // Lớp 9 - tím nhạt
-        9 => '#FFD600', // Lớp 10 - vàng tươi (đổi từ cam sang vàng)
-        10 => '#81C784', // Lớp 11 - xanh lá
-        11 => '#E57373', // Lớp 12 - đỏ nhạt
-    ];
-    $gradeSlugs = [
-        0 => '0',
-        1 => '1',
-        2 => '2',
-        3 => '3',
-        4 => '4',
-        5 => '5',
-        6 => '6',
-        7 => '7',
-        8 => '8',
-        9 => '9',
-        10 => '10',
-        11 => '11',
-    ];
-    // Nếu có trường skill_count thì lấy, không thì hardcode hoặc để 0
-    $skillCounts = [
-        0 => 169,
-        1 => 359,
-        2 => 345,
-        3 => 332,
-        4 => 368,
-        5 => 381,
-        6 => 384,
-        7 => 377,
-        8 => 351,
-        9 => 342,
-        10 => 335,
-        11 => 328
-    ];
-    $grades = [];
-    foreach ($gradesRaw as $g) {
-        $idx = $g['position'];
-        $grades[] = [
-            'id' => $g['id'],
-            'name' => $g['name'],
-            'desc' => $g['description'],
-            'color' => $gradeColors[$idx] ?? '#888',
-            'slug' => $gradeSlugs[$idx] ?? 'lop' . ($idx + 1),
-            'skill_count' => $skillCounts[$idx] ?? 0
-        ];
-    }
-    $htmlContent = $app->get("saved_pages", "*", ["id" => 1]);
-    echo $app->render('templates/home/home.html', ['grades' => $grades, 'html' => $htmlContent]);
-    require_once 'footerhome.php'; 
+    $vars['templates'] = 'grade';
+    $vars['grades'] = $app->select("grades","*",["status"=>'A',"deleted"=>0]);
+    echo $app->render('templates/frontend/category.html', $vars);
 });
 
 // Thêm router cho trang grade
@@ -106,12 +45,6 @@ $app->router("/profile", 'GET', function($vars) use ($app) {
         $vars['account'] = $app->get("accounts","*",["id"=>$app->getSession("accounts")['id']]);
         echo $app->render('templates/frontend/frofile.html', $vars);
     } else echo $app->render('templates/error.html', $vars);
-});
-
-$app->router("/math", 'GET', function($vars) use ($app) {
-    $vars['templates'] = 'grade';
-    $vars['grades'] = $app->select("grades","*",["status"=>'A',"deleted"=>0]);
-    echo $app->render('templates/frontend/category.html', $vars);
 });
 
 $app->router("/math/units/{grade}", 'GET', function($vars) use ($app) {

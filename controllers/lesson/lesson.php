@@ -4,10 +4,6 @@ $app->router("/lesson", 'GET', function($vars) use ($app) {
     // Chỉ include header khi không phải request Ajax
     $isAjax = (isset($_GET['ajax']) && $_GET['ajax'] == 1)
         || (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false);
-
-    if (!$isAjax) {
-        require_once __DIR__ . '/../home/headerhome.php';
-    }
     $isAjax = (isset($_GET['ajax']) && $_GET['ajax'] == 1)
         || (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false);
 

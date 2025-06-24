@@ -1,6 +1,5 @@
 <?php
 $app->router("/analytics", 'GET', function($vars) use ($app) {
-    require_once __DIR__ . '/../home/headerhome.php';
     $thirtyDaysAgo = date('Y-m-d', strtotime('-29 days'));
     $tests = $app->select("test", "*", [
         "id_account" => 16,
