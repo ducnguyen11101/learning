@@ -1,6 +1,5 @@
 <?php
 $app->router("/diagnostic", 'GET', function($vars) use ($app) {
-    require_once __DIR__ . '/../home/headerhome.php';
     $users = $app->get('users',"*", [
         'account_id' => '16',
     ]);
