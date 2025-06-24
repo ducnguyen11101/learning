@@ -48,7 +48,7 @@
 <body data-bs-theme="dark" data-sidebar="full">
     <?php $url = $_SERVER['REQUEST_URI'];
     $parts = explode('/', trim($url, '/'));
-    $allowed = ['admin', 'users', 'learning'];
+    $allowed = ['admin', 'users', 'learning', 'course'];
 
     if (isset($parts[0]) && in_array($parts[0], $allowed) && count($account)>0) {
         echo $app->component("sidebar");
