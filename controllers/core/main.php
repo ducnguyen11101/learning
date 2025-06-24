@@ -2,15 +2,9 @@
 	if (!defined('ECLO')) die("Hacking attempt");
     $jatbi = new Jatbi($app);
     $setting = $app->getValueData('setting');
-    // $app->router("/",'GET', function($vars) use ($app,$jatbi,$setting) {
-    //     if(!$app->getSession("accounts")){
-    //         $vars['templates'] = 'login';
-    //         echo $app->render('templates/login.html', $vars);
-    //     }
-    //     else {
-    //         echo $app->render('templates/home.html', $vars);
-    //     }
-    // });
+    $app->router("/admin",'GET', function($vars) use ($app,$jatbi,$setting) {
+            echo $app->render('templates/home.html', $vars);
+    });
     $app->router("/login", 'GET', function($vars) use ($app, $jatbi,$setting) {
         if(!$app->getSession("accounts")){
             $vars['templates'] = 'login';
