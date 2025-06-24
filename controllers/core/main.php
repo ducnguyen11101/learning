@@ -121,7 +121,7 @@
         ];
         $getcode = $app->get("account_code",["code"],[
             "email" => $app->xss($_POST['email']),
-            "type" => '2',
+            "type" => 'register',
             "status" => 0,
             "date[>=]" => date("Y-m-d H:i:s",strtotime("-5 minute")),
             "ORDER" => ["id" => "DESC"],
