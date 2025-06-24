@@ -1,4 +1,3 @@
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <div class="row mb-4" style="width:1100px;max-width:1100px;min-width:1100px;margin:0 auto; position:relative;">
     <!-- Thêm khung thống kê 30 ngày -->
     <div class="card shadow-sm mb-4 p-4">
@@ -142,56 +141,79 @@
 <!-- Thêm Chart.js để vẽ biểu đồ -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Pie chart
-    const ctxPie = document.getElementById('categoryPie').getContext('2d');
-    new Chart(ctxPie, {
-        type: 'doughnut',
-        data: {
-            labels: [
-                'Counting to 100',
-                'Counting to 10',
-                'Comparing up to 10',
-                'Understand multiplication',
-                'Addition strategies',
-                'Other'
-            ],
-            datasets: [{
-                data: <?= json_encode($lessons) ?>,
-                backgroundColor: [
-                    '#4caf50',
-                    '#2196f3',
-                    '#fbc02d',
-                    '#ff9800',
-                    '#9c27b0',
-                    '#bdbdbd'
-                ],
-                borderWidth: 0
-            }]
-        },
-        options: {
-            cutout: '70%',
-            plugins: { legend: { display: false } }
+    function initializeCharts() {
+        // Kiểm tra xem canvas đã tồn tại chưa
+        const piCanvas = document.getElementById('categoryPie');
+        const barCanvas = document.getElementById('practiceBar');
+        
+        if (!piCanvas || !barCanvas) {
+            return;
         }
-    });
 
-    // Bar chart
-    const ctxBar = document.getElementById('practiceBar').getContext('2d');
-    new Chart(ctxBar, {
-        type: 'bar',
-        data: {
-            labels: <?= json_encode($date) ?>,
-            datasets: [{
-                label: 'Questions answered',
-                data: <?= json_encode($datas) ?>,
-                backgroundColor: '#2196f3'
-            }]
-        },
-        options: {
-            plugins: { legend: { display: false } },
-            scales: {
-                y: { beginAtZero: true, max: 700, ticks: { stepSize: 100 } }
+        // Pie chart
+        const ctxPie = piCanvas.getContext('2d');
+        new Chart(ctxPie, {
+            type: 'doughnut',
+            data: {
+                labels: [
+                    'Counting to 100',
+                    'Counting to 10',
+                    'Comparing up to 10',
+                    'Understand multiplication',
+                    'Addition strategies',
+                    'Other'
+                ],
+                datasets: [{
+                    data: <?= json_encode($lessons) ?>,
+                    backgroundColor: [
+                        '#4caf50',
+                        '#2196f3',
+                        '#fbc02d',
+                        '#ff9800',
+                        '#9c27b0',
+                        '#bdbdbd'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                cutout: '70%',
+                plugins: { legend: { display: false } }
             }
-        }
-    });
+        });
+
+        // Bar chart
+        const ctxBar = barCanvas.getContext('2d');
+        new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: <?= json_encode($date) ?>,
+                datasets: [{
+                    label: 'Questions answered',
+                    data: <?= json_encode($datas) ?>,
+                    backgroundColor: '#2196f3'
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, max: 700, ticks: { stepSize: 100 } }
+                }
+            }
+        });
+    }
+
+    // Khởi tạo biểu đồ khi DOM ready
+    document.addEventListener('DOMContentLoaded', initializeCharts);
+    
+    // Khởi tạo biểu đồ sau khi PJAX load
+    document.addEventListener('pjax:complete', initializeCharts);
+    
+    // Fallback cho trường hợp script chạy sau khi DOM đã sẵn sàng
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeCharts);
+    } else {
+        initializeCharts();
+    }
 </script>
 
