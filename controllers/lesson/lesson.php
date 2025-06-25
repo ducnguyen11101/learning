@@ -1,6 +1,11 @@
 <?php
 // GET /lesson - chỉ load câu hỏi, không xử lý hoàn thành
 $app->router("/lesson", 'GET', function($vars) use ($app) {
+    if(!$app->getSession("accounts")){
+        $vars['templates'] = 'login';
+        echo $app->render('templates/login.html', $vars);
+        return;
+    }
     // Chỉ include header khi không phải request Ajax
     $isAjax = (isset($_GET['ajax']) && $_GET['ajax'] == 1)
         || (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false);
@@ -42,7 +47,7 @@ $app->router("/lesson", 'GET', function($vars) use ($app) {
 
                 // Lưu vào bảng test trước khi reset
                 $app->insert("test", [
-                    "id_account" => $_SESSION['account_id'] ?? 16,
+                    "id_account" => $app->getSession("accounts")['id'],
                     "id_lesson"  => $_SESSION['lesson_id'] ?? 0,
                     "point"      => $stats['score'],
                     "answer"     => $stats['answered'],

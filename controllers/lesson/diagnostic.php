@@ -1,7 +1,12 @@
 <?php
 $app->router("/diagnostic", 'GET', function($vars) use ($app) {
+    if(!$app->getSession("accounts")){
+        $vars['templates'] = 'login';
+        echo $app->render('templates/login.html', $vars);
+        return;
+    }
     $users = $app->get('users',"*", [
-        'account_id' => '16',
+        'account_id' => $app->getSession("accounts")['id'],
     ]);
     if (!is_array($users)) {
         header("Location: /login");

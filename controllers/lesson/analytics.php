@@ -1,8 +1,13 @@
 <?php
 $app->router("/analytics", 'GET', function($vars) use ($app) {
+    if(!$app->getSession("accounts")){
+        $vars['templates'] = 'login';
+        echo $app->render('templates/login.html', $vars);
+        return;
+    }
     $thirtyDaysAgo = date('Y-m-d', strtotime('-29 days'));
     $tests = $app->select("test", "*", [
-        "id_account" => 16,
+        "id_account" => $app->getSession("accounts")['id'],
         "date[>=]" => $thirtyDaysAgo
     ]);
     // Tính tổng của trường 'answer' trong bảng 'test'
@@ -57,29 +62,37 @@ $app->router("/analytics", 'GET', function($vars) use ($app) {
     foreach ($tests as $test) {
         if (isset($test['id_lesson'])) {
             $id = $test['id_lesson'];
-            // Nếu id_lesson chưa có trong $lessons thì thêm vào
             if (!isset($lessons[$id])) {
                 $lessons[$id] = [
                     'id' => $id,
                     'number' => 0
                 ];
             }
-            // Tăng biến number lên 1
             $lessons[$id]['number'] += 1;
         }
     }
-    // Lấy 5 lesson có number lớn nhất
+    // Sắp xếp giảm dần theo 'number'
     usort($lessons, function($a, $b) {
         return $b['number'] <=> $a['number'];
     });
     $top5 = array_slice($lessons, 0, 5);
+
+    // Nếu ít hơn 5 giá trị thì thêm các giá trị rỗng với number = 0
+    while (count($top5) < 5) {
+        $top5[] = ['id' => null, 'number' => 0];
+    }
+
     $topLessons = array_column($top5, 'number');
     $topLessonIds = [];
     foreach ($top5 as $topLesson) {
-        $unit = $app->get("lessons", "name", ["id" => $topLesson['id']]);
+        if ($topLesson['id'] !== null) {
+            $unit = $app->get("lessons", "name", ["id" => $topLesson['id']]);
+        } else {
+            $unit = '';
+        }
         $topLessonIds[] = $unit;
     }
-    $topLessonIds[5] ="Khác";
+    $topLessonIds[5] = "Khác";
 
     // Tính tổng các number còn lại
     $otherLessons = array_slice($lessons, 5);
@@ -88,7 +101,9 @@ $app->router("/analytics", 'GET', function($vars) use ($app) {
         $otherSum += $lesson['number'];
     }
     $topLessons[] = $otherSum; // Thêm giá trị thứ 6
+    $name = $app->get("accounts", "name", ["id" => $app->getSession("accounts")['id']]);
 
+    $vars['name'] = $name;
     $vars['topLessonIds'] = $topLessonIds;
     $vars['lessons'] = $topLessons;
     $vars['datas'] = $datas;
