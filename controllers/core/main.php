@@ -153,7 +153,7 @@
             $newid = $app->max("accounts", "id") + 1;
             $insert = [
                     "id"            => $newid, // Không cần truyền id, để DB tự động tăng
-                    "type"          => '2',
+                    "type"          => 2,
                     "name"          => $app->xss($_POST['name']),
                     "account"       => $app->xss($_POST['email']),
                     "phone"         => '', // Google does not provide phone
@@ -173,6 +173,18 @@
                     "lang"          => $_COOKIE['lang'] ?? 'vi',
                 ];
             $app->insert("accounts",$insert);
+            $insert2 = [                
+                "account_id"    => $newid,
+                "fractions"     => 0,
+                "algebra"       => 0,
+                "numbers"       => 0,
+                "geometry"      => 0,
+                "measurement"   => 0,
+                "data"          => 0,
+                "created_at"    => date('Y-m-d H:i:s'),
+                "updated_at"    => date('Y-m-d H:i:s'),
+            ];
+            $app->insert("users", $insert2);
             // $getID = $app->id();
             // $app->insert("settings",["account"=>$getID]);
             // $directory = 'datas/'.$insert['active'];
@@ -429,7 +441,7 @@
             if (!$user) {
                 $insert = [
                     "id"            => $newid,
-                    "type"          => 1,
+                    "type"          => 2,
                     "name"          => $userInfo->name ?? 'No Name',
                     "account"       => $userInfo->email,
                     "phone"         => '', // Google does not provide phone

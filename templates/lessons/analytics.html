@@ -3,7 +3,7 @@
     <div class="card shadow-sm mb-4 p-4" style="margin-top:20px;">
         <div class="row mb-4">
             <div class="col text-start">
-                <span class="fs-5">Trong 30 ngày gần đây, Peter đã...</span>
+                <span class="fs-5">Trong 30 ngày gần đây, <?= htmlspecialchars($name) ?> đã...</span>
             </div>
         </div>
         <div class="row text-center mb-4 position-relative">
@@ -173,12 +173,7 @@
             type: 'doughnut',
             data: {
                 labels: [
-                    'Counting to 100',
-                    'Counting to 10',
-                    'Comparing up to 10',
-                    'Understand multiplication',
-                    'Addition strategies',
-                    'Other'
+                    
                 ],
                 datasets: [{
                     data: <?= json_encode($lessons) ?>,

@@ -34,43 +34,43 @@
                 <!-- Category cards and overall math level -->
                 <div style="position:relative;z-index:2;width:100%;">
                     <div class="d-flex justify-content-between" style="margin-top:0px;">
-                        <div style="width:220px;">
-                            <div class="border rounded p-2 mb-3" style="border-color:#b2dfdb;background:#f1fcfa;">
-                                <div class="fw-bold" style="color:#009688;">Phân số</div>
-                                <div class="fs-4 fw-bold" style="color:#009688;"><?= htmlspecialchars($users['fractions']) ?></div>
-                                <div class="text-muted small">1 kỹ năng gợi ý</div>
-                            </div>
-                            <div class="border rounded p-2 mb-3" style="border-color:#ffcc80;background:#fff8e1;">
-                                <div class="fw-bold" style="color:#f9a825;">Đại số &amp; Tư duy đại số</div>
-                                <div class="fs-4 fw-bold" style="color:#f9a825;"><?= htmlspecialchars($users['algebra']) ?></div>
-                                <div class="text-muted small">1 kỹ năng gợi ý</div>
-                            </div>
-                            <div class="border rounded p-2" style="border-color:#b39ddb;background:#f3e8fd;">
+                        <div style="width:220px;">                            
+                            <div class="border rounded p-2 mb-3" style="border-color:#b39ddb;background:#f3e8fd;">
                                 <div class="fw-bold" style="color:#7e57c2;">Số &amp; Phép tính</div>
                                 <div class="fs-4 fw-bold" style="color:#7e57c2;"><?= htmlspecialchars($users['numbers']) ?></div>
                                 <div class="text-muted small">3 kỹ năng gợi ý</div>
                             </div>
-                        </div>
-                        <div style="width:220px;">
                             <div class="border rounded p-2 mb-3" style="border-color:#f8bbd0;background:#fce4ec;">
                                 <div class="fw-bold" style="color:#d81b60;">Hình học</div>
                                 <div class="fs-4 fw-bold" style="color:#d81b60;"><?= htmlspecialchars($users['geometry']) ?></div>
                                 <div class="text-muted small">1 kỹ năng gợi ý</div>
                             </div>
-                            <div class="border rounded p-2 mb-3" style="border-color:#90caf9;background:#e3f2fd;">
+                            <div class="border rounded p-2" style="border-color:#90caf9;background:#e3f2fd;">
                                 <div class="fw-bold" style="color:#1976d2;">Đo lường</div>
                                 <div class="fs-4 fw-bold" style="color:#1976d2;"><?= htmlspecialchars($users['measurement']) ?></div>
                                 <div class="text-muted small">4 kỹ năng gợi ý</div>
                             </div>
+                        </div>
+                        <div style="width:220px;">
+                            <div class="border rounded p-2 mb-3" style="border-color:#ffcc80;background:#fff8e1;">
+                                <div class="fw-bold" style="color:#f9a825;">Đại số &amp; Tư duy đại số</div>
+                                <div class="fs-4 fw-bold" style="color:#f9a825;"><?= htmlspecialchars($users['algebra']) ?></div>
+                                <div class="text-muted small">1 kỹ năng gợi ý</div>
+                            </div>
+                            <div class="border rounded p-2 mb-3" style="border-color:#b2dfdb;background:#f1fcfa;">
+                                <div class="fw-bold" style="color:#009688;">Phân số</div>
+                                <div class="fs-4 fw-bold" style="color:#009688;"><?= htmlspecialchars($users['fractions']) ?></div>
+                                <div class="text-muted small">1 kỹ năng gợi ý</div>
+                            </div>                           
                             <div class="border rounded p-2" style="border-color:#c8e6c9;background:#e8f5e9;">
-                                <div class="fw-bold" style="color:#388e3c;">Dữ liệu, Thống kê, &amp; Xác suất</div>
+                                <div class="fw-bold" style="color:#388e3c;">Dữ liệu, Thống kê &amp; Xác suất</div>
                                 <div class="fs-4 fw-bold" style="color:#388e3c;"><?= htmlspecialchars($users['data']) ?></div>
                                 <div class="text-muted small">2 kỹ năng gợi ý</div>
                             </div>
                         </div>
                     </div>
                     <div class="text-center" style="position:absolute;left:50%;top:110%;transform:translate(-50%,-50%);width:260px;">
-                        <div class="fw-bold fs-1" style="color:#424242;font-size:3.5rem;">310</div>
+                        <div class="fw-bold fs-1" style="color:#424242;font-size:3.5rem;"><?= ceil((htmlspecialchars($users['numbers']) + htmlspecialchars($users['geometry']) + htmlspecialchars($users['measurement']) + htmlspecialchars($users['algebra']) + htmlspecialchars($users['fractions']) + htmlspecialchars($users['data']))/6/10)* 10 ?></div>
                         <div class="text-muted" style="font-size:1.1rem;">Trình độ toán tổng quát</div>
                     </div>
                 </div>
