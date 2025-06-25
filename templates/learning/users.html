@@ -29,14 +29,6 @@
                                 "attr" => 'data-width="100%"',
                                 "options" => [["value"=>"A","text"=>$jatbi->lang("Kích hoạt")],["value"=>"D","text"=>$jatbi->lang("Không Kích hoạt")],]
                             ])?>
-                           <?=$app->component('select',[
-                                "name"=>'permission',
-                                "placeholder"=>$jatbi->lang("Nhóm quyền"),
-                                "selected" => $app->xss($_GET['permission'] ?? ''),
-                                "class" => 'filter-name',         
-                                "attr" => 'data-width="100%" multiple data-actions-box="true"',
-                                "options" => $permission,
-                            ])?>
                         </div>
                         <hr class="border-secondary border-opacity-50 my-2">
                         <div class="px-3 py-2 text-end w-100">

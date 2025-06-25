@@ -1180,7 +1180,6 @@
         $orderName = isset($_POST['order'][0]['name']) ? $_POST['order'][0]['name'] : 'id';
         $orderDir = isset($_POST['order'][0]['dir']) ? $_POST['order'][0]['dir'] : 'DESC';
         $status = isset($_POST['status']) ? [$_POST['status'],$_POST['status']] : '';
-        $permission = isset($_POST['permission']) ? $_POST['permission'] : '';
         $where = [
             "AND" => [
                 "OR" => [
@@ -1195,9 +1194,6 @@
             "LIMIT" => [$start, $length],
             "ORDER" => [$orderName => strtoupper($orderDir)]
         ];
-        if (!empty($permission)) {
-            $where["AND"]["accounts.permission"] = $permission;
-        }
         $count = $app->count("accounts",[
             "AND" => $where['AND'],
         ]);
