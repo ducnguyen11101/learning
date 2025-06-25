@@ -111,7 +111,7 @@ $app->router("/change-password", 'POST', function($vars) use ($app, $jatbi) {
     $insert = [
         "password"      => password_hash($app->xss($_POST['password_confirm']), PASSWORD_DEFAULT),
     ];
-    $app->update("accounts",$insert,["id"=>$vars['id']]);
+    $app->update("accounts",$insert,["id"=>$data['id']]);
     echo json_encode(['status' => 'success','content' => $jatbi->lang('Cập nhật thành công')]);
 });
 

@@ -61,13 +61,6 @@
                 </a>
             </li>
             <?php } ?>
-            <?php if($jatbi->permission(['accounts.add']) == 'true'){ ?>
-            <li class="my-2">
-                <a class="btn rounded-circle btn-primary width height d-flex justify-content-center align-items-center p-1" data-action="modal" data-url="/users/accounts-add" style="--width:50px;--height:50px;">
-                    <i class="ti ti-plus fs-3" aria-hidden="true"></i>
-                </a>
-            </li>
-            <?php } ?>
         </ul>
     </div> 
     <?php } ?>
@@ -75,7 +68,6 @@
 		<div class="card-body">
             <div class="custom-buttons d-none">
                 <div class="d-flex align-items-center justify-content-end">
-                    <button class="btn rounded-pill btn-sm btn-primary d-flex align-items-center me-1" data-action="modal" data-url="/users/accounts-add"><i class="ti ti-plus fs-6 me-1" aria-hidden="true"></i> <?=$jatbi->lang("Thêm")?></button>
                     <button class="btn rounded-pill btn-sm btn-danger d-flex align-items-center" data-action="modal" data-checkbox="input.checker" data-url="/users/accounts-deleted"><i class="ti ti-trash fs-6 me-1" aria-hidden="true"></i> <?=$jatbi->lang("Xóa")?></button>
                 </div>
             </div>

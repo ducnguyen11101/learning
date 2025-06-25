@@ -1161,10 +1161,11 @@
     })->setPermissions(['courseCategoryManagement']);
 
     $app->router("/course/users", 'GET', function($vars) use ($app, $jatbi) {
-        $vars['unit'] = $app->get("units","*",["id"=>$vars['unit'],"deleted"=>'0']);
-        $vars['title'] = "Tài khoản người dùng";
         $vars['datatable'] = $app->component('datatable',["datas"=>[],"search"=>[]]);
-       
+        $vars['title'] = $jatbi->lang("Tài khoản người dùng");
+        $vars['add'] = '/users/accounts-add';
+        $vars['deleted'] = '/users/accounts-deleted';
+        $vars['permission'] = $app->select("permissions",["name (text)","id (value)"],["deleted"=>0,"status"=>"A"]);
         echo $app->render('templates/learning/users.html', $vars);
     })->setPermissions(['courseCategoryManagement']);
 
@@ -1200,9 +1201,7 @@
         $count = $app->count("accounts",[
             "AND" => $where['AND'],
         ]);
-        $app->select("accounts", [
-                "[>]permissions" => ["permission" => "id"]
-            ], 
+        $app->select("accounts",
             [
             'accounts.id',
             'accounts.name',
@@ -1210,27 +1209,19 @@
             'accounts.email',
             'accounts.avatar',
             'accounts.status',
-            'permissions.name (permission)',
             ], $where, function ($data) use (&$datas,$jatbi,$app) {
             $datas[] = [
                 "checkbox" => $app->component("box",["data"=>$data['active']]),
                 "name" => '<img src="/' . $data['avatar'] . '?type=thumb" class="width rounded-circle me-2" style="--width:40px"> '.$data['name'],
                 "email" => $data['email'],
-                "permission" => $data['permission'],
                 "status" => $app->component("status",["url"=>"/users/accounts-status/".$data['active'],"data"=>$data['status'],"permission"=>['accounts.edit']]),
                 "action" => $app->component("action",[
                     "button" => [
-                        [//thêm
-                            'type' => 'link',
-                            'name' => $jatbi->lang("Xem chi tiết"),
-                            'permission' => ['accounts.edit'],
-                            'action' => ['href' => '/users/accounts-detail/'.$data['active']]
-                        ],
                         [
                             'type' => 'button',
                             'name' => $jatbi->lang("Sửa"),
                             'permission' => ['accounts.edit'],
-                            'action' => ['data-url' => '/users/accounts-edit/'.$data['active'], 'data-action' => 'modal']
+                            'action' => ['data-url' => '/course/users-edit/'.$data['active'], 'data-action' => 'modal']
                         ],
                         [
                             'type' => 'button',
@@ -1248,5 +1239,106 @@
             "recordsFiltered" => $count,
             "data" => $datas ?? []
         ]);
+    })->setPermissions(['courseCategoryManagement']);
+
+    $app->router("/course/users-edit/{id}", 'GET', function($vars) use ($app, $jatbi) {
+        $vars['title'] = $jatbi->lang("Sửa Tài khoản");
+        $vars['permissions'] = $app->select("permissions","*",["deleted"=>0,"status"=>"A"]);
+        $vars['data'] = $app->get("accounts","*",["active"=>$vars['id'],"deleted"=>0]);
+        if($vars['data']>1){
+            echo $app->render('templates/learning/users-post.html', $vars, 'global');
+        }
+        else {
+            echo $app->render('templates/common/error-modal.html', $vars, 'global');
+        }
+    })->setPermissions(['courseCategoryManagement']);
+
+    $app->router("/course/users-edit/{id}", 'POST', function($vars) use ($app, $jatbi) {
+        $app->header([
+            'Content-Type' => 'application/json',
+        ]);
+        $data = $app->get("accounts","*",["active"=>$vars['id'],"deleted"=>0]);
+        if($data>1){
+            if($app->xss($_POST['name'])=='' || $app->xss($_POST['email'])=='' || $app->xss($_POST['account'])=='' || $app->xss($_POST['status'])==''){
+                $error = ["status"=>"error","content"=>$jatbi->lang("Vui lòng không để trống")];
+            }
+            elseif (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
+                $error = ['status'=>'error','content'=>$jatbi->lang('Email không đúng')];
+            }
+            if(empty($error)){
+                $insert = [
+                    "name"          => $app->xss($_POST['name']),
+                    "account"       => $app->xss($_POST['account']),
+                    "email"         => $app->xss($_POST['email']),
+                    "phone"         => $app->xss($_POST['phone']),
+                    "gender"        => $app->xss($_POST['gender']),
+                    "birthday"      => $app->xss($_POST['birthday']),
+                    "password"      => ($_POST['password']==''?$data['password']:password_hash($xss->xss($_POST['password']), PASSWORD_DEFAULT)),
+                    "active"        => $data['active'],
+                    "date"          => date('Y-m-d H:i:s'),
+                    "status"        => $app->xss($_POST['status']),
+                    "lang"          => $data['lang'] ?? 'vi',
+                ];
+                $app->update("accounts",$insert,["id"=>$data['id']]);
+                if($_FILES['avatar']){
+                    $imageUrl = $_FILES['avatar'];
+                    $handle = $app->upload($imageUrl);
+                    $path_upload = 'datas/'.$insert['active'].'/images/';
+                    if (!is_dir($path_upload)) {
+                        mkdir($path_upload, 0755, true);
+                    }
+                    $path_upload_thumb = 'datas/'.$insert['active'].'/images/thumb';
+                    if (!is_dir($path_upload_thumb)) {
+                        mkdir($path_upload_thumb, 0755, true);
+                    }
+                    $newimages = $jatbi->active();
+                    if ($handle->uploaded) {
+                        $handle->allowed        = array('image/*');
+                        $handle->file_new_name_body = $newimages;
+                        $handle->Process($path_upload);
+                        $handle->image_resize   = true;
+                        $handle->image_ratio_crop  = true;
+                        $handle->image_y        = '200';
+                        $handle->image_x        = '200';
+                        $handle->allowed        = array('image/*');
+                        $handle->file_new_name_body = $newimages;
+                        $handle->Process($path_upload_thumb);
+                    }
+                    if($handle->processed ){
+                        $getimage = 'upload/images/'.$newimages;
+                        $data = [
+                            "file_src_name" => $handle->file_src_name,
+                            "file_src_name_body" => $handle->file_src_name_body,
+                            "file_src_name_ext" => $handle->file_src_name_ext,
+                            "file_src_pathname" => $handle->file_src_pathname,
+                            "file_src_mime" => $handle->file_src_mime,
+                            "file_src_size" => $handle->file_src_size,
+                            "image_src_x" => $handle->image_src_x,
+                            "image_src_y" => $handle->image_src_y,
+                            "image_src_pixels" => $handle->image_src_pixels,
+                        ];
+                        $insert = [
+                            "account" => $getID,
+                            "type" => "images",
+                            "content" => $path_upload.$handle->file_dst_name,
+                            "date" => date("Y-m-d H:i:s"),
+                            "active" => $newimages,
+                            "size" => $data['file_src_size'],
+                            "data" => json_encode($data),
+                        ];
+                        $app->insert("uploads",$insert);
+                        $app->update("accounts",["avatar"=>$getimage],["id"=>$data['id']]);
+                    }
+                }
+                echo json_encode(['status'=>'success','content'=>$jatbi->lang("Cập nhật thành công")]);
+                $jatbi->logs('accounts','accounts-edit',$insert);
+            }
+            else {
+                echo json_encode($error);
+            }
+        }
+        else {
+            echo json_encode(["status"=>"error","content"=>$jatbi->lang("Không tìm thấy dữ liệu")]);
+        }
     })->setPermissions(['courseCategoryManagement']);
 ?>
