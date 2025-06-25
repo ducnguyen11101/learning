@@ -153,7 +153,7 @@
             $newid = $app->max("accounts", "id") + 1;
             $insert = [
                     "id"            => $newid, // Không cần truyền id, để DB tự động tăng
-                    "type"          => 1,
+                    "type"          => '2',
                     "name"          => $app->xss($_POST['name']),
                     "account"       => $app->xss($_POST['email']),
                     "phone"         => '', // Google does not provide phone

@@ -411,6 +411,7 @@
                     "accounts.email[~]" => $searchValue,
                     "accounts.account[~]" => $searchValue,
                 ],
+                "accounts.type" => '1',
                 "accounts.status[<>]" => $status,
                 "accounts.deleted" => 0,
             ],
