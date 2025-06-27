@@ -461,6 +461,18 @@
                     "lang"          => $userInfo->locale ?? 'vi',
                 ];
                 $app->insert("accounts", $insert);
+                $insert2 = [                
+                    "account_id"    => $newid,
+                    "fractions"     => 0,
+                    "algebra"       => 0,
+                    "numbers"       => 0,
+                    "geometry"      => 0,
+                    "measurement"   => 0,
+                    "data"          => 0,
+                    "created_at"    => date('Y-m-d H:i:s'),
+                    "updated_at"    => date('Y-m-d H:i:s'),
+                ];
+                $app->insert("users", $insert2);
             }
             $data = $app->get("accounts","*",[
                 "OR"=>[
