@@ -3,10 +3,121 @@
     $jatbi = new Jatbi($app);
     $setting = $app->getValueData('setting');
 
-$app->router("/", 'GET', function($vars) use ($app) {
+$app->router("/math", 'GET', function($vars) use ($app) {
     $vars['templates'] = 'grade';
     $vars['grades'] = $app->select("grades","*",["status"=>'A',"deleted"=>0]);
     echo $app->render('templates/frontend/category.html', $vars);
+});
+
+$app->router("/", 'GET', function($vars) use ($app) {
+    if($app->getSession("accounts")){
+        $name = $app->get("accounts", "name", ["id" => $app->getSession("accounts")['id']]);
+        // Lấy danh sách 6 lessons có id trong ganday
+        $ganday = $app->select("test", "id_lesson", [
+            "id_account" => $app->getSession("accounts")['id'],
+            "GROUP" => "id_lesson",
+            "ORDER" => ["date" => "DESC"],
+            "LIMIT" => 6
+        ]);
+        $lessons = [];
+        if (!empty($ganday)) {
+            foreach ($ganday as $item) {
+                // If $item is an int, treat it as id_lesson directly
+                $id_lesson = is_array($item) && isset($item['id_lesson']) ? $item['id_lesson'] : $item;
+                $lesson = $app->get("lessons", "*", ["id" => $id_lesson]);
+                if ($lesson) {
+                    $lessons[] = $lesson;
+                }
+            }
+        }
+        $units = $app->select("units", "*", [
+            "grade" => 1,
+            "status" => 'A',
+            "deleted" => 0,
+            "ORDER" => ["id" => "ASC"]
+        ]);
+        // Lấy 4 id_lesson có số lần xuất hiện nhiều nhất từ bảng test, chỉ lấy các lesson có unit thuộc $units
+        $unitIds = array_column($units, 'id');
+        $unitIdsStr = implode(',', array_map('intval', $unitIds));
+        $ganday2 = $app->query("
+            SELECT id_lesson
+            FROM test
+            WHERE id_lesson IN (
+            SELECT id FROM lessons WHERE unit IN ($unitIdsStr)
+            )
+            GROUP BY id_lesson
+            ORDER BY COUNT(*) DESC
+            LIMIT 4
+        ")->fetchAll(PDO::FETCH_COLUMN);
+        $lessons2 = [];
+        if (!empty($ganday2)) {
+            foreach ($ganday2 as $item) {
+                // If $item is an int, treat it as id_lesson directly
+                $id_lesson = is_array($item) && isset($item['id_lesson']) ? $item['id_lesson'] : $item;
+                $lesson = $app->get("lessons", "*", ["id" => $id_lesson]);
+                if ($lesson) {
+                    $lessons2[] = $lesson;
+                }
+            }
+        }
+        $grades = $app->select("grades", "*", ["status" => 'A', "deleted" => 0]);
+
+        $vars['grades'] = $grades;
+        $vars['lessons2'] = $lessons2;
+        $vars['lessons'] = $lessons;
+        $vars['name'] = $name;
+        echo $app->render('templates/frontend/homeuser.html', $vars);
+    }
+    else {
+        $app->redirect('/math');
+    }
+});
+
+$app->router("/", 'POST', function($vars) use ($app) {
+    $app->header([
+        'Content-Type' => 'application/json',
+    ]);
+    
+    // Get grade_id from POST data
+    $input = json_decode(file_get_contents('php://input'), true);
+    $gradeId = isset($input['grade_id']) ? intval($input['grade_id']) : 1;
+    
+    $units = $app->select("units", "*", [
+        "grade" => $gradeId,
+        "status" => 'A',
+        "deleted" => 0,
+        "ORDER" => ["id" => "ASC"]
+    ]);
+    
+    // Get 4 most popular lessons from selected grade
+    $unitIds = array_column($units, 'id');
+    $lessons2 = [];
+    
+    if (!empty($unitIds)) {
+        $unitIdsStr = implode(',', array_map('intval', $unitIds));
+        $ganday2 = $app->query("
+            SELECT id_lesson
+            FROM test
+            WHERE id_lesson IN (
+                SELECT id FROM lessons WHERE unit IN ($unitIdsStr)
+            )
+            GROUP BY id_lesson
+            ORDER BY COUNT(*) DESC
+            LIMIT 4
+        ")->fetchAll(PDO::FETCH_COLUMN);
+        
+        if (!empty($ganday2)) {
+            foreach ($ganday2 as $item) {
+                $id_lesson = is_array($item) && isset($item['id_lesson']) ? $item['id_lesson'] : $item;
+                $lesson = $app->get("lessons", "*", ["id" => $id_lesson]);
+                if ($lesson) {
+                    $lessons2[] = $lesson;
+                }
+            }
+        }
+    }
+    
+    echo json_encode(['status' => 'success', 'lessons' => $lessons2]);
 });
 
 $app->router("/profile", 'GET', function($vars) use ($app) {
