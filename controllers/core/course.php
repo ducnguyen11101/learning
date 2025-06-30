@@ -1483,7 +1483,6 @@
         $app->update("images",$insert,["id"=>$vars['id']]);
         // $jatbi->logs('learning','grades-add',$insert);
         echo json_encode(['status'=>'success','content'=>$jatbi->lang("Cập nhật thành công")]);
-        exit;
     })->setPermissions(['image.edit']);
 
     $app->router("/course/image-deleted", 'GET', function($vars) use ($app, $jatbi) {
@@ -1551,17 +1550,17 @@
         $app->select("questions", [
             "[>]question_types" => ["type_id" => "type_id"]
         ], [
-            'questions.question_id ',
+            'questions.question_id',
             'question_types.type_name(type)',
             'questions.difficulty',
-            'questions.explanation',
+            'questions.question_text',
             'questions.topic',
             ], $where, function ($data) use (&$datas,$jatbi,$app) {
             $datas[] = [
                 "checkbox"      => $app->component("box",["data"=>$data['question_id']]),
                 "type"          => $data['type'],
                 "difficulty"    => $data['difficulty'],
-                "explanation"   => $data['explanation'],
+                "question_text"   => $data['question_text'],
                 "topic"         => $data['topic'],
                 "action" => $app->component("action",[
                     "button" => [
@@ -1569,13 +1568,7 @@
                             'type' => 'button',
                             'name' => $jatbi->lang("Sửa"),
                             'permission' => ['courseCategoryManagement'],
-                            'action' => ['data-url' => '/learning/units-edit/'.$data['question_id'], 'data-action' => 'modal']
-                        ],
-                        [
-                            'type' => 'button',
-                            'name' => $jatbi->lang("Xóa"),
-                            'permission' => ['courseCategoryManagement'],
-                            'action' => ['data-url' => '/learning/units-deleted?box='.$data['question_id'], 'data-action' => 'modal']
+                            'action' => ['data-url' => '/learning/questions-edit/'.$data['question_id'], 'data-action' => 'modal']
                         ],
                     ]
                 ]),
@@ -1622,5 +1615,41 @@
         $app->insert("questions",$insert);
         echo json_encode(['status'=>'success','content'=>$jatbi->lang("Thêm thành công")]);
 
+    })->setPermissions(['courseCategoryManagement']);
+
+    $app->router("/learning/questions-edit/{id}", 'GET', function($vars) use ($app, $jatbi) {
+        $vars['title'] = $jatbi->lang("Sửa câu hỏi");
+        $vars['lessons'] = $app->select("lessons","*",["deleted"=>'0',"ORDER" => ["position" => "ASC"]]);
+        $vars['question_types'] = $app->select("question_types","*");
+        $vars['data'] = $app->get("questions","*",["question_id"=>$vars['id']]);
+        if($vars['data']>0){
+            echo $app->render('templates/course/question-post.html', $vars, 'global');
+        }
+        else {
+            echo $app->render('templates/common/error-modal.html', $vars, 'global');
+        }
+    })->setPermissions(['courseCategoryManagement']);
+
+    $app->router("/learning/questions-edit/{id}", 'POST', function($vars) use ($app, $jatbi) {
+        $app->header([
+            'Content-Type' => 'application/json',
+        ]);
+
+        if($app->xss($_POST['type_id']) =='' || $app->xss($_POST['difficulty']) =='' || $app->xss($_POST['question_text']) =='' || $app->xss($_POST['explanation']) =='' || $app->xss($_POST['topic']) =='') {
+            echo json_encode(["status"=>"error","content"=>$jatbi->lang("Vui lòng không để trống.")]);
+            exit;
+        }
+
+        $insert = [
+            "lesson_id"         => $app->xss($_POST['lesson_id']),
+            "type_id"           => $app->xss($_POST['type_id']),
+            "question_text"     => $app->xss($_POST['question_text']),
+            "difficulty"        => $app->xss($_POST['difficulty']),
+            "explanation"       => $app->xss($_POST['explanation']),
+            "topic"             => $app->xss($_POST['topic']),
+        ];
+        $app->update("questions",$insert,["question_id"=>$vars['id']]);
+        // $jatbi->logs('learning','grades-add',$insert);
+        echo json_encode(['status'=>'success','content'=>$jatbi->lang("Cập nhật thành công id = " . $vars['id'])]);
     })->setPermissions(['courseCategoryManagement']);
 ?>
