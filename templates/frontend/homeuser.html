@@ -8,7 +8,7 @@
     <div class="row">
         <!-- Left Column (2/3 width) -->
         <div class="col-md-8">
-            <div class="card shadow-sm mb-4 p-4">
+            <div class="card shadow-sm mb-4 p-4"style="background-color: #f5f5f5;">
                 <h5 class="mb-3">Tôi nên làm gì?</h5>
                 
                 <!-- Tabs -->
@@ -58,14 +58,32 @@
                         </div>
                     </div>
                     <div class="tab-pane fade" id="recommendations" role="tabpanel">
-                        <p class="text-muted">Các đề xuất dành cho bạn sẽ hiển thị ở đây.</p>
+                        <div class="row">
+                            <?php if (!empty($lessons3)): ?>
+                                <?php foreach ($lessons3 as $lesson): ?>
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card border border-2 h-100">
+                                            <div class="card-body">
+                                                <h6 class="mb-2"><?= htmlspecialchars($lesson['name']) ?></h6><hr>
+                                                <img src="../../assest-src/<?= htmlspecialchars($lesson['imgex']) ?>" alt="Lesson Image" class="img-fluid mb-2" style="max-height: 80px;">
+                                            </div>
+                                            <a href="/lesson?lesson_id=<?= htmlspecialchars($lesson['id']) ?>" class="btn btn-outline-primary btn-sm">Thử ngay &gt;</a>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <div class="col-12">
+                                    <p class="text-muted">Không có bài học gần đây.</p>
+                                </div>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
         <!-- Right Column (1/3 width) -->
         <div class="col-md-4">
-            <div class="card text-center shadow-sm p-4 d-flex flex-column align-items-center gap-4" style="background:rgb(253, 253, 253);">
+            <div class="card text-center shadow-sm p-4 d-flex flex-column align-items-center gap-4" style="background-color: #f5f5f5;">
                 <img src="../../assest-src/imglessons/iconarena.png" alt="Lesson Image" class="img-fluid mb-2">
                 <h5 class="mb-2" style="color: #6c757d;">Cấp độ của bạn đã được cập nhật!</h5>
                 <p class="mb-3" style="color: #6c757d;">Chẩn đoán cho bạn biết bạn đã biết gì và nên học gì tiếp theo.</p>
@@ -77,7 +95,7 @@
     </div>
 
     <!-- Popular right now Section -->
-    <div class="card shadow-sm mb-4 p-4">
+    <div class="card shadow-sm mb-4 p-4" style="background-color: #f5f5f5;">
         <div class="d-flex align-items-center justify-content-between mb-3">
             <h5 class="mb-0">Phổ biến ngay bây giờ cho</h5>
             <select class="form-select w-auto" id="gradeSelect" onchange="postGrade()">
