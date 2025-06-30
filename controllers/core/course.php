@@ -1604,25 +1604,23 @@
         $app->header([
             'Content-Type' => 'application/json',
         ]);
-        if($app->xss($_POST['type_id']) ==''  || $app->xss($_POST['difficulty']) =='' || $app->xss($_POST['question_text']) =='' || $app->xss($_POST['explanation']) =='' || $app->xss($_POST['topic']) =='') {
+
+        if($app->xss($_POST['type_id']) =='' || $app->xss($_POST['difficulty']) =='' || $app->xss($_POST['question_text']) =='' || $app->xss($_POST['explanation']) =='' || $app->xss($_POST['topic']) =='') {
             echo json_encode(["status"=>"error","content"=>$jatbi->lang("Vui lòng không để trống.")]);
             exit;
-        } 
+        }
 
         $insert = [
-            "question_id"       => 200,
-            "lesson_id"         => 1,
-            "type_id"           => 3,
-            "question_text"     => '3 + 3 =',
-            //"picture"           => NULL,
-            //"difficulty"        => 1,
-            //"explanation"       => '6',
-            //"topic"             => 'cộng',
+            "lesson_id"         => $app->xss($_POST['lesson_id']),
+            "type_id"           => $app->xss($_POST['type_id']),
+            "question_text"     => $app->xss($_POST['question_text']),
+            "difficulty"        => $app->xss($_POST['difficulty']),
+            "explanation"       => $app->xss($_POST['explanation']),
+            "topic"             => $app->xss($_POST['topic']),
             "created_at"        => date('Y-m-d H:i:s'),
         ];
         $app->insert("questions",$insert);
-        // $jatbi->logs('learning','grades-add',$insert);
         echo json_encode(['status'=>'success','content'=>$jatbi->lang("Thêm thành công")]);
-        exit;
+
     })->setPermissions(['courseCategoryManagement']);
 ?>
