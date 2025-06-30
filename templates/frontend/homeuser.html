@@ -2,7 +2,7 @@
     <!-- Welcome Header -->
     <div class="d-flex align-items-center" style="margin-top: 20px;">
         <img src="https://img.icons8.com/fluency/48/book.png" alt="Book" width="40" height="40">
-        <h4 class="mb-0 text-white">Chào <?= htmlspecialchars($name) ?>! Chúc buổi sáng tốt lành!</h4>
+        <h4 class="mb-0 ">Chào <?= htmlspecialchars($name) ?>! Chúc một ngày tốt lành!</h4>
     </div>
     <!-- What should I work on? Section -->
     <div class="row">
@@ -12,14 +12,14 @@
                 <h5 class="mb-3">Tôi nên làm gì?</h5>
                 
                 <!-- Tabs -->
-                <ul class="nav nav-pills mb-3" id="workTabs" role="tablist">
+                <ul class="nav nav-pills mb-3" id="workTabs" role="tablist" style="background-color:rgb(201, 234, 247); border-radius: 8px;">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="parent-tab" data-bs-toggle="pill" data-bs-target="#parent" type="button" role="tab">
+                        <button class="nav-link" id="parent-tab" data-bs-toggle="pill" data-bs-target="#parent" type="button" role="tab">
                             <i class="fas fa-star me-2"></i>Từ phụ huynh
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="recent-tab" data-bs-toggle="pill" data-bs-target="#recent" type="button" role="tab">
+                        <button class="nav-link active" id="recent-tab" data-bs-toggle="pill" data-bs-target="#recent" type="button" role="tab">
                             <i class="fas fa-clock me-2"></i>Kỹ năng gần đây
                         </button>
                     </li>
@@ -32,11 +32,11 @@
 
                 <!-- Tab Content -->
                 <div class="tab-content" id="workTabsContent" style="height: 320px; overflow-y: auto; overflow-x: hidden;">
-                    <div class="tab-pane fade show active" id="parent" role="tabpanel">
+                    <div class="tab-pane fade" id="parent" role="tabpanel">
                         <p class="text-muted">Các đề xuất dành cho bạn sẽ hiển thị ở đây.</p>
                     </div>
 
-                    <div class="tab-pane fade" id="recent" role="tabpanel">
+                    <div class="tab-pane fade show active" id="recent" role="tabpanel">
                         <div class="row">
                             <?php if (!empty($lessons)): ?>
                                 <?php foreach ($lessons as $lesson): ?>
