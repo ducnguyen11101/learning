@@ -1007,7 +1007,7 @@
             ], $where, function ($data) use (&$datas,$jatbi,$app) {
             $datas[] = [
                 "checkbox"  => $app->component("box",["data"=>$data['id']]),
-                "name"      => '<a class="text-primary" href="/learning/unit/'.$data['id'].'">' . $data['name'] .'</a>',
+                "name"      => '<a class="text-primary" href="/learning/questions/'.$data['id'].'">' . $data['name'] .'</a>',
                 "status" => $app->component("status",["url"=>"/learning/lessons-status/".$data['id'],"data"=>$data['status'],"permission"=>['courseCategoryManagement']]),
                 "action" => $app->component("action",[
                     "button" => [
@@ -1340,5 +1340,289 @@
         else {
             echo json_encode(["status"=>"error","content"=>$jatbi->lang("Không tìm thấy dữ liệu")]);
         }
+    })->setPermissions(['courseCategoryManagement']);
+
+    $app->router("/course/image", 'GET', function($vars) use ($app, $jatbi) {
+        $vars['title'] = $jatbi->lang("Quản lý hình ảnh");
+        $vars['datatable'] = $app->component('datatable',["datas"=>[],"search"=>[]]);
+        echo $app->render('templates/course/image.html', $vars);
+    })->setPermissions(['image']);
+
+    $app->router("/course/image", 'POST', function($vars) use ($app, $jatbi) {
+        $app->header([
+            'Content-Type' => 'application/json',
+        ]);
+        $draw = isset($_POST['draw']) ? intval($_POST['draw']) : 0;
+        $start = isset($_POST['start']) ? intval($_POST['start']) : 0;
+        $length = isset($_POST['length']) ? intval($_POST['length']) : 10;
+        $searchValue = isset($_POST['search']['value']) ? $_POST['search']['value'] : '';
+        $orderName = isset($_POST['order'][0]['name']) ? $_POST['order'][0]['name'] : 'id';
+        $orderDir = isset($_POST['order'][0]['dir']) ? $_POST['order'][0]['dir'] : 'ASC';
+        
+        $where = [
+            "AND" => [
+                "OR" => [
+                    "images.name[~]" => $searchValue,
+                    "image_type.name[~]" => $searchValue,
+                ],
+                "images.deleted" => 0,
+            ],
+            "LIMIT" => [$start, $length],
+            "ORDER" => [$orderName => strtoupper($orderDir)]
+        ];
+
+        $count = $app->count("images",[
+            "AND" => $where['AND'],
+        ]);
+        $app->select("images", [
+            "[>]image_type" => ["image_type" => "id"]
+        ], [
+            'images.id',
+            'image_type.name(type)',
+            'images.name',
+            'images.img_base64',
+            ], $where, function ($data) use (&$datas,$jatbi,$app) {
+            $datas[] = [
+                "checkbox"  => $app->component("box",["data"=>$data['id']]),
+                "type"      => $data['type'],
+                "name"      => $data['name'],
+                "image"     => "<img src='data:image/jpeg;base64,{$data['img_base64']}' style='max-width: 100px;'>",
+                "action" => $app->component("action",[
+                    "button" => [
+                        [
+                            'type' => 'button',
+                            'name' => $jatbi->lang("Sửa"),
+                            'permission' => ['image.edit'],
+                            'action' => ['data-url' => '/course/image-edit/'.$data['id'], 'data-action' => 'modal']
+                        ],
+                        [
+                            'type' => 'button',
+                            'name' => $jatbi->lang("Xóa"),
+                            'permission' => ['image.deleted'],
+                            'action' => ['data-url' => '/course/image-deleted?box='.$data['id'], 'data-action' => 'modal']
+                        ],
+                    ]
+                ]),
+            ];
+        });
+        echo json_encode([
+            "draw" => $draw,
+            "recordsTotal" => $count,
+            "recordsFiltered" => $count,
+            "data" => $datas ?? []
+        ]);
+    })->setPermissions(['image']);
+
+    $app->router("/course/image-add", 'GET', function($vars) use ($app, $jatbi) {
+        $vars['title'] = $jatbi->lang("Thêm Hình ảnh");
+        $vars['image_types'] = $app->select("image_type", "*");
+        $vars['data'] = [
+            "image_type" => '',
+            "img_base64" => '',
+        ];
+        echo $app->render('templates/course/image-post.html', $vars, 'global');
+    })->setPermissions(['image.add']);
+
+    $app->router("/course/image-add", 'POST', function($vars) use ($app, $jatbi) {
+        $app->header([
+            'Content-Type' => 'application/json',
+        ]);
+
+        $img_file = $_FILES['img_file'] ?? null;
+
+        if($app->xss($_POST['name']) =='' || $app->xss($_POST['image_type']) =='') {
+            echo json_encode(["status"=>"error","content"=>$jatbi->lang("Vui lòng không để trống.")]);
+            exit;
+        }
+
+        if ($img_file['error'] !== UPLOAD_ERR_OK) {
+            echo json_encode(["status" => "error", "content" => "Lỗi khi upload file"]);
+            exit;
+        }
+
+        $img_content = file_get_contents($img_file['tmp_name']);
+        $img_base64 = base64_encode($img_content);
+
+        $insert = [
+            "name"          => $app->xss($_POST['name']),
+            "img_base64"    => $img_base64,
+            "image_type"    => $app->xss($_POST['image_type']),
+        ];
+        $app->insert("images", $insert);
+        echo json_encode(['status'=>'success','content'=>$jatbi->lang("Thêm thành công")]);
+
+    })->setPermissions(['image.add']);
+
+    $app->router("/course/image-edit/{id}", 'GET', function($vars) use ($app, $jatbi) {
+        $vars['title'] = $jatbi->lang("Sửa hình ảnh");
+        $vars['data'] = $app->get("images","*",["id"=>$vars['id'],"deleted"=>0]);
+        if($vars['data']>0){
+            $vars['image_types'] = $app->select("image_type", "*");
+            echo $app->render('templates/course/image-post.html', $vars, 'global');
+        }
+        else {
+            echo $app->render('templates/common/error-modal.html', $vars, 'global');
+        }
+    })->setPermissions(['image.edit']);
+
+    $app->router("/course/image-edit/{id}", 'POST', function($vars) use ($app, $jatbi) {
+        $app->header([
+            'Content-Type' => 'application/json',
+        ]);
+
+        if($app->xss($_POST['name']) =='' || $app->xss($_POST['image_type']) =='') {
+            echo json_encode(["status"=>"error","content"=>$jatbi->lang("Vui lòng không để trống.")]);
+            exit;
+        }
+
+        $insert = [
+            "name"          => $app->xss($_POST['name']),
+    
+            "image_type"    => $app->xss($_POST['image_type']),
+        ];
+        $app->update("images",$insert,["id"=>$vars['id']]);
+        // $jatbi->logs('learning','grades-add',$insert);
+        echo json_encode(['status'=>'success','content'=>$jatbi->lang("Cập nhật thành công")]);
+        exit;
+    })->setPermissions(['image.edit']);
+
+    $app->router("/course/image-deleted", 'GET', function($vars) use ($app, $jatbi) {
+        $vars['title'] = $jatbi->lang("Xóa hình ảnh");
+        echo $app->render('templates/common/deleted.html', $vars, 'global');
+    })->setPermissions(['image.deleted']);
+
+    $app->router("/course/image-deleted", 'POST', function($vars) use ($app,$jatbi) {
+        $app->header([
+            'Content-Type' => 'application/json',
+        ]);
+        $boxid = explode(',', $app->xss($_GET['box']));
+        $datas = $app->select("images","*",["id"=>$boxid,"deleted"=>0]);
+        if(count($datas)>0){
+            foreach($datas as $data){
+                $app->update("images",["deleted"=> 1],["id"=>$data['id']]);
+                $name[] = $data['name'];
+            }
+            // $jatbi->logs('accounts','accounts-deleted',$datas);
+            // $jatbi->trash('/users/accounts-restore',"Tài khoản: ".implode(', ',$name),["database"=>'accounts',"data"=>$boxid]);
+            echo json_encode(['status'=>'success',"content"=>$jatbi->lang("Cập nhật thành công")]);
+        }
+        else {
+            echo json_encode(['status'=>'error','content'=>$jatbi->lang("Có lỗi xẩy ra")]);
+        }
+    })->setPermissions(['image.deleted']);
+
+    $app->router("/learning/questions/{in_lesson}", 'GET', function($vars) use ($app, $jatbi) {
+        $vars['lesson'] = $app->get("lessons","*",["id"=>$vars['in_lesson'],"deleted"=>0]);
+        $vars['title'] = $jatbi->lang("Quản lý Danh mục");
+        $vars['datatable'] = $app->component('datatable',["datas"=>[],"search"=>[]]);
+        if($vars['in_lesson']>0){
+            echo $app->render('templates/course/question.html', $vars);
+        }
+        else {
+            echo $app->render('templates/common/error.html', $vars);
+        }
+    })->setPermissions(['courseCategoryManagement']);
+
+    $app->router("/learning/questions/{in_lesson}", 'POST', function($vars) use ($app, $jatbi) {
+        $app->header([
+            'Content-Type' => 'application/json',
+        ]);
+        $draw = isset($_POST['draw']) ? intval($_POST['draw']) : 0;
+        $start = isset($_POST['start']) ? intval($_POST['start']) : 0;
+        $length = isset($_POST['length']) ? intval($_POST['length']) : 10;
+        $searchValue = isset($_POST['search']['value']) ? $_POST['search']['value'] : '';
+        $orderName = isset($_POST['order'][0]['name']) ? $_POST['order'][0]['name'] : 'question_id';
+        $orderDir = isset($_POST['order'][0]['dir']) ? $_POST['order'][0]['dir'] : 'ASC';
+        
+        $where = [
+            "AND" => [
+                "OR" => [
+                    "question_types.type_name[~]" => $searchValue,
+                ],
+                "questions.lesson_id" => $vars["in_lesson"],
+            ],
+            "LIMIT" => [$start, $length],
+            // "ORDER" => [$orderName => strtoupper($orderDir)]
+        ];
+
+        $count = $app->count("questions",[
+            "AND" => $where['AND'],
+        ]);
+        $app->select("questions", [
+            "[>]question_types" => ["type_id" => "type_id"]
+        ], [
+            'questions.question_id ',
+            'question_types.type_name(type)',
+            'questions.difficulty',
+            'questions.explanation',
+            'questions.topic',
+            ], $where, function ($data) use (&$datas,$jatbi,$app) {
+            $datas[] = [
+                "checkbox"      => $app->component("box",["data"=>$data['question_id']]),
+                "type"          => $data['type'],
+                "difficulty"    => $data['difficulty'],
+                "explanation"   => $data['explanation'],
+                "topic"         => $data['topic'],
+                "action" => $app->component("action",[
+                    "button" => [
+                        [
+                            'type' => 'button',
+                            'name' => $jatbi->lang("Sửa"),
+                            'permission' => ['courseCategoryManagement'],
+                            'action' => ['data-url' => '/learning/units-edit/'.$data['question_id'], 'data-action' => 'modal']
+                        ],
+                        [
+                            'type' => 'button',
+                            'name' => $jatbi->lang("Xóa"),
+                            'permission' => ['courseCategoryManagement'],
+                            'action' => ['data-url' => '/learning/units-deleted?box='.$data['question_id'], 'data-action' => 'modal']
+                        ],
+                    ]
+                ]),
+            ];
+        });
+        echo json_encode([
+            "draw" => $draw,
+            "recordsTotal" => $count,
+            "recordsFiltered" => $count,
+            "data" => $datas ?? []
+        ]);
+    })->setPermissions(['courseCategoryManagement']);
+
+    $app->router("/learning/questions-add", 'GET', function($vars) use ($app, $jatbi) {
+        $vars['title'] = $jatbi->lang("Thêm câu hỏi");
+        $vars['lessons'] = $app->select("lessons","*",["deleted"=>'0',"ORDER" => ["position" => "ASC"]]);
+        $vars['question_types'] = $app->select("question_types","*");
+        $vars['data'] = [
+            "lesson_id" => $app->xss($_GET['in_lesson']),
+            "type_id" => '',
+        ];
+        echo $app->render('templates/course/question-post.html', $vars, 'global');
+    })->setPermissions(['courseCategoryManagement']);
+
+    $app->router("/learning/questions-add", 'POST', function($vars) use ($app, $jatbi) {
+        $app->header([
+            'Content-Type' => 'application/json',
+        ]);
+        if($app->xss($_POST['type_id']) ==''  || $app->xss($_POST['difficulty']) =='' || $app->xss($_POST['question_text']) =='' || $app->xss($_POST['explanation']) =='' || $app->xss($_POST['topic']) =='') {
+            echo json_encode(["status"=>"error","content"=>$jatbi->lang("Vui lòng không để trống.")]);
+            exit;
+        } 
+
+        $insert = [
+            "question_id"       => 200,
+            "lesson_id"         => 1,
+            "type_id"           => 3,
+            "question_text"     => '3 + 3 =',
+            //"picture"           => NULL,
+            //"difficulty"        => 1,
+            //"explanation"       => '6',
+            //"topic"             => 'cộng',
+            "created_at"        => date('Y-m-d H:i:s'),
+        ];
+        $app->insert("questions",$insert);
+        // $jatbi->logs('learning','grades-add',$insert);
+        echo json_encode(['status'=>'success','content'=>$jatbi->lang("Thêm thành công")]);
+        exit;
     })->setPermissions(['courseCategoryManagement']);
 ?>
