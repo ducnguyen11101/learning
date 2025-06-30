@@ -61,6 +61,43 @@ $app->router("/", 'GET', function($vars) use ($app) {
             }
         }
         $grades = $app->select("grades", "*", ["status" => 'A', "deleted" => 0]);
+        // Lấy 4 id_lesson khác nhau từ bảng test có số wrong cao nhất
+        $ganday3 = $app->query("
+            SELECT id_lesson
+            FROM test
+            WHERE id_account = " . intval($app->getSession("accounts")['id']) . "
+            GROUP BY id_lesson
+            ORDER BY SUM(wrong) DESC
+            LIMIT 6
+        ")->fetchAll(PDO::FETCH_COLUMN);
+        $units3 = [];
+        if (!empty($ganday3)) {
+            foreach ($ganday3 as $item) {
+            $id_lesson = is_array($item) && isset($item['id_lesson']) ? $item['id_lesson'] : $item;
+            $lesson = $app->get("lessons", "*", ["id" => $id_lesson]);
+            if ($lesson && isset($lesson['unit'])) {
+                $units3[] = $lesson['unit'];
+            }
+            }
+            // Loại bỏ các unit trùng lặp
+            $units3 = array_unique($units3);
+        }
+        $lessons3 = [];
+        if (!empty($units3)) {
+            // Lấy ngẫu nhiên 4 bài học từ bảng lessons với unit thuộc $units3
+            $unitIdsStr = implode(',', array_map('intval', $units3));
+            $randomLessons = $app->query("
+            SELECT *
+            FROM lessons
+            WHERE unit IN ($unitIdsStr) AND status = 'A' AND deleted = 0
+            ORDER BY RAND()
+            LIMIT 6
+            ")->fetchAll(PDO::FETCH_ASSOC);
+            if (!empty($randomLessons)) {
+            $lessons3 = $randomLessons;
+            }
+        }
+        $vars['lessons3'] = $lessons3;
 
         $vars['grades'] = $grades;
         $vars['lessons2'] = $lessons2;
