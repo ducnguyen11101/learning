@@ -49,7 +49,7 @@
                         foreach ($lessons as $lesson) { ?>
                         <!-- <div class="ms-3 fs-6"><?= $def. ". " .$lesson["name"] ?></div> -->
                         <div class="mx-3">
-                            <a class="fs-6" href="/lesson?lesson_id=<?= $lesson['id'] ?>" style="color: #515b3b;"><?= $def. ". " .$lesson["name"] ?></a>
+                            <a class="fs-6" href="#" onclick="continueLesson(<?= $lesson['id'] ?>)" style="color: #515b3b; cursor: pointer;"><?= $def. ". " .$lesson["name"] ?></a>
                         </div>
                         <?php $def++;
                         } ?>
@@ -60,4 +60,27 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function continueLesson(lessonId) {
+            fetch('/generate-token', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ lesson_id: lessonId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    window.location.href = '/lesson/' + data.token;
+                } else {
+                    console.error('Error generating token:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
 <?php } ?>
