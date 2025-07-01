@@ -46,7 +46,7 @@
                                                 <h6 class="mb-2"><?= htmlspecialchars($lesson['name']) ?></h6><hr>
                                                 <img src="../../assest-src/<?= htmlspecialchars($lesson['imgex']) ?>" alt="Lesson Image" class="img-fluid mb-2" style="max-height: 80px;">
                                             </div>
-                                            <a href="/lesson?lesson_id=<?= htmlspecialchars($lesson['id']) ?>" class="btn btn-outline-primary btn-sm">Tiếp tục &gt;</a>
+                                            <button class="btn btn-outline-primary btn-sm" onclick="continueLesson(<?= $lesson['id'] ?>)">Tiếp tục &gt;</button>
                                         </div>
                                     </div>
                                 <?php endforeach; ?>
@@ -67,7 +67,7 @@
                                                 <h6 class="mb-2"><?= htmlspecialchars($lesson['name']) ?></h6><hr>
                                                 <img src="../../assest-src/<?= htmlspecialchars($lesson['imgex']) ?>" alt="Lesson Image" class="img-fluid mb-2" style="max-height: 80px;">
                                             </div>
-                                            <a href="/lesson?lesson_id=<?= htmlspecialchars($lesson['id']) ?>" class="btn btn-outline-primary btn-sm">Thử ngay &gt;</a>
+                                            <button class="btn btn-outline-primary btn-sm" onclick="continueLesson(<?= $lesson['id'] ?>)">Tiếp tục &gt;</button>
                                         </div>
                                     </div>
                                 <?php endforeach; ?>
@@ -164,7 +164,7 @@
                     <hr>
                     <img src="../../assest-src/<?= htmlspecialchars($lesson['imgex']) ?>" alt="Lesson Image" class="img-fluid mb-2" style="max-height: 80px;">
                 </div>
-                    <a href="/lesson?lesson_id=<?= htmlspecialchars($lesson['id']) ?>" class="btn btn-outline-primary btn-sm">Tiếp tục &gt;</a>
+                    <button class="btn btn-outline-primary btn-sm" onclick="continueLesson(<?= $lesson['id'] ?>)">Tiếp tục &gt;</button>
                 </div>
             <?php endforeach; ?>
             <?php else: ?>
@@ -175,3 +175,26 @@
         </div>
     </div>             
 </div>
+
+<script>
+    function continueLesson(lessonId) {
+        fetch('/generate-token', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ lesson_id: lessonId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                window.location.href = '/lesson/' + data.token;
+            } else {
+                console.error('Error generating token:', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+</script>

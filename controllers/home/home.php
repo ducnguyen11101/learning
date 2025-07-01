@@ -5,7 +5,7 @@
 
 $app->router("/math", 'GET', function($vars) use ($app) {
     $vars['templates'] = 'grade';
-    $vars['grades'] = $app->select("grades","*",["status"=>'A',"deleted"=>0,"ORDER"=>["position"=>"ASC"]]);
+    $vars['grades'] = $app->select("grades","*",["status"=>'A',"deleted"=>0]);
     echo $app->render('templates/frontend/category.html', $vars);
 });
 
@@ -263,5 +263,61 @@ $app->router("/change-password", 'POST', function($vars) use ($app, $jatbi) {
     echo json_encode(['status' => 'success','content' => $jatbi->lang('Cập nhật thành công')]);
 });
 
+$app->router("/generate-token", 'POST', function($vars) use ($app, $jatbi) {
+    $app->header([
+        'Content-Type' => 'application/json',
+    ]);
+    
+    // Check if user is logged in
+    if (!$app->getSession("accounts")) {
+        $vars['templates'] = 'login';
+        echo $app->render('templates/login.html', $vars);
+        return;
+    }
+    
+    // Get lesson_id from POST data
+    $input = json_decode(file_get_contents('php://input'), true);
+    $lessonId = isset($input['lesson_id']) ? intval($input['lesson_id']) : 0;
+    
+    if (!$lessonId) {
+        echo json_encode(['status' => 'error', 'message' => 'Invalid lesson ID']);
+        exit;
+    }
+    
+    // Verify lesson exists
+    $lesson = $app->get("lessons", "*", ["id" => $lessonId]);
+    if (!$lesson) {
+        echo json_encode(['status' => 'error', 'message' => 'Lesson not found']);
+        exit;
+    }
+    
+    // Check if a token already exists for this account and lesson
+    $existingToken = $app->get("tokens", "*", [
+        "id_account" => $app->getSession("accounts")['id'],
+        "id_lesson"  => $lessonId,
+        "expires_at[>]" => date('Y-m-d H:i:s')
+    ]);
 
+    if ($existingToken && isset($existingToken['token'])) {
+        $token = $existingToken['token'];
+        $result = true;
+    } else {
+        // Generate secure random token (32 hex characters)
+        $token = bin2hex(random_bytes(16));
+        // Insert token into database
+        $result = $app->insert("tokens", [
+            "token"      => $token,
+            "id_account" => $app->getSession("accounts")['id'],
+            "id_lesson"  => $lessonId,
+            "created"    => date('Y-m-d H:i:s'),
+            "expires_at" => date('Y-m-d H:i:s', strtotime('+1 hour')),
+        ]);
+    }
+    
+    if ($result) {
+        echo json_encode(['status' => 'success', 'token' => $token]);
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'Failed to generate token']);
+    }
+});
 ?>

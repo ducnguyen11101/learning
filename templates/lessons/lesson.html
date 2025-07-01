@@ -335,11 +335,19 @@ function initLessonPage() {
 
 // --- AJAX logic ---
 function loadQuestion() {
-    // Lấy lesson_id từ URL nếu có
-    const urlParams = new URLSearchParams(window.location.search);
-    let lessonId = urlParams.get('lesson_id') || '';
+    // Lấy token từ URL path
+    const pathParts = window.location.pathname.split('/');
+    let token = '';
+    
+    // Kiểm tra xem URL có chứa token không (/lesson/{token})
+    if (pathParts.length >= 3 && pathParts[1] === 'lesson' && pathParts[2]) {
+        token = pathParts[2];
+    }
+    
     let url = '/lesson?ajax=1';
-    if (lessonId) url += '&lesson_id=' + encodeURIComponent(lessonId);
+    if (token) {
+        url = `/lesson/${token}?ajax=1`;
+    }
 
     fetch(url)
     .then(response => response.json())
@@ -498,12 +506,27 @@ function speakQuestionText(text) {
 }
 
 function submitAnswer(questionId, answer) {
+    // Lấy token từ URL path
+    const pathParts = window.location.pathname.split('/');
+    let token = '';
+    if (pathParts.length >= 3 && pathParts[1] === 'lesson' && pathParts[2]) {
+        token = pathParts[2];
+    }
+    
     const formData = new FormData();
     formData.append('question_id', questionId);
     formData.append('answer', answer);
     formData.append('duration', document.getElementById('duration-input').value);
+    if (token) {
+        formData.append('token', token);
+    }
 
-    fetch('/lesson', {
+    let submitUrl = '/lesson';
+    if (token) {
+        submitUrl = `/lesson/${token}`;
+    }
+
+    fetch(submitUrl, {
         method: 'POST',
         body: formData,
         headers: {
@@ -524,11 +547,25 @@ function submitAnswer(questionId, answer) {
 
 // Hàm xử lý khi bấm "Tiếp tục" sau khi sai
 function continueAfterWrong() {
+    const pathParts = window.location.pathname.split('/');
+    let token = '';
+    if (pathParts.length >= 3 && pathParts[1] === 'lesson' && pathParts[2]) {
+        token = pathParts[2];
+    }
+    
     const formData = new FormData();
     formData.append('status', 'false');
     formData.append('duration', document.getElementById('duration-input').value);
+    if (token) {
+        formData.append('token', token);
+    }
 
-    fetch('/lesson', {
+    let submitUrl = '/lesson';
+    if (token) {
+        submitUrl = `/lesson/${token}`;
+    }
+
+    fetch(submitUrl, {
         method: 'POST',
         body: formData,
         headers: {
@@ -549,11 +586,25 @@ function continueAfterWrong() {
 
 // Thêm hàm xử lý khi bấm "Tiếp tục" sau khi đúng
 function continueAfterSuccess() {
+    const pathParts = window.location.pathname.split('/');
+    let token = '';
+    if (pathParts.length >= 3 && pathParts[1] === 'lesson' && pathParts[2]) {
+        token = pathParts[2];
+    }
+    
     const formData = new FormData();
     formData.append('status', 'success');
     formData.append('duration', document.getElementById('duration-input').value);
+    if (token) {
+        formData.append('token', token);
+    }
 
-    fetch('/lesson', {
+    let submitUrl = '/lesson';
+    if (token) {
+        submitUrl = `/lesson/${token}`;
+    }
+
+    fetch(submitUrl, {
         method: 'POST',
         body: formData,
         headers: {

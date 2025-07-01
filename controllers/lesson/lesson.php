@@ -1,6 +1,6 @@
 <?php
 // GET /lesson - chỉ load câu hỏi, không xử lý hoàn thành
-$app->router("/lesson", 'GET', function($vars) use ($app) {
+$app->router("/lesson/{token}", 'GET', function($vars) use ($app) {
     if(!$app->getSession("accounts")){
         $vars['templates'] = 'login';
         echo $app->render('templates/login.html', $vars);
@@ -27,9 +27,17 @@ $app->router("/lesson", 'GET', function($vars) use ($app) {
             ];
             $_SESSION['status'] = '';
         }
-        if (isset($_GET['lesson_id'])) {
-            $_SESSION['lesson_id'] = intval($_GET['lesson_id']);
+        // Lấy token từ URL và gán lesson_id vào session
+        $token = $vars['token'] ?? null;
+        $lesson_id_from_token = $app->get("tokens", "id_lesson", [
+            "token" => $token,
+            "expires_at[>]" => date('Y-m-d H:i:s')
+        ]);
+        if (!$lesson_id_from_token) {
+            throw new Exception('Token không hợp lệ hoặc không tìm thấy bài học');
         }
+        $_SESSION['lesson_id'] = intval($lesson_id_from_token);
+        
         $lesson_id = $_SESSION['lesson_id'] ?? 0;
         $ids = $lesson_id > 0 ? $app->select("questions", ["question_id"], ["lesson_id" => $lesson_id]) : [];
         if (empty($ids)) {
@@ -155,10 +163,27 @@ $app->router("/lesson", 'GET', function($vars) use ($app) {
     }
 });
 
-$app->router("/lesson", 'POST', function($vars) use ($app) {
+$app->router("/lesson/{token}", 'POST', function($vars) use ($app) {
     $app->header([
         'Content-Type' => 'application/json',
     ]);
+    
+    // Validate token
+    $token = $vars['token'] ?? null;
+    $tokenData = $app->get("tokens", "*", [
+        "token" => $token,
+        "expires_at[>]" => date('Y-m-d H:i:s')
+    ]);
+    
+    if (!$tokenData) {
+        echo json_encode(['status' => 'error', 'content' => 'Token không hợp lệ hoặc đã hết hạn']);
+        return;
+    }
+    
+    // Set lesson_id from token
+    $_SESSION['lesson_id'] = intval($tokenData['id_lesson']);
+    
+    // Call the existing POST lesson logic
     if (!isset($_SESSION['lesson_stats'])) {
         $_SESSION['lesson_stats'] = [
             'answered' => 0,
@@ -180,7 +205,7 @@ $app->router("/lesson", 'POST', function($vars) use ($app) {
         echo json_encode([
             'status' => 'completed',
             'stats' => $_SESSION['lesson_stats'],
-            'redirect' => '/lesson'
+            'redirect' => '/lesson/' . $token
         ]);
         return;
     }
@@ -220,7 +245,7 @@ $app->router("/lesson", 'POST', function($vars) use ($app) {
     $type_name = $type['type_name'];
 
     $result = [
-        'status' => '', // Sửa: mặc định là rỗng, chỉ set 'success' hoặc 'false' khi thực sự đúng/sai
+        'status' => '',
         'message' => '',
     ];
     if ($type_name === 'multiple_choice') {
@@ -310,7 +335,6 @@ $app->router("/lesson", 'POST', function($vars) use ($app) {
             'score' => $_SESSION['lesson_stats']['score'],
             'duration' => $_SESSION['lesson_stats']['duration']
         ],
-        // Trả về thêm thông tin cho giao diện nếu sai
         'answer_wrong' => $_SESSION['answer_wrong'] ?? null,
         'correct_choice' => $_SESSION['correct_choice'] ?? null
     ]);
