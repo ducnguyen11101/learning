@@ -5,7 +5,7 @@
 
 $app->router("/math", 'GET', function($vars) use ($app) {
     $vars['templates'] = 'grade';
-    $vars['grades'] = $app->select("grades","*",["status"=>'A',"deleted"=>0]);
+    $vars['grades'] = $app->select("grades","*",["status"=>'A',"deleted"=>0,"ORDER"=>["position"=>"ASC"]]);    
     echo $app->render('templates/frontend/category.html', $vars);
 });
 

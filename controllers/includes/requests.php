@@ -147,6 +147,9 @@
 		"lesson"=>[
 			"controllers"=>"controllers/lesson/lesson.php",
 		],
+        "learn"=>[
+			"controllers"=>"controllers/lesson/learn.php",
+		],
         "diagnostic"=>[
 			"controllers"=>"controllers/lesson/diagnostic.php",
 		],
