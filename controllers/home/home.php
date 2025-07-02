@@ -295,22 +295,40 @@ $app->router("/generate-token", 'POST', function($vars) use ($app, $jatbi) {
     $existingToken = $app->get("tokens", "*", [
         "id_account" => $app->getSession("accounts")['id'],
         "id_lesson"  => $lessonId,
-        "expires_at[>]" => date('Y-m-d H:i:s')
+        "expires_at[>]" => date('Y-m-d H:i:s'),
+        "ORDER" => ["created" => "DESC"],
     ]);
+    if ($existingToken) {
+        $done =  $app->get("test", "answer", [
+            "id" => $existingToken['id_test'],
+        ]);}
 
-    if ($existingToken && isset($existingToken['token'])) {
+    if ($existingToken && isset($existingToken['token']) && $done < 10) {
         $token = $existingToken['token'];
         $result = true;
     } else {
         // Generate secure random token (32 hex characters)
         $token = bin2hex(random_bytes(16));
+        $newid = $app->max("test", "id") + 1;
+        $app->insert("test", [
+            "id"         => $newid,
+            "id_account" => $app->getSession("accounts")['id'],
+            "id_lesson"  => $lessonId,
+            "point"      => 0,
+            "answer"     => 0,
+            "wrong"     => 0,
+            "time"       => 0,
+            "date"       => date('Y-m-d H:i:s'),
+            "deleted"    => 0
+            ]);
         // Insert token into database
         $result = $app->insert("tokens", [
             "token"      => $token,
             "id_account" => $app->getSession("accounts")['id'],
+            "id_test"   => $newid,
             "id_lesson"  => $lessonId,
             "created"    => date('Y-m-d H:i:s'),
-            "expires_at" => date('Y-m-d H:i:s', strtotime('+1 hour')),
+            "expires_at" => date('Y-m-d H:i:s', strtotime('+15 minutes')),
         ]);
     }
     
