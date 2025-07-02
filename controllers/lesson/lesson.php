@@ -6,9 +6,43 @@ $app->router("/lesson/{token}", 'GET', function($vars) use ($app) {
         echo $app->render('templates/login.html', $vars);
         return;
     }
+    
+    // Function to get current lesson stats from test table using id_test from token
+    function getLessonStats($app, $token) {
+        $tokenData = $app->get("tokens", "*", [
+            "token" => $token,
+            "expires_at[>]" => date('Y-m-d H:i:s')
+        ]);
+        
+        if (!$tokenData || !$tokenData['id_test']) {
+            return [
+                'answered' => 0,
+                'correct' => 0,
+                'score' => 0,
+                'duration' => 0
+            ];
+        }
+        
+        $test = $app->get("test", "*", ["id" => $tokenData['id_test']]);
+        
+        if ($test) {
+            return [
+                'answered' => (int)$test['answer'],
+                'correct' => (int)$test['answer'] - (int)$test['wrong'],
+                'score' => (int)$test['point'],
+                'duration' => (int)$test['time']
+            ];
+        }
+        
+        return [
+            'answered' => 0,
+            'correct' => 0,
+            'score' => 0,
+            'duration' => 0
+        ];
+    }
+
     // Chỉ include header khi không phải request Ajax
-    $isAjax = (isset($_GET['ajax']) && $_GET['ajax'] == 1)
-        || (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false);
     $isAjax = (isset($_GET['ajax']) && $_GET['ajax'] == 1)
         || (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false);
 
@@ -17,16 +51,6 @@ $app->router("/lesson/{token}", 'GET', function($vars) use ($app) {
     }
 
     try {
-        // Khởi tạo session stats nếu chưa có
-        if (!isset($_SESSION['lesson_stats'])) {
-            $_SESSION['lesson_stats'] = [
-                'answered' => 0,
-                'correct' => 0,
-                'score' => 0,
-                'duration' => 0
-            ];
-            $_SESSION['status'] = '';
-        }
         // Lấy token từ URL và gán lesson_id vào session
         $token = $vars['token'] ?? null;
         $lesson_id_from_token = $app->get("tokens", "id_lesson", [
@@ -39,44 +63,21 @@ $app->router("/lesson/{token}", 'GET', function($vars) use ($app) {
         $_SESSION['lesson_id'] = intval($lesson_id_from_token);
         
         $lesson_id = $_SESSION['lesson_id'] ?? 0;
+        $stats = getLessonStats($app, $token);
+        
         $ids = $lesson_id > 0 ? $app->select("questions", ["question_id"], ["lesson_id" => $lesson_id]) : [];
         if (empty($ids)) {
             throw new Exception('Bài học không có câu hỏi');
         }
 
         // Nếu đã đủ 10 câu, chuyển hướng sang /lesson-complete
-        if ($_SESSION['lesson_stats']['answered'] >= 10) {
-                // Gộp xử lý hoàn thành vào đây, không chuyển hướng nữa
-                $stats = $_SESSION['lesson_stats'];
-                $vars['answered'] = $stats['answered'];
-                $vars['correct'] = $stats['correct'];
-                $vars['score'] = $stats['score'];
-                $vars['duration'] = $stats['duration'];
+        if ($stats['answered'] >= 10) {
+            $vars['answered'] = $stats['answered'];
+            $vars['correct'] = $stats['correct'];
+            $vars['score'] = $stats['score'];
+            $vars['duration'] = $stats['duration'];
 
-                // Lưu vào bảng test trước khi reset
-                $app->insert("test", [
-                    "id_account" => $app->getSession("accounts")['id'],
-                    "id_lesson"  => $_SESSION['lesson_id'] ?? 0,
-                    "point"      => $stats['score'],
-                    "answer"     => $stats['answered'],
-                    "wrong"     => $stats['answered'] - $stats['correct'],
-                    "time"       => $stats['duration'],
-                    "date"       => date('Y-m-d H:i:s'),
-                    "deleted"    => 0
-                ]);
-
-                // Reset lại stats cho lần sau
-                $_SESSION['lesson_stats'] = [
-                    'answered' => 0,
-                    'correct' => 0,
-                    'score' => 0,
-                    'duration' => 0
-                ];
-                $_SESSION['status'] = '';
-                $_SESSION['lesson_id'] = 0;
-
-                echo $app->render('templates/lessons/test-completed.html', $vars);
-            //}
+            echo $app->render('templates/lessons/test-completed.html', $vars);
             return;
         }
 
@@ -111,7 +112,7 @@ $app->router("/lesson/{token}", 'GET', function($vars) use ($app) {
                     return mb_convert_encoding($hint['hint_text'], 'UTF-8', 'auto');
                 }, $app->select("hints", ["hint_text"], ["question_id" => $id]))
             ],
-            'stats' => $_SESSION['lesson_stats']
+            'stats' => $stats
         ];
 
         // Xử lý loại câu hỏi
@@ -147,6 +148,7 @@ $app->router("/lesson/{token}", 'GET', function($vars) use ($app) {
             echo json_encode($response, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
         } else {
             // Nếu là truy cập web bình thường, trả về HTML
+            $vars['stats'] = $stats;
             echo $app->render('templates/lessons/lesson.html', $vars);
         }
     } catch (Exception $e) {
@@ -168,6 +170,41 @@ $app->router("/lesson/{token}", 'POST', function($vars) use ($app) {
         'Content-Type' => 'application/json',
     ]);
     
+    // Function to get current lesson stats from test table using id_test from token
+    function getLessonStats($app, $token) {
+        $tokenData = $app->get("tokens", "*", [
+            "token" => $token,
+            "expires_at[>]" => date('Y-m-d H:i:s')
+        ]);
+        
+        if (!$tokenData || !$tokenData['id_test']) {
+            return [
+                'answered' => 0,
+                'correct' => 0,
+                'score' => 0,
+                'duration' => 0
+            ];
+        }
+        
+        $test = $app->get("test", "*", ["id" => $tokenData['id_test']]);
+        
+        if ($test) {
+            return [
+                'answered' => (int)$test['answer'],
+                'correct' => (int)$test['answer'] - (int)$test['wrong'],
+                'score' => (int)$test['point'],
+                'duration' => (int)$test['time']
+            ];
+        }
+        
+        return [
+            'answered' => 0,
+            'correct' => 0,
+            'score' => 0,
+            'duration' => 0
+        ];
+    }
+    
     // Validate token
     $token = $vars['token'] ?? null;
     $tokenData = $app->get("tokens", "*", [
@@ -182,29 +219,23 @@ $app->router("/lesson/{token}", 'POST', function($vars) use ($app) {
     
     // Set lesson_id from token
     $_SESSION['lesson_id'] = intval($tokenData['id_lesson']);
+    $lesson_id = $_SESSION['lesson_id'];
+    $account_id = $app->getSession("accounts")['id'];
+    $stats = getLessonStats($app, $token);
     
-    // Call the existing POST lesson logic
-    if (!isset($_SESSION['lesson_stats'])) {
-        $_SESSION['lesson_stats'] = [
-            'answered' => 0,
-            'correct' => 0,
-            'score' => 0,
-            'duration' => 0
-        ];
-    }
     $question_id = intval($_POST['question_id'] ?? 0);
     $answer = trim($_POST['answer'] ?? '');
     $client_duration = intval($_POST['duration'] ?? 0);
-    $_SESSION['lesson_stats']['duration'] = $client_duration;
 
     // Xử lý khi bấm "Tiếp tục" sau khi đúng/sai
     if (
         isset($_POST['status']) && (($_POST['status'] === 'false' || $_POST['status'] === 'success'))
-        && $_SESSION['lesson_stats']['answered'] >= 10
+        && $stats['answered'] >= 10
     ) {
+        unset($_SESSION['status']);
         echo json_encode([
             'status' => 'completed',
-            'stats' => $_SESSION['lesson_stats'],
+            'stats' => $stats,
             'redirect' => '/lesson/' . $token
         ]);
         return;
@@ -215,7 +246,7 @@ $app->router("/lesson/{token}", 'POST', function($vars) use ($app) {
         unset($_SESSION['status']);
         echo json_encode([
             'status' => '',
-            'stats' => $_SESSION['lesson_stats']
+            'stats' => $stats
         ]);
         return;
     }
@@ -223,7 +254,7 @@ $app->router("/lesson/{token}", 'POST', function($vars) use ($app) {
         unset($_SESSION['status']);
         echo json_encode([
             'status' => '',
-            'stats' => $_SESSION['lesson_stats']
+            'stats' => $stats
         ]);
         return;
     }
@@ -288,22 +319,88 @@ $app->router("/lesson/{token}", 'POST', function($vars) use ($app) {
         }
     }
     if ($result['status'] === 'success') {
-        $_SESSION['lesson_stats']['answered']++;
-        $_SESSION['lesson_stats']['correct']++;
-        $_SESSION['lesson_stats']['score'] += 10;
+        $newStats = [
+            'answered' => $stats['answered'] + 1,
+            'correct' => $stats['correct'] + 1,
+            'score' => $stats['score'] + 10,
+            'duration' => $client_duration
+        ];
+        
+        // Update test record using id_test from token
+        if ($tokenData['id_test']) {
+            $app->update("test", [
+                "point" => $newStats['score'],
+                "answer" => $newStats['answered'],
+                "wrong" => $newStats['answered'] - $newStats['correct'],
+                "time" => $newStats['duration'],
+                "date" => date('Y-m-d H:i:s')
+            ], [
+                "id" => $tokenData['id_test']
+            ]);
+        } else {
+            $insertId = $app->insert("test", [
+                "id_account" => $account_id,
+                "id_lesson" => $lesson_id,
+                "point" => $newStats['score'],
+                "answer" => $newStats['answered'],
+                "wrong" => $newStats['answered'] - $newStats['correct'],
+                "time" => $newStats['duration'],
+                "date" => date('Y-m-d H:i:s'),
+                "deleted" => 0
+            ]);
+            
+            // Update token with new test id
+            $app->update("tokens", ["id_test" => $insertId], ["token" => $token]);
+        }
+        
+        $_SESSION['status'] = 'success';
+        $stats = $newStats;
     } else if ($result['status'] === 'false') {
-        $_SESSION['lesson_stats']['answered']++;
+        $newStats = [
+            'answered' => $stats['answered'] + 1,
+            'correct' => $stats['correct'],
+            'score' => $stats['score'],
+            'duration' => $client_duration
+        ];
+        
+        // Update test record using id_test from token
+        if ($tokenData['id_test']) {
+            $app->update("test", [
+                "answer" => $newStats['answered'],
+                "wrong" => $newStats['answered'] - $newStats['correct'],
+                "time" => $newStats['duration'],
+                "date" => date('Y-m-d H:i:s')
+            ], [
+                "id" => $tokenData['id_test']
+            ]);
+        } else {
+            $insertId = $app->insert("test", [
+                "id_account" => $account_id,
+                "id_lesson" => $lesson_id,
+                "point" => $newStats['score'],
+                "answer" => $newStats['answered'],
+                "wrong" => $newStats['answered'] - $newStats['correct'],
+                "time" => $newStats['duration'],
+                "date" => date('Y-m-d H:i:s'),
+                "deleted" => 0
+            ]);
+            
+            // Update token with new test id
+            $app->update("tokens", ["id_test" => $insertId], ["token" => $token]);
+        }
+        
+        $_SESSION['status'] = 'false';
+        $_SESSION['false'] = $question_id;
+        $_SESSION['answer_wrong'] = $answer;
+        $_SESSION['correct_choice'] = $_SESSION['correct_choice'] ?? null;
+        $stats = $newStats;
+        
         // Trả về đầy đủ thông tin câu hỏi khi sai
         $question_type = $app->get("question_types", "type_name", ["type_id" => $question['type_id']]);
         $response = [
             'status' => 'false',
             'content' => $result['message'],
-            'stats' => [
-                'answered' => $_SESSION['lesson_stats']['answered'],
-                'correct' => $_SESSION['lesson_stats']['correct'],
-                'score' => $_SESSION['lesson_stats']['score'],
-                'duration' => $_SESSION['lesson_stats']['duration']
-            ],
+            'stats' => $stats,
             'answer_wrong' => $_SESSION['answer_wrong'] ?? null,
             'correct_choice' => $_SESSION['correct_choice'] ?? null,
             'question' => [
@@ -329,12 +426,7 @@ $app->router("/lesson/{token}", 'POST', function($vars) use ($app) {
     echo json_encode([
         'status' => $result['status'],
         'content' => $result['message'],
-        'stats' => [
-            'answered' => $_SESSION['lesson_stats']['answered'],
-            'correct' => $_SESSION['lesson_stats']['correct'],
-            'score' => $_SESSION['lesson_stats']['score'],
-            'duration' => $_SESSION['lesson_stats']['duration']
-        ],
+        'stats' => $stats,
         'answer_wrong' => $_SESSION['answer_wrong'] ?? null,
         'correct_choice' => $_SESSION['correct_choice'] ?? null
     ]);

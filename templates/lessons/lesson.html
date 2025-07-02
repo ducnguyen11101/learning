@@ -36,24 +36,24 @@
                                     <h5 class="text-muted mb-4">Video</h5>
                                     <h5 class="text-muted mb-3">Câu hỏi đã trả lời</h5>
                                     <div class="display-2 fw-bold mb-4" id="answered-count">
-                                        <?= $_SESSION['lesson_stats']['answered'] ?? 0 ?>
+                                        <?= isset($vars['stats']) ? $vars['stats']['answered'] : 0 ?>
                                     </div>
                                     <h5 class="text-muted mb-2">Thời gian làm</h5>
                                     <h4 class="text-warning fw-bold mb-4" id="duration-display">
                                     </h4>
                                     <h5 class="text-muted">Điểm số</h5>
                                     <div class="display-2 fw-bold mb-2" id="score-display">
-                                        <?= $_SESSION['lesson_stats']['score'] ?? 0 ?>
+                                        <?= isset($vars['stats']) ? $vars['stats']['score'] : 0 ?>
                                     </div>
                                     <div class="progress mt-3" style="height: 8px;">
                                         <div class="progress-bar bg-primary" id="progress-bar" 
-                                            style="width: <?= isset($_SESSION['lesson_stats']['answered']) && $_SESSION['lesson_stats']['answered'] > 0 
-                                                ? ($_SESSION['lesson_stats']['correct'] / $_SESSION['lesson_stats']['answered'] * 100) 
+                                            style="width: <?= isset($vars['stats']) && $vars['stats']['answered'] > 0 
+                                                ? ($vars['stats']['correct'] / $vars['stats']['answered'] * 100) 
                                                 : 0 ?>%;">
                                         </div>
                                     </div>
                                     <div class="text-muted mt-1" id="correct-count">
-                                        <?= $_SESSION['lesson_stats']['correct'] ?? 0 ?> / <?= $_SESSION['lesson_stats']['answered'] ?? 0 ?>
+                                        <?= isset($vars['stats']) ? $vars['stats']['correct'] : 0 ?> / <?= isset($vars['stats']) ? $vars['stats']['answered'] : 0 ?>
                                     </div>
                                 </div>
                             </div>
@@ -153,8 +153,8 @@
 </style>
 <script>
 function initLessonPage() {
-    // Khởi tạo duration từ session PHP
-    let duration = <?= isset($_SESSION['lesson_stats']['duration']) ? (int)$_SESSION['lesson_stats']['duration'] : 0 ?>;
+    // Khởi tạo duration từ database
+    let duration = <?= isset($vars['stats']) ? (int)$vars['stats']['duration'] : 0 ?>;
     let timerInterval = null;
 
     function updateDurationDisplay(sec) {
