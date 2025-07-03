@@ -175,8 +175,7 @@ $app->router("/lesson/{token}", 'POST', function($vars) use ($app) {
         $tokenData = $app->get("tokens", "*", [
             "token" => $token,
             "expires_at[>]" => date('Y-m-d H:i:s')
-        ]);
-        
+        ]);       
         if (!$tokenData || !$tokenData['id_test']) {
             return [
                 'answered' => 0,
@@ -184,10 +183,8 @@ $app->router("/lesson/{token}", 'POST', function($vars) use ($app) {
                 'score' => 0,
                 'duration' => 0
             ];
-        }
-        
-        $test = $app->get("test", "*", ["id" => $tokenData['id_test']]);
-        
+        }       
+        $test = $app->get("test", "*", ["id" => $tokenData['id_test']]);        
         if ($test) {
             return [
                 'answered' => (int)$test['answer'],
@@ -195,8 +192,7 @@ $app->router("/lesson/{token}", 'POST', function($vars) use ($app) {
                 'score' => (int)$test['point'],
                 'duration' => (int)$test['time']
             ];
-        }
-        
+        }        
         return [
             'answered' => 0,
             'correct' => 0,
@@ -213,7 +209,7 @@ $app->router("/lesson/{token}", 'POST', function($vars) use ($app) {
     ]);
     
     if (!$tokenData) {
-        echo json_encode(['status' => 'error', 'content' => 'Token không hợp lệ hoặc đã hết hạn']);
+        echo json_encode(['status' => 'error', 'content' => 'Đã hết thời gian làm bài']);
         return;
     }
     
