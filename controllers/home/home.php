@@ -11,6 +11,10 @@ $app->router("/math", 'GET', function($vars) use ($app) {
 
 $app->router("/", 'GET', function($vars) use ($app) {
     if($app->getSession("accounts")){
+        if ($app->get("accounts", "type", ["id" => $app->getSession("accounts")['id']]) == 1) {
+            $app->redirect('/admin');
+            return;
+        }
         $name = $app->get("accounts", "name", ["id" => $app->getSession("accounts")['id']]);
         // Lấy danh sách 6 lessons có id trong ganday
         $ganday = $app->select("test", "id_lesson", [
@@ -270,8 +274,7 @@ $app->router("/generate-token", 'POST', function($vars) use ($app, $jatbi) {
     
     // Check if user is logged in
     if (!$app->getSession("accounts")) {
-        $vars['templates'] = 'login';
-        echo $app->render('templates/login.html', $vars);
+        echo json_encode(['status' => 'error', 'message' => 'not logged in']);
         return;
     }
     

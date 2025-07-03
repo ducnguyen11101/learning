@@ -165,7 +165,7 @@
                     "gender"        => 1, // Google does not provide gender by default
                     "date"          => date('Y-m-d H:i:s'),
                     "status"        => 'A',
-                    "permission"    => 1, // Set default or leave empty
+                    "permission"    => 2, // Set default or leave empty
                     "deleted"       => 0,
                     "login"         => 'register',
                     "online"        => 0,
@@ -453,7 +453,7 @@
                     "gender"        => 1, // Google does not provide gender by default
                     "date"          => date('Y-m-d H:i:s'),
                     "status"        => 'A',
-                    "permission"    => 1, // Set default or leave empty
+                    "permission"    => 2, // Set default or leave empty
                     "deleted"       => 0,
                     "login"         => 'google',
                     "online"        => 0,

@@ -45,14 +45,15 @@
                         <div class="mb-2">
                             <a href=""><?=$jatbi->lang("Chi tiết đăng ký")?></a>
                         </div>
+                        <?php if($account['type']==1) { ?>
                         <div class="mb-2">
                             <a href="/admin" data-pjax><?=$jatbi->lang("Quản lý")?></a>
                         </div>
+                        <?php } ?>
                         <hr>
                         <a href="/logout"><?=$jatbi->lang("Đăng xuất")?></a>
                     </div>
-                </div>
-                
+                </div>                
                 <?php }?>
             </div>
         </div>
