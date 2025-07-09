@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Custom Header</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="/templates/assets/css/header.css"/>
+</head>
+<body>
+<!-- Header Top -->
+  <header class="header-top">
+    <div class="container">
+      <div class="left-section">
+        <!-- Logo -->
+        <a class="text-dark text-decoration-none" href="/">
+          <div class="header__logo logo">
+            <img src="/datas/imgs/CORE 1.png" alt="Logo" class="w-100" />
+          </div>
+        </a>
+        <!-- Search -->
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Search your keyword">
+        </div>
+      </div>
+      <!-- Right Section -->
+      <div class="right-section">
+        <button class="btn btn-login">
+          <i class="fas fa-arrow-right-to-bracket"></i> Đăng nhập
+        </button>
+        <button class="btn hamburger-menu" data-bs-toggle="offcanvas" data-bs-target="#sidebar">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Header Navigation -->
+  <nav class="header-nav">
+    <div class="container">
+      <ul class="nav nav-main">
+        <li class="nav-item">
+          <a class="nav-link" href="/">Trang chủ</a>
+        </li>
+          <li class="nav-item">
+          <a class="nav-link" href="/">Giới thiệu</a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Dịch vụ</a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="/dich-vu/service1">Dịch vụ cơ bản</a></li>
+            <li><a class="dropdown-item" href="/dich-vu/service2">Ưu tiên dịch vụ</a></li>
+          </ul>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/khoa-hoc-ngan-han">Khóa học ngắn hạn</a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Tin tức</a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="/tin-tuc">Tin tức</a></li>
+            <li><a class="dropdown-item" href="/du-an">Dự án</a></li>
+          </ul>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/thu-vien-so">Thư viện số</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/dat-lich-tu-van">Đặt lịch tư vấn</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/lien-he">Liên hệ</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+
+  <!-- Offcanvas Sidebar -->
+  <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebar">
+    <div class="offcanvas-header">
+      <div class="header__logo logo py-2 px-3">
+        <img src="/datas/imgs/logo-profit-station-LOGO-WEB-72-02.png" alt="Logo" class="w-100" />
+      </div>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div class="custom-sidebar">
+        <ul class="custom-menu">
+          <li><a href="/" class="custom-menu-title">Home</a></li>
+          <li>
+            <a class="custom-menu-title collapse-title" data-bs-toggle="collapse" href="#aboutMenu">About</a>
+            <ul id="aboutMenu" class="collapse custom-submenu">
+              <li><a href="/ve-chung-toi">About Us</a></li>
+              <li><a href="/ve-chung-toi#mission">Vision & Mission</a></li>
+              <li><a href="/ve-chung-toi#crew">Team</a></li>
+              <li><a href="/ve-chung-toi#society-project">Social Projects</a></li>
+            </ul>
+          </li>
+          <li>
+            <a class="custom-menu-title collapse-title" data-bs-toggle="collapse" href="#serviceMenu">Services</a>
+            <ul id="serviceMenu" class="collapse custom-submenu">
+              <!-- Dynamic service items (replace with actual data) -->
+              <li><a href="/dich-vu/service1">Service 1</a></li>
+              <li><a href="/dich-vu/service2">Service 2</a></li>
+            </ul>
+          </li>
+          <li><a href="/phi" class="custom-menu-title">Courses</a></li>
+          <li>
+            <a class="custom-menu-title collapse-title" data-bs-toggle="collapse" href="#investorMenu">Investor</a>
+            <ul id="investorMenu" class="collapse custom-submenu">
+              <li><a href="/nha-dau-tu-tim-kiem">Investor Search</a></li>
+              <!-- Dynamic investor items (replace with actual data) -->
+              <li><a href="/nha-dau-tu-tim-kiem/page1">Investor Page 1</a></li>
+            </ul>
+          </li>
+          <li>
+            <a class="custom-menu-title collapse-title" data-bs-toggle="collapse" href="#expertMenu">Expert Corner</a>
+            <ul id="expertMenu" class="collapse custom-submenu">
+              <li><a href="/goc-chuyen-gia">Expert Corner</a></li>
+              <!-- Dynamic expert items (replace with actual data) -->
+              <li><a href="/goc-chuyen-gia/page1">Expert Page 1</a></li>
+            </ul>
+          </li>
+          <li><a href="/faq" class="custom-menu-title">FAQ</a></li>
+          <li><a href="/lien-he" class="custom-menu-title">Contact</a></li>
+        </ul>
+      </div>
+      <div class="booking-section d-flex flex-column gap-4 mt-auto">
+        <div class="d-flex gap-2 align-items-center" role="button" id="lang-selector-mobile">
+          <i class="fa-solid fa-language" style="font-size: 18px"></i>
+          <div>
+            <span><a class="text-decoration-none text-black">EN</a></span>
+            <span>|</span>
+            <span><a class="text-decoration-none text-black">VN</a></span>
+          </div>
+        </div>
+        <button type="button" class="booking-btn booking-small-screen-btn" data-bs-toggle="modal" data-bs-target="#appointmentModal">
+          Đặt lịch hẹn
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Appointment Modal -->
+  <div class="modal fade" id="appointmentModal" tabindex="-1" aria-labelledby="modalTitle" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title" id="modalTitle">Đặt lịch hẹn</h3>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div id="messageBookingToast"></div>
+          <form id="bookingForm" action="/contact-add" method="POST">
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Họ và tên <span class="required">*</span></label>
+                <input name="name" type="text" class="form-control" required />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Tên công ty/tổ chức</label>
+                <input name="company_name" type="text" class="form-control" />
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Chức vụ/Vai trò</label>
+              <input name="position" type="text" class="form-control" />
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Số điện thoại <span class="required">*</span></label>
+                <input name="phone_number" type="tel" class="form-control" required />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Địa chỉ Email <span class="required">*</span></label>
+                <input name="email" type="email" class="form-control" required />
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Nội dung <span class="required">*</span></label>
+              <textarea name="content" class="form-control" rows="3" required></textarea>
+            </div>
+            <div class="g-recaptcha mb-3" data-sitekey="YOUR_RECAPTCHA_SITE_KEY" data-callback="enableSubmit" data-expired-callback="disableSubmit"></div>
+            <button type="submit" class="submit-btn" id="bookingFormSubmitBtn" disabled>
+              Gửi ngay
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" class="bi bi-arrow-right" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M10.146 5.354a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 1 1-.708-.708L12.793 9H2.5a.5.5 0 0 1 0-1h10.293L10.146 6.062a.5.5 0 0 1 0-.708z" />
+              </svg>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+  <script>
+    function enableSubmit() {
+      document.getElementById("bookingFormSubmitBtn").disabled = false;
+    }
+    function disableSubmit() {
+      document.getElementById("bookingFormSubmitBtn").disabled = true;
+    }
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({ pageLanguage: 'vi' }, 'google_translate_element');
+    }
+    document.getElementById("bookingForm").addEventListener("submit", function (event) {
+      event.preventDefault();
+      let messageBox = document.getElementById("messageBookingToast");
+      messageBox.innerHTML = "";
+      const phoneInput = this.querySelector('input[name="phone_number"]');
+      const phone = phoneInput.value.trim();
+      const vietnamPhoneRegex = /^(0)(3[2-9]|5[6|8|9]|7[0|6-9]|8[1-5]|9[0-9])[0-9]{7}$/;
+      const internationalPhoneRegex = /^(\+|00)[0-9]{6,15}$/;
+      if (!vietnamPhoneRegex.test(phone) && !internationalPhoneRegex.test(phone)) {
+        messageBox.innerHTML = `<div class="alert alert-warning">Số điện thoại không hợp lệ!</div>`;
+        phoneInput.focus();
+        return;
+      }
+      let formData = new FormData(this);
+      fetch(this.action, {
+        method: "POST",
+        body: formData,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.status === "success") {
+            messageBox.innerHTML = `<div class="alert alert-success">Gửi thành công!</div>`;
+            setTimeout(() => {
+              messageBox.innerHTML = "";
+              this.reset();
+              bootstrap.Modal.getInstance(document.getElementById("appointmentModal")).hide();
+            }, 1500);
+          } else {
+            messageBox.innerHTML = `<div class="alert alert-danger">${data.content}</div>`;
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          messageBox.innerHTML = `<div class="alert alert-danger">Đã có lỗi xảy ra!</div>`;
+        });
+    });
+    document.addEventListener("DOMContentLoaded", function () {
+      const langSelector = document.getElementById("lang-selector");
+      const langSelectorMobile = document.getElementById("lang-selector-mobile");
+      function handleClickSwitchLang() {
+        const currLang = document.cookie.replace(/(?:(?:^|.*;\s*)lang\s*\=\s*([^;]*).*$)|^.*$/, "$1") || "vi";
+        const newLang = currLang === "en" ? "vi" : "en";
+        document.cookie = `lang=${newLang}; path=/; max-age=31536000`;
+        if (newLang === "vi") {
+          document.cookie = "googtrans=; path=/; max-age=0";
+          location.reload();
+        } else {
+          triggerTranslate(newLang);
+        }
+      }
+      function triggerTranslate(langCode) {
+        const select = document.querySelector(".goog-te-combo");
+        if (select) {
+          select.value = langCode;
+          select.dispatchEvent(new Event("change"));
+        }
+      }
+      langSelector.addEventListener("click", handleClickSwitchLang);
+      langSelectorMobile.addEventListener("click", handleClickSwitchLang);
+      const savedLang = document.cookie.replace(/(?:(?:^|.*;\s*)lang\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+      if (savedLang === "en") {
+        setTimeout(() => triggerTranslate("en"), 1500);
+      }
+    });
+  </script>
+</body>
+</html>
