@@ -385,7 +385,7 @@ function updateUI(data) {
         // Copy từ lesson-false.html sang đây
         if (data.question.type === 'multiple_choice') {
             formContent.innerHTML = `
-                <h2>Rất Tiếc ... câu trả lời sai !</h2>
+                <h2>Rất Tiếc ... câu trả lời sai !</h2><br>
                 <h3 class="fw-bold mb-4">Câu ${data.question.question_id}: Chọn đáp án đúng. </h3>
                 <button type="button" class="volume-button" onclick="speakQuestionText('${data.question.question_text}')">
                     <img src="/assest-src/imglessons/volume.png" alt="Volume" class="volume-icon">
@@ -421,7 +421,7 @@ function updateUI(data) {
             `;
         } else if (data.question.type === 'fill_in_blank') {
             formContent.innerHTML = `
-                <h2>Rất Tiếc ... câu trả lời sai !</h2>
+                <h2>Rất Tiếc ... câu trả lời sai !</h2><br>
                 <h3 class="fw-bold mb-4">Câu ${data.question.question_id}: Điền vào chỗ trống. </h3>
                 <button type="button" class="volume-button" onclick="speakQuestionText('${data.question.question_text}')">
                     <img src="/assest-src/imglessons/volume.png" alt="Volume" class="volume-icon">
@@ -447,7 +447,6 @@ function updateUI(data) {
         }
     }
     else if (data.status === '') {
-        // Copy từ lesson-content.html sang đây
         if (data.question.type === 'multiple_choice') {
             formContent.innerHTML = `
                 <h3 class="fw-bold mb-4">Câu ${data.question.question_id}: Chọn đáp án đúng. </h3>
